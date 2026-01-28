@@ -3,7 +3,6 @@ on:
   push:
     branches:
     - "**/*"
-    - main
   pull_request:
 concurrency:
 #   # This item has no matching transformer
@@ -17,12 +16,94 @@ jobs:
     - uses: actions/setup-node@v4.0.0
       with:
         cache: npm
+        node-version: 16
     - run: npm install
+    - run: npm install jsdom@$JSDOM_VERSION karma@$KARMA_VERSION
+    - run: "[ -e node_modules/karma-jsom-launcher ] || ln -s ../ node_modules/karma-jsom-launcher"
     - run: npm test
     strategy:
       matrix:
-        node_js:
-        - node
-        - '18'
-        - '16'
-        - '14'
+        include:
+        - JSDOM_VERSION: '15'
+          KARMA_VERSION: '2'
+        - JSDOM_VERSION: '16'
+          KARMA_VERSION: '2'
+        - JSDOM_VERSION: '17'
+          KARMA_VERSION: '2'
+        - JSDOM_VERSION: '18'
+          KARMA_VERSION: '2'
+        - JSDOM_VERSION: '19'
+          KARMA_VERSION: '2'
+        - JSDOM_VERSION: '20'
+          KARMA_VERSION: '2'
+        - JSDOM_VERSION: '21'
+          KARMA_VERSION: '2'
+        - JSDOM_VERSION: '22'
+          KARMA_VERSION: '2'
+        - JSDOM_VERSION: '15'
+          KARMA_VERSION: '3'
+        - JSDOM_VERSION: '16'
+          KARMA_VERSION: '3'
+        - JSDOM_VERSION: '17'
+          KARMA_VERSION: '3'
+        - JSDOM_VERSION: '18'
+          KARMA_VERSION: '3'
+        - JSDOM_VERSION: '19'
+          KARMA_VERSION: '3'
+        - JSDOM_VERSION: '20'
+          KARMA_VERSION: '3'
+        - JSDOM_VERSION: '21'
+          KARMA_VERSION: '3'
+        - JSDOM_VERSION: '22'
+          KARMA_VERSION: '3'
+        - JSDOM_VERSION: '15'
+          KARMA_VERSION: '4'
+        - JSDOM_VERSION: '16'
+          KARMA_VERSION: '4'
+        - JSDOM_VERSION: '17'
+          KARMA_VERSION: '4'
+        - JSDOM_VERSION: '18'
+          KARMA_VERSION: '4'
+        - JSDOM_VERSION: '19'
+          KARMA_VERSION: '4'
+        - JSDOM_VERSION: '20'
+          KARMA_VERSION: '4'
+        - JSDOM_VERSION: '21'
+          KARMA_VERSION: '4'
+        - JSDOM_VERSION: '22'
+          KARMA_VERSION: '4'
+        - JSDOM_VERSION: '15'
+          KARMA_VERSION: '5'
+        - JSDOM_VERSION: '16'
+          KARMA_VERSION: '5'
+        - JSDOM_VERSION: '17'
+          KARMA_VERSION: '5'
+        - JSDOM_VERSION: '18'
+          KARMA_VERSION: '5'
+        - JSDOM_VERSION: '19'
+          KARMA_VERSION: '5'
+        - JSDOM_VERSION: '20'
+          KARMA_VERSION: '5'
+        - JSDOM_VERSION: '21'
+          KARMA_VERSION: '5'
+        - JSDOM_VERSION: '22'
+          KARMA_VERSION: '5'
+        - JSDOM_VERSION: '15'
+          KARMA_VERSION: '6'
+        - JSDOM_VERSION: '16'
+          KARMA_VERSION: '6'
+        - JSDOM_VERSION: '17'
+          KARMA_VERSION: '6'
+        - JSDOM_VERSION: '18'
+          KARMA_VERSION: '6'
+        - JSDOM_VERSION: '19'
+          KARMA_VERSION: '6'
+        - JSDOM_VERSION: '20'
+          KARMA_VERSION: '6'
+        - JSDOM_VERSION: '21'
+          KARMA_VERSION: '6'
+        - JSDOM_VERSION: '22'
+          KARMA_VERSION: '6'
+    env:
+      JSDOM_VERSION: "${{ matrix.JSDOM_VERSION }}"
+      KARMA_VERSION: "${{ matrix.KARMA_VERSION }}"
