@@ -16,14 +16,12 @@ jobs:
     - uses: actions/setup-node@v4.0.0
       with:
         cache: npm
-    - run: npm install
-    - run: npm test
-#     # This item has no matching transformer
-#     - email:
-#       - damon.oehlman@gmail.com
+#     # 'sudo' was not transformed because there is no suitable equivalent in GitHub Actions
+    - run: make setup
+    - run: make lint test
     strategy:
       matrix:
         node_js:
-        - 10
-        - 11
-        - 12
+        - 12.22.0
+        - '14'
+        - '16'

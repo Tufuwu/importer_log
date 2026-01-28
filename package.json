@@ -1,30 +1,26 @@
 {
-  "name": "wildcard",
-  "description": "Wildcard matching tools",
-  "author": "Damon Oehlman <damon.oehlman@gmail.com>",
-  "keywords": [
-    "string",
-    "wildcard"
-  ],
-  "version": "2.0.0",
-  "dependencies": {},
-  "devDependencies": {
-    "tape": "^5.6.3"
-  },
+  "name": "Base64",
+  "version": "1.1.0",
+  "description": "Base64 encoding and decoding",
+  "author": "David Chambers <dc@davidchambers.me>",
+  "main": "./base64.js",
+  "license": "(Apache-2.0 OR WTFPL)",
   "repository": {
     "type": "git",
-    "url": "git://github.com/DamonOehlman/wildcard.git"
+    "url": "git://github.com/davidchambers/Base64.js.git"
   },
-  "bugs": {
-    "url": "http://github.com/DamonOehlman/wildcard/issues"
+  "devDependencies": {
+    "eslint": "8.2.x",
+    "istanbul": "0.4.x",
+    "mocha": "5.2.x",
+    "sanctuary-style": "5.0.x",
+    "uglify-js": "3.5.x",
+    "xyz": "4.0.x"
   },
-  "scripts": {
-    "test": "node test/all.js",
-    "gendocs": "gendocs > README.md"
-  },
-  "main": "index.js",
-  "directories": {
-    "test": "test"
-  },
-  "license": "MIT"
+  "files": [
+    "/LICENSE",
+    "/README.md",
+    "/base64.js",
+    "/package.json"
+  ]
 }

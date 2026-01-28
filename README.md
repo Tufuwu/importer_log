@@ -1,93 +1,21 @@
+# Base64.js
 
-# wildcard
+[![CDNJS](https://img.shields.io/cdnjs/v/Base64.svg)](https://cdnjs.com/libraries/Base64)
 
-Very simple wildcard matching, which is designed to provide the same
-functionality that is found in the
-[eve](https://github.com/adobe-webplatform/eve) eventing library.
+≈ 700 byte* polyfill for browsers which don't provide [`window.btoa`][1] and
+[`window.atob`][2].
+
+Base64.js stems from a [gist][3] by [yahiko][4].
+
+### Running the test suite
+
+    make setup
+    make test
+
+\* Minified and gzipped. Run `make bytes` to verify.
 
 
-[![NPM](https://nodei.co/npm/wildcard.png)](https://nodei.co/npm/wildcard/)
-
-[![stable](https://img.shields.io/badge/stability-stable-green.svg)](https://github.com/dominictarr/stability#stable) 
-
-## Usage
-
-It works with strings:
-
-```js
-var wildcard = require('wildcard');
-
-console.log(wildcard('foo.*', 'foo.bar'));
-// --> true
-
-console.log(wildcard('foo.*', 'foo'));
-// --> true
-
-```
-
-Arrays:
-
-```js
-var wildcard = require('wildcard');
-var testdata = [
-  'a.b.c',
-  'a.b',
-  'a',
-  'a.b.d'
-];
-
-console.log(wildcard('a.b.*', testdata));
-// --> ['a.b.c', 'a.b', 'a.b.d']
-
-```
-
-Objects (matching against keys):
-
-```js
-var wildcard = require('wildcard');
-var testdata = {
-  'a.b.c' : {},
-  'a.b'   : {},
-  'a'     : {},
-  'a.b.d' : {}
-};
-
-console.log(wildcard('a.*.c', testdata));
-// --> { 'a.b.c': {} }
-
-```
-
-## Alternative Implementations
-
-- <https://github.com/isaacs/node-glob>
-
-  Great for full file-based wildcard matching.
-
-- <https://github.com/sindresorhus/matcher>
-
-   A well cared for and loved JS wildcard matcher.
-
-## License(s)
-
-### MIT
-
-Copyright (c) 2023 Damon Oehlman <damon.oehlman@gmail.com>
-
-Permission is hereby granted, free of charge, to any person obtaining
-a copy of this software and associated documentation files (the
-'Software'), to deal in the Software without restriction, including
-without limitation the rights to use, copy, modify, merge, publish,
-distribute, sublicense, and/or sell copies of the Software, and to
-permit persons to whom the Software is furnished to do so, subject to
-the following conditions:
-
-The above copyright notice and this permission notice shall be
-included in all copies or substantial portions of the Software.
-
-THE SOFTWARE IS PROVIDED 'AS IS', WITHOUT WARRANTY OF ANY KIND,
-EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF
-MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT.
-IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY
-CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT,
-TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE
-SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
+[1]: https://developer.mozilla.org/en/DOM/window.btoa
+[2]: https://developer.mozilla.org/en/DOM/window.atob
+[3]: https://gist.github.com/229984
+[4]: https://github.com/yahiko
