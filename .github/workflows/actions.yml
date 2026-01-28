@@ -16,12 +16,21 @@ jobs:
     - uses: actions/setup-node@v4.0.0
       with:
         cache: npm
+        node-version: '0.12'
+#     # 'sudo' was not transformed because there is no suitable equivalent in GitHub Actions
+    - run: npm -g i npm@2
     - run: npm install
     - run: npm test
-    strategy:
-      matrix:
-        node_js:
-        - '10'
-        - '12'
-        - '14'
-        - '16'
+  test_2:
+    runs-on: ubuntu-latest
+    steps:
+    - name: checkout
+      uses: actions/checkout@v4.1.0
+    - uses: actions/setup-node@v4.0.0
+      with:
+        cache: npm
+        node-version: '4'
+#     # 'sudo' was not transformed because there is no suitable equivalent in GitHub Actions
+    - run: npm -g i npm@3
+    - run: npm install
+    - run: npm test
