@@ -3,6 +3,7 @@ on:
   push:
     branches:
     - "**/*"
+    - main
   pull_request:
 concurrency:
 #   # This item has no matching transformer
@@ -17,17 +18,11 @@ jobs:
       with:
         cache: npm
     - run: npm install
-    - run: npm run build.data
-    - run: npm run build.site
-#     # This item has no matching transformer
-#     - pages:
-#         provider: pages
-#         github-token: "$GITHUB_TOKEN"
-#         skip-cleanup: true
-#         keep-history: true
-#         target-branch: master
-#         verbose: true
-#         'on':
-#           branch: master
-#           condition: "${{ github.event_name }} = cron"
-#       if: "${{ github.event_name == 'push' && ${{ github.event_name }} == 'schedule' && github.ref == 'refs/heads/master' }}"
+    - run: npm test
+    strategy:
+      matrix:
+        node_js:
+        - node
+        - '18'
+        - '16'
+        - '14'
