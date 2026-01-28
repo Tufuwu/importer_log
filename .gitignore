@@ -1,0 +1,14 @@
+node_modules/*
+.nyc_output
+.idea*
+coverage
+cypress/videos
+cypress/screenshots
+cypress/fixtures
+cypress/plugins
+cypress/support
+dist
+.cache
+.DS_Store
+.parcel-cache
+.vscode
