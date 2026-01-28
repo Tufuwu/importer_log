@@ -1,53 +1,45 @@
 {
-  "name": "lintspaces-cli",
-  "version": "1.0.0-beta",
-  "description": "CLI for the lintspaces module",
+  "name": "redux-watch",
+  "version": "1.2.0",
+  "description": "Watch Redux state for changes.",
+  "keywords": [
+    "redux",
+    "watch",
+    "observe",
+    "monitor",
+    "notify",
+    "state",
+    "observer",
+    "watcher",
+    "react"
+  ],
+  "homepage": "https://github.com/jprichardson/redux-watch#readme",
+  "bugs": {
+    "url": "https://github.com/jprichardson/redux-watch/issues"
+  },
+  "license": "MIT",
+  "author": "JP Richardson",
+  "files": [
+    "index.js"
+  ],
   "main": "index.js",
-  "scripts": {
-    "coveralls": "npm run coverage && cat coverage/lcov.info | coveralls",
-    "coverage": "nyc mocha test/*.js && nyc report --reporter=lcov",
-    "format": "prettier --no-semi --single-quote --write index.js",
-    "test": "mocha test/*.test.js"
-  },
-  "husky": {
-    "hooks": {
-      "pre-commit": "npm test && npm run format && git add ."
-    }
-  },
-  "bin": {
-    "lintspaces": "bin/lintspaces-cli.js"
-  },
   "repository": {
     "type": "git",
-    "url": "git://github.com/evanshortiss/lintspaces-cli.git"
+    "url": "https://github.com/jprichardson/redux-watch.git"
   },
-  "keywords": [
-    "lintspaces",
-    "node-lintspaces",
-    "cli"
-  ],
-  "engines": {
-    "node": ">=6"
+  "scripts": {
+    "lint": "standard",
+    "test": "npm run lint && npm run unit",
+    "unit": "tape test/*.js | tap-spec"
   },
-  "author": "Evan Shortiss",
-  "license": "MIT",
-  "bugs": {
-    "url": "https://github.com/evanshortiss/lintspaces-cli/issues"
-  },
-  "homepage": "https://github.com/evanshortiss/lintspaces-cli",
   "dependencies": {
-    "colors": "~1.4.0",
-    "commander": "~12.1.0",
-    "glob": "~11.0.0",
-    "lintspaces": "~0.12.0",
-    "lodash.map": "~4.6.0"
+    "object-path": "^0.11.5"
   },
   "devDependencies": {
-    "coveralls": "~3.1.1",
-    "expect": "~29.7.0",
-    "mocha": "~10.7.3",
-    "nyc": "~17.1.0",
-    "prettier": "~3.3.3",
-    "sinon": "~19.0.2"
+    "redux": "^3.0.5",
+    "reselect": "^2.0.1",
+    "standard": "7.x",
+    "tap-spec": "^4.1.1",
+    "tape": "^4.5.1"
   }
 }

@@ -1,109 +1,87 @@
-lintspaces-cli
-==============
+# redux-watch
 
-[![Coverage Status](https://coveralls.io/repos/github/evanshortiss/lintspaces-cli/badge.svg?branch=master)](https://coveralls.io/github/evanshortiss/lintspaces-cli?branch=master)
-[![npm version](https://badge.fury.io/js/lintspaces-cli.svg)](https://www.npmjs.com/package/lintspaces-cli)
-[![npm downloads](https://img.shields.io/npm/dm/lintspaces-cli.svg?style=flat)](https://www.npmjs.com/package/lintspaces-cli)
+[![NPM Package](https://img.shields.io/npm/v/redux-watch.svg?style=flat-square)](https://www.npmjs.org/package/redux-watch)
+[![Build Status](https://img.shields.io/travis/jprichardson/redux-watch.svg?branch=master&style=flat-square)](https://travis-ci.org/jprichardson/redux-watch)
 
+[![js-standard-style](https://cdn.rawgit.com/feross/standard/master/badge.svg)](https://github.com/feross/standard)
 
-Simple as pie CLI for the node-lintspaces module. Supports all the usual
-lintspaces args that the Grunt, Gulp and vanilla node.js module support.
+Watch/observe [Redux](http://redux.js.org/) store state changes.
+
+## Why?
+
+Redux provides you with a `subscribe()` method so that you can be notified when the state changes. However, it does not let you know what changed. `redux-watch` will let you know what changed.
+
 
 ## Install
-```
-$ npm install -g lintspaces-cli
-```
-
-
-## Help Output
-```
-$ lintspaces --help
-
-Usage: lintspaces [options]
-
-Options:
-  -V, --version                   output the version number
-  -n, --newline                   Require newline at end of file.
-  -g, --guessindentation          Tries to guess the indention of a line depending on previous lines.
-  -b, --skiptrailingonblank       Skip blank lines in trailingspaces check.
-  -it, --trailingspacestoignores  Ignore trailing spaces in ignores.
-  -l, --maxnewlines <n>           Specify max number of newlines between blocks.
-  -t, --trailingspaces            Tests for useless whitespaces (trailing whitespaces) at each line ending of all files.
-  -d, --indentation <s>           Check indentation is "tabs" or "spaces".
-  -s, --spaces <n>                Used in conjunction with -d to set number of spaces.
-  -i, --ignores <items>           Comma separated list of ignores built in ignores. (default: [])
-  -r, --regexignores <items>      Comma separated list of ignores that should be parsed as Regex (default: [])
-  -e, --editorconfig <s>          Use editorconfig specified at this file path for settings.
-  -o, --allowsBOM                 Sets the allowsBOM option to true
-  -v, --verbose                   Be verbose when processing files
-  -., --matchdotfiles             Match dotfiles
-  --endofline <s>                 Enables EOL checks. Supports "LF" or "CRLF" or "CR" values
-  --json                          Output the raw JSON results from lintspaces
-  -h, --help                      output usage information
-```
-
-## Example Commands
-
-Check all JavaScript files in directory for trailing spaces and newline at the
-end of file:
 
 ```
-lintspaces -n -t ./*.js
+npm i --save redux-watch
 ```
 
-Check all js and css files
+## Usage
 
+`watch(getState [, objectPath [, comparison]])` -> `function`
+
+- `getState`: A `function` that is used to return the state. Also useful in conjunction with selectors.
+- `objectPath`: An **optional** `string` or `Array` that represents the path in an object. Uses [object-path](https://www.npmjs.com/package/object-path) ([mariocasciaro/object-path](https://github.com/mariocasciaro/object-path)) for value extraction.
+- `comparison`: An **optional** function to pass for comparison of the fields. Defaults to strict equal comparison (`===`).
+
+## Example
+
+##### basic example
+
+```js
+// ... other imports/requires
+import watch from 'redux-watch'
+
+// assuming you have an admin reducer / state slice
+console.log(store.getState().admin.name) // 'JP'
+
+// store is THE redux store
+let w = watch(store.getState, 'admin.name')
+store.subscribe(w((newVal, oldVal, objectPath) => {
+  console.log('%s changed from %s to %s', objectPath, oldVal, newVal)
+  // admin.name changed from JP to JOE
+}))
+
+// somewhere else, admin reducer handles ADMIN_UPDATE
+store.dispatch({ type: 'ADMIN_UPDATE', payload: { name: 'JOE' }})
 ```
-lintspaces -n -t src/**/*.js src/**/*.css
+
+##### example (w/ [reselect](https://www.npmjs.com/package/reselect) ([reactjs/reselect](https://github.com/reactjs/reselect)) selectors)
+
+When using with selectors, you often times won't need to pass the object path. Most times the selectors will handle this for you.
+
+```js
+// ... other imports requires
+import watch from 'redux-watch'
+
+// assuming mySelector is a reselect selector defined somewhere
+let w = watch(() => mySelector(store.getState()))
+store.subscribe(w((newVal, oldVal) => {
+  console.log(newVal)
+  console.log(oldVal)
+}))
 ```
 
-Check that 2 spaces are used as indent:
+#### Note on Comparisons.
 
-```
-lintspaces -nt -s 2 -d spaces ./*.js
-```
+By default, `redux-watch` uses `===` (strict equal) operator to check for changes. This may not be want you want. Sometimes you may want to do a deep inspection. You should use either [deep-equal](https://www.npmjs.com/package/deep-equal) ([substack/node-deep-equal](https://github.com/substack/node-deep-equal)) or [is-equal](https://www.npmjs.com/package/is-equal) ([ljharb/is-equal](https://github.com/ljharb/is-equal)). `is-equal` is better since it supports ES6 types like Maps/Sets.
 
-## Using Ignores
-lintspaces supports ignores, and we added support for those in version 0.3.0 of
-this module.
+##### is-equal example
 
-Using built in ignores can be done like so:
+```js
+import isEqual from 'is-equal'
+import watch from 'redux-watch'
 
-```
-lintspaces -i 'js-comments' -i 'c-comments'
-```
-
-To add Regex ignores a different flag is required:
-
-```
-lintspaces -r '/pointless|regex/g' -r '/and|another/gi '
+let w = watch(store.getState, 'admin', isEqual)
+store.subscribe(w((newVal, oldVal, objectPath) => {
+  // response to changes
+}))
 ```
 
-## Changelog
+## License
 
-* 0.7.1 - Fix "is not a file" errors
+MIT
 
-* 0.7.0 - Bump dependencies. Add `--json` output flag. Add tests. Normalise arguments to lowercase.
-
-* 0.6.0 - Added support for matching dotfiles (dzięki @jrencz)
-
-* 0.5.0 - Add support for glob patterns (thanks @jantimon)
-
-* 0.4.0 - Add verbose option (thank you @gemal)
-
-* 0.3.0 - Add support for Regex ignores by adding the *--regexIgnores* option.
-
-* 0.2.0 - Update to use lintspaces@0.5.0 and support new allowsBOM and
-endOfLine options.
-
-* 0.1.1 - Support for node.js v4+ (thank you @gurdiga)
-
-* 0.1.0 - Initial stable release
-
-* < 0.1.0 - Dark ages...
-
-## Contributors
-* [Vlad Gurdiga (@gurdiga)](https://github.com/gurdiga)
-* [Henrik Gemal (@gemal)](https://github.com/gemal)
-* [Jan Nicklas (@jantimon)](https://github.com/jantimon)
-* [Jarek Rencz (@jrencz)](https://github.com/jrencz)
+Copyright (c) [JP Richardson](https://github.com/jprichardson)

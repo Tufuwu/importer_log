@@ -1,13 +1,22 @@
-## 1.0.0 (18/11/24)
+2020-20-21 / 1.2.0
+------------------
+- chore: update object-path `^0.9.2` to `^0.11.5`: [#15](https://github.com/ExodusMovement/redux-watch/pull/15) \
+  Non-own properties are not reachable via `objectPath` argument now.
 
-* Update to use `lintspaces` v0.12.0.
-* Revert change from v0.8.0 that loaded a `.editorconfig` file from the current working directory by default (see #33)
+2016-05-03 / 1.1.1
+------------------
+- bug fix: infinite loop: [#4][#4]
 
-## 0.8.0
+2015-12-14 / 1.1.0
+------------------
+- pass `objectPath` to watch callback (access in `subscribe()`)
 
-* Update to use `lintspaces` v0.10.0 to address Windows related issues. See issue #25.
-* Default to using the `.editorconfig` file in the current working directory if the `-e` option is not provided.
+2015-12-14 / 1.0.0
+------------------
+- initial release
 
-## 0.7.1 (22/03/2019)
-
-* Fix "is not a file" errors on folder globs
+[#5]: https://github.com/jprichardson/redux-watch/issues/5    "Any unwatch feature?"
+[#4]: https://github.com/jprichardson/redux-watch/pull/4      "call function after changing base value [enhancement]"
+[#3]: https://github.com/jprichardson/redux-watch/issues/3    "Problem when subscriber dispatch action"
+[#2]: https://github.com/jprichardson/redux-watch/issues/2    "Does not seem to work with Immutable.js"
+[#1]: https://github.com/jprichardson/redux-watch/issues/1    "tx for a GREAT lib... if possible please add TypeScript support..."
