@@ -16,15 +16,6 @@ jobs:
     - uses: actions/setup-node@v4.0.0
       with:
         cache: npm
-    - name: Set up cache
-      uses: actions/cache@v3.3.2
-      with:
-        path: node_modules
-        key: "${{ runner.os }}-path"
+        node-version: '4.0'
     - run: npm install
     - run: npm test
-    strategy:
-      matrix:
-        node_js:
-        - node
-        - lts/*
