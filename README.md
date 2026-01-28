@@ -1,120 +1,76 @@
-# LRUD [![Build Status](https://travis-ci.org/bbc/lrud.svg?branch=master)](https://travis-ci.org/bbc/lrud)
+# better-title-case
 
-A spatial navigation library for devices with input via directional controls
+> Convert a string to title case based on the [Daring Fireball](https://daringfireball.net/2008/05/title_case) rules.
 
-## Upgrading from V2
+## Rules
 
-**v3 is a major rewrite, covering many new features. However, it unfortunately breaks some backwards compatibility.**
+- If the string is all-caps, it will be corrected
+- The following words are not capitalized by default: a, an, and, at, but, by, for, in, nor, of, on, or, so, the, to, up, yet, v, v., vs, and vs.
+- Words with capital letters other than the first are assumed to be capitalized properly and are skipped
+- It also skips any word that looks like a file path, file name, or URL
+- The first and last word are always capitalized
+- Sub-strings (those that are within quotes or parens/braces) are capitalized according to the same rules
 
-We are currently in the process of writing more detailed docs for an upgrade process. However, the main things to note at the minute at;
+## Installation
 
-- changes in events, which ones are emitted and what they are emitted with
-- removal of `grid` in favour of `isIndexAligned` behaviour
-
-## Getting Started
-
-```bash
-git clone git@github.com:bbc/lrud.git lrud
-cd lrud
-npm install
 ```
-
-Lrud is written in [Typescript](https://www.typescriptlang.org/) and makes use of [mitt](https://github.com/developit/mitt).
+$ npm install --save better-title-case
+```
 
 ## Usage
 
-```bash
-npm install lrud
+```js
+import titleCase from 'better-title-case';
+console.log(titleCase('Nothing to Be Afraid of?'));
+// Nothing to Be Afraid Of?
 ```
+
+## Advanced
+
+You can configure `better-title-case` to add your own excluded words to the default list, or to prevent the use of the default list by passing a `config` object as the second parameter.
+
+### excludedWords
+
+Type: `[string]`<br>
+Default: `[]`
+
+Additional words to exclude from capitalization.
 
 ```js
-const { Lrud } = require('Lrud')
-
-// create an instance, register some nodes and assign a default focus
-var navigation = new Lrud()
-navigation
-  .registerNode('root', { orientation: 'vertical' })
-  .registerNode('item-a', { parent: 'root', isFocusable: true })
-  .registerNode('item-b', { parent: 'root', isFocusable: true })
-  .assignFocus('item-a')
-
-// handle a key event
-document.addEventListener('keypress', (event) => {
-  navigation.handleKeyEvent(event)
+titleCase('Nothing to be afraid of?', {
+	excludedWords: ['be']
 });
-
-// Lrud will output an event when it handles a move
-navigation.on('move', (moveEvent) => {
-  myApp.doSomethingOnNodeFocus(moveEvent.enter)
-})
+// 'Nothing to be Afraid Of?'
 ```
 
-See [usage docs](./docs/usage.md) for details full API details.
+### useDefaultExcludedWords
 
-For more "full" examples, covering common use cases, check [the recipes](./docs/recipes.md)
+Type: `boolean`<br>
+Default: `true`
 
-## Running the tests
+Disable the usage of the default list of excluded words.
 
-All code is written in Typescript, so we make use of a `tsconfig.json` and `jest.config.js` to ensure tests run correctly.
-
-Test files are split up fairly arbitrarily, aiming to have larger sets of tests broken into their own file. 
-
-```bash
-npm test
+```js
+titleCase('Nothing to be afraid of?', {
+	useDefaultExcludedWords: false
+});
+// 'Nothing To Be Afraid Of?'
 ```
 
-To run a specific test file, use `npx jest` from the project root.
+### preserveWhitespace
 
-```bash
-npx jest src/lrud.test.js
+Type: `boolean`<br>
+Default: `false`
+
+Maintain extra whitespace between words. By default, all whitespace between words is collapsed to a single space.
+
+```js
+titleCase('Nothing  to be   afraid of?', {
+	preserveWhitespace: true
+});
+// 'Nothing  To Be   Afraid Of?'
 ```
 
-You can also run all the tests with verbose output. This is useful for listing out test scenarios to ensure that behaviour is covered.
+## License
 
-```bash
-npm run test:verbose
-```
-
-You can also run all the tests with coverage output
-
-```bash
-npm run test:coverage
-```
-
-Several of the tests have associated diagrams, in order to better explain what is being tested. These can be found in `./docs/test-diagrams`.
-
-We also have a specific test file (`src/build.test.js`) in order to ensure that we haven't broken the Typescript/rollup.js build.
-
-## Versioning
-
-```bash
-npm version <patch:minor:major>
-npm publish
-```
-
-## Built with
-
-- [Typescript](https://www.typescriptlang.org/)
-- [rollup.js](https://rollupjs.org/)
-- [mitt](https://github.com/developit/mitt)
-
-## Inspiration
-
-* [BBC - TV Application Layer (TAL)](http://bbc.github.io/tal/widgets/focus-management.html)
-* [Netflix - Pass the Remote](https://medium.com/netflix-techblog/pass-the-remote-user-input-on-tv-devices-923f6920c9a8)
-* [Mozilla - Implementing TV remote control navigation](https://developer.mozilla.org/en-US/docs/Mozilla/Firefox_OS_for_TV/TV_remote_control_navigation)
-
-## Alternatives
-
-* [tal](https://github.com/bbc/tal)
-* [react-tv-navigation](https://github.com/react-tv/react-tv-navigation)
-* [react-key-navigation](https://github.com/dead/react-key-navigation)
-* [js-spatial-navigation](https://github.com/luke-chang/js-spatial-navigation)
-
-# License
-
-
-LRUD is part of the BBC TAL libraries, and available to everyone under the terms of the Apache 2 open source licence (Apache-2.0). Take a look at the LICENSE file in the code.
-
-Copyright (c) 2018 BBC
-
+MIT © [Brad Dougherty](https://brad.is)
