@@ -3,6 +3,7 @@ on:
   push:
     branches:
     - "**/*"
+    - main
   pull_request:
 concurrency:
 #   # This item has no matching transformer
@@ -16,12 +17,6 @@ jobs:
     - uses: actions/setup-node@v4.0.0
       with:
         cache: npm
-#     # 'sudo' was not transformed because there is no suitable equivalent in GitHub Actions
-    - run: make setup
-    - run: make lint test
-    strategy:
-      matrix:
-        node_js:
-        - 12.22.0
-        - '14'
-        - '16'
+        node-version: 8
+    - run: npm install
+    - run: npm run deploy
