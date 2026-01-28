@@ -1,5 +1,5 @@
-*.zip
+# Compiled Javascript.
+build
+
+# Dependency directory
 node_modules
-package-lock.json
-reports
-.DS_Store

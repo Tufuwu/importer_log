@@ -1,32 +1,55 @@
 {
-  "name": "@bjornstar/intercept-redirect",
-  "version": "8.9.0",
-  "description": "Skip tracking redirects that serve no purpose other than to waste your valuable time.",
-  "main": "webextension/index.js",
-  "devDependencies": {
-    "addons-linter": "^5.28.0",
-    "eslint": "^8.34.0",
-    "mocha": "^10.2.0"
-  },
+  "name": "calipers",
+  "version": "2.0.1",
+  "description": "The fastest Node.js library for measuring image and PDF dimensions.",
+  "main": "lib/index.js",
   "scripts": {
-    "addons-linter": "addons-linter webextension",
-    "build": "./build.sh",
-    "lint": "eslint webextension test",
-    "mocha": "mocha test",
-    "test": "npm run lint && npm run mocha && npm run addons-linter"
+    "bench": "node bench/index.js",
+    "bench:ts": "ts-node bench/index.ts",
+    "b": "tsc bench/test",
+    "build": "tsc",
+    "test": "jest",
+    "lint": "eslint .",
+    "lint:file": "eslint"
   },
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/bjornstar/intercept-redirect.git"
+    "url": "https://github.com/calipersjs/calipers.git"
   },
   "keywords": [
-    "webextension",
-    "redirect"
+    "image",
+    "size",
+    "pdf",
+    "png",
+    "jpeg",
+    "gif",
+    "bmp",
+    "svg",
+    "webp"
   ],
-  "author": "Bjorn Stromberg <bjorn@bjornstar.com>",
+  "author": "Marcus Gartner",
   "license": "MIT",
   "bugs": {
-    "url": "https://github.com/bjornstar/intercept-redirect/issues"
+    "url": "https://github.com/calipersjs/calipers/issues"
   },
-  "homepage": "https://github.com/bjornstar/intercept-redirect#readme"
+  "homepage": "https://github.com/calipersjs/calipers",
+  "devDependencies": {
+    "@types/jest": "^26.0.15",
+    "@typescript-eslint/eslint-plugin": "^4.8.1",
+    "@typescript-eslint/parser": "^4.8.1",
+    "benny": "^3.6.15",
+    "calipers-png": "2.x.x",
+    "eslint": "^7.13.0",
+    "eslint-config-standard": "^16.0.1",
+    "eslint-plugin-import": "^2.22.1",
+    "eslint-plugin-node": "^11.1.0",
+    "eslint-plugin-promise": "^4.2.1",
+    "jest": "26.x.x",
+    "ts-jest": "^26.4.4",
+    "ts-node": "^9.0.0",
+    "typescript": "^4.0.5"
+  },
+  "dependencies": {
+    "bluebird": "3.x.x"
+  }
 }
