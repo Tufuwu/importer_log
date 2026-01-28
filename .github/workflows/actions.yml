@@ -3,14 +3,14 @@ on:
   push:
     branches:
     - "**/*"
+    - main
   pull_request:
 concurrency:
 #   # This item has no matching transformer
 #   maximum_number_of_builds: 0
 jobs:
-  release:
-    runs-on: # this agent type is not supported: [noble]
-             ubuntu-latest
+  test:
+    runs-on: ubuntu-latest
     steps:
     - name: checkout
       uses: actions/checkout@v4.1.0
@@ -19,8 +19,11 @@ jobs:
         cache: npm
         node-version: 16
     - run: npm install
-    - run: npm run build
-    - run: npm run serve &
-    - run: npm test
-    - run: npm run semantic-release
-      if: "${{ github.event_name == 'push' && github.ref == 'refs/heads/main' }}"
+    - run: "$CI_ACTION"
+    strategy:
+      matrix:
+        include:
+        - CI_ACTION: npm run dist
+        - CI_ACTION: npm run test:ci
+    env:
+      CI_ACTION: "${{ matrix.CI_ACTION }}"
