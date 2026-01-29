@@ -1,51 +1,44 @@
 {
-  "name": "grunt-modernizr",
-  "description": "Build out a lean, mean Modernizr machine.",
-  "version": "3.0.2",
-  "main": "Gruntfile.js",
+  "name": "check-engine",
+  "version": "1.11.0",
+  "description": "A system version checker in Node.js",
+  "main": "./lib/checkSystem.js",
   "bin": {
-    "grunt-modernizr": "bin/grunt-modernizr"
+    "check-engine": "./bin/check-engine.js"
   },
-  "bugs": "https://github.com/Modernizr/grunt-modernizr/issues",
-  "homepage": "https://github.com/Modernizr/grunt-modernizr",
-  "repository": "https://github.com/Modernizr/grunt-modernizr.git",
-  "license": "MIT",
-  "author": {
-    "name": "Modernizr",
-    "url": "https://modernizr.com/"
+  "scripts": {
+    "start": "node bin/check-engine.js",
+    "test": "tape lib/*.spec.js | tap-min",
+    "lint": "./node_modules/.bin/eslint bin/**/*.js lib/**/*.js"
   },
-  "contributors": [
-    {
-      "name": "Richard Herrera",
-      "url": "https://twitter.com/doctyper"
-    }
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/mohlsen/check-engine.git"
+  },
+  "keywords": [
+    "node"
   ],
+  "author": "Mike Ohlsen",
+  "license": "MIT",
+  "bugs": {
+    "url": "https://github.com/mohlsen/check-engine/issues"
+  },
+  "homepage": "https://github.com/mohlsen/check-engine#readme",
   "engines": {
     "node": ">=10"
   },
   "dependencies": {
-    "customizr": "^2.0.3",
-    "lodash.merge": "^4.6.2"
+    "bluebird": "3.7.2",
+    "colors": "1.4.0",
+    "command-line-usage": "6.1.3",
+    "jsonfile": "6.1.0",
+    "semver": "7.5.4",
+    "yargs": "17.7.1"
   },
   "devDependencies": {
-    "assert": "^2.0.0",
-    "grunt": "^1.3.0",
-    "grunt-contrib-clean": "^2.0.0",
-    "grunt-contrib-jshint": "^3.0.0",
-    "grunt-contrib-nodeunit": "^2.1.0",
-    "grunt-contrib-watch": "^1.1.0",
-    "mocha": "^8.3.2",
-    "nexpect": "^0.6.0"
-  },
-  "scripts": {
-    "test": "grunt clean && mocha test/runner.js"
-  },
-  "keywords": [
-    "gruntplugin",
-    "modernizr",
-    "customizr"
-  ],
-  "directories": {
-    "test": "test"
+    "eslint": "8.35.0",
+    "proxyquire": "2.1.3",
+    "tap-min": "2.0.0",
+    "tape": "5.6.3"
   }
 }
