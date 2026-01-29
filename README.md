@@ -1,105 +1,123 @@
-npm2rpm
-=======
+# convert-source-map [![Build Status][ci-image]][ci-url]
 
-[![Known Vulnerabilities](https://snyk.io/test/github/dlobatog/npm2rpm/badge.svg)](https://snyk.io/test/github/dlobatog/npm2rpm)
-[![Code Climate](https://codeclimate.com/github/dLobatog/npm2rpm/badges/gpa.svg)](https://codeclimate.com/github/dLobatog/npm2rpm)
-[![Build Status](https://travis-ci.org/dLobatog/npm2rpm.svg?branch=master)](https://travis-ci.org/dLobatog/npm2rpm)
+Converts a source-map from/to  different formats and allows adding/changing properties.
 
-npm2rpm - convert npm modules to RPM packages
+```js
+var convert = require('convert-source-map');
 
-```console
-Usage: npm2rpm [options]
+var json = convert
+  .fromComment('//# sourceMappingURL=data:application/json;base64,eyJ2ZXJzaW9uIjozLCJmaWxlIjoiYnVpbGQvZm9vLm1pbi5qcyIsInNvdXJjZXMiOlsic3JjL2Zvby5qcyJdLCJuYW1lcyI6W10sIm1hcHBpbmdzIjoiQUFBQSIsInNvdXJjZVJvb3QiOiIvIn0=')
+  .toJSON();
 
-Options:
+var modified = convert
+  .fromComment('//# sourceMappingURL=data:application/json;base64,eyJ2ZXJzaW9uIjozLCJmaWxlIjoiYnVpbGQvZm9vLm1pbi5qcyIsInNvdXJjZXMiOlsic3JjL2Zvby5qcyJdLCJuYW1lcyI6W10sIm1hcHBpbmdzIjoiQUFBQSIsInNvdXJjZVJvb3QiOiIvIn0=')
+  .setProperty('sources', [ 'SRC/FOO.JS' ])
+  .toJSON();
 
-  -n, --name <name>          NodeJS module name
-  -v, --version <version>    module version in X.Y.Z format
-  -s, --strategy [strategy]  Strategy to build the npm packages
-  -r, --release [release]    RPM's release (default: 1)
-  -t, --template [template]  RPM .spec template to use
-  -o, --output [directory]   Directory to output files to
-  -h, --help                 output usage information
+console.log(json);
+console.log(modified);
 ```
 
-To create `npm2rpm/nodejs-webpack.spec`:
-
-```console
-./bin/npm2rpm.js -n webpack -v 4.20.2
+```json
+{"version":3,"file":"build/foo.min.js","sources":["src/foo.js"],"names":[],"mappings":"AAAA","sourceRoot":"/"}
+{"version":3,"file":"build/foo.min.js","sources":["SRC/FOO.JS"],"names":[],"mappings":"AAAA","sourceRoot":"/"}
 ```
 
-To download the sources you can use [spectool](https://fedoraproject.org/wiki/Rpmdevtools):
+## API
 
-```console
-spectool --get-files nodejs-webpack.spec
-```
+### fromObject(obj)
 
-## How?
+Returns source map converter from given object.
 
-To package npm dependencies in RPM, you have 3 strategies:
+### fromJSON(json)
 
-#### Packaging 'single' npm modules into rpms. (-s --strategy single)
-This is the way most Linux distributions prefer to do it. See the [Fedora guidelines](https://fedoraproject.org/wiki/Packaging:Node.js) about packaging nodejs libraries.
-The content of this package will contain just the content of the module, without bundled dependencies. It'll have `Requires` and `Provides` equal to the same you see in `package.json`.
+Returns source map converter from given json string.
 
-It's the way traditional packaging has always worked. However this model conflicts with the way npm modules are used. `npm install` stores the whole dependency tree for all of your application dependencies. This is a problem, as your application may depend on 'async >= 1.0.0' but your dependencies may depend on 'async ~ 0.2.0'.
+### fromBase64(base64)
 
-At this point you may have noticed you cannot build 2 RPMs for the same dependency and expect both versions to be installed at the same time. This makes it impossible for two applications with different dependency requirements to work, so this strategy of having one module per RPM spec is very impractical.
+Returns source map converter from given base64 encoded json string.
 
-In practice, a medium-sized web application can easily have hundreds of dependencies (counting different versions of the same dependency) due to how `npm install` works. Disregard this stratey if you want to package the dependencies for your application or you'll be in trouble :smile:
+### fromComment(comment)
 
-#### Packaging npm modules with bundled dependencies (-s --stategy bundle)
-I took this idea from [njs2rpm](https://github.com/sfreire/njs2rpm). If you still want to package your applications as rpms, and not face dependency conflicts, you may want to go with this.
+Returns source map converter from given base64 encoded json string prefixed with `//# sourceMappingURL=...`.
 
-The main idea is to include the node_modules directory (dependency tree) in every RPM package.
+### fromMapFileComment(comment, mapFileDir)
 
-    +--------+----------------------+----------------------+-----------------------------+
-    |  Type  |       RPM name       |      Provides        |          Requires           |
-    +--------+----------------------+----------------------+-----------------------------+
-    | Single | nodejs-<name>        | npm(<name>)          | npm(<dep1>)                 |
-    |        |                      |                      | ...                         |
-    |        |                      |                      | npm(<depM>)                 |
-    | Bundle | nodejs-bundle-<name> | npm(<name>)          | (no deps as Requires)       |
-    |        |                      |                      |                             |
-    |        |                      | bundled(npm(<dep1>)) |                             |
-    |        |                      | ...                  |                             |
-    |        |                      | bundled(npm(<depN>)) |                             |
-    +--------+----------------------+----------------------+-----------------------------+
+Returns source map converter from given `filename` by parsing `//# sourceMappingURL=filename`.
 
-This is OK(ish) as you solve the problem of conflicting dependencies by bundling dependencies. Furthermore other applications can depende on your system library by having a `Requires: npm(name)` However it still seems wrong to put these libraries in your `%{nodejs_sitelib}` - it's like your installing stuff on the user system but they don't really know about these bundled deps or any security they may have. So I understand why [Fedora guidelines](https://fedoraproject.org/wiki/Bundled_Libraries?rd=Packaging:Bundled_Libraries) discourage this kind of bundling for system packages.
+`filename` must point to a file that is found inside the `mapFileDir`. Most tools store this file right next to the
+generated file, i.e. the one containing the source map.
 
-In order to include these bundled dependencies, `npm2rpm` downloads all dependencies and puts them in the SOURCES folder, and it adds the Provides/Sources for them. It uses npm to install the package, and since it assumes you'll build the package in an offline machine (common security measure), `npm2rpm` generates a tarball with an npm cache, so that it's able to install it offline. Notice the npm cache has to be generated using the same major version of npm as the one used in the machine where you build the package. e.g: a cache generated with npm 1.3.6 will not work with 2.3.5.
+### fromSource(source)
 
-You can circumvent this problem by generating the cache tar manually with all npm versions you want, then put it all in the same tarball. To generate the cache tarball on other npm versions, you can use the script `generate_npm_tarball.sh`. By default npm2rpm will generate a cache tarball with your default npm version, so you should only generate it manually if you want cache tarballs for multiple npm versions
+Finds last sourcemap comment in file and returns source map converter or returns null if no source map comment was found.
 
-#### Putting your node_modules in a separate package
-If none of these two options were good for you, you can put your `node_modules` directory in a tar. Then unpack the module in a location known by your main application, and copy it from there. No other application in your system needs to even know your npm dependencies exist. Check out [an example here](https://github.com/dLobatog/foreman-packaging/blob/f71bc800c2f4bef5869edae5f6aa87e2a94f735d/foreman-node_modules/foreman-node_modules.spec).
+### fromMapFileSource(source, mapFileDir)
 
-## PeerDependencies
+Finds last sourcemap comment in file and returns source map converter or returns null if no source map comment was
+found.
 
-On npm versions less than 3.0.0, npm will try to install peerDependencies. Currently `npm2rpm` does not generate the spec with support for peerDependencies, however, it's easy to do it yourself (for now!).
+The sourcemap will be read from the map file found by parsing `# sourceMappingURL=file` comment. For more info see
+fromMapFileComment.
 
-Start by adding 'BuildRequires' for all peerDependencies (you need to generate these packages too). For example, for babel-loader:
+### toObject()
 
-```
-BuildRequires: npm(webpack)
-BuildRequires: npm(babel-core)
-```
+Returns a copy of the underlying source map.
 
-On your %build section, make symbolic links for these libraries before running `npm install`:
+### toJSON([space])
 
-```
-ln -s %{nodejs_sitelib}/webpack node_modules/webpack
-ln -s %{nodejs_sitelib}/babel-core node_modules/babel-core
-npm install babel-loader@6.2.4 --cache-min Infinity --cache .
-```
+Converts source map to json string. If `space` is given (optional), this will be passed to
+[JSON.stringify](https://developer.mozilla.org/en-US/docs/JavaScript/Reference/Global_Objects/JSON/stringify) when the
+JSON string is generated.
 
-That's all you need to include peerDependencies in your packages
+### toBase64()
 
-## License
+Converts source map to base64 encoded json string.
 
-GPLv3 - see [LICENSE](LICENSE)
+### toComment([options])
 
-Thanks to [njs2rpm](https://github.com/sfreire/njs2rpm)(abandoned) and [foreman-packaging](https://github.com/theforeman/foreman-packaging/) that provided motivation to make this project.
+Converts source map to an inline comment that can be appended to the source-file.
 
-##### TODOs:
-  - Support peerDependencies with bundled packages
+By default, the comment is formatted like: `//# sourceMappingURL=...`, which you would
+normally see in a JS source file.
+
+When `options.multiline == true`, the comment is formatted like: `/*# sourceMappingURL=... */`, which you would find in a CSS source file.
+
+### addProperty(key, value)
+
+Adds given property to the source map. Throws an error if property already exists.
+
+### setProperty(key, value)
+
+Sets given property to the source map. If property doesn't exist it is added, otherwise its value is updated.
+
+### getProperty(key)
+
+Gets given property of the source map.
+
+### removeComments(src)
+
+Returns `src` with all source map comments removed
+
+### removeMapFileComments(src)
+
+Returns `src` with all source map comments pointing to map files removed.
+
+### commentRegex
+
+Provides __a fresh__ RegExp each time it is accessed. Can be used to find source map comments.
+
+### mapFileCommentRegex
+
+Provides __a fresh__ RegExp each time it is accessed. Can be used to find source map comments pointing to map files.
+
+### generateMapFileComment(file, [options])
+
+Returns a comment that links to an external source map via `file`.
+
+By default, the comment is formatted like: `//# sourceMappingURL=...`, which you would normally see in a JS source file.
+
+When `options.multiline == true`, the comment is formatted like: `/*# sourceMappingURL=... */`, which you would find in a CSS source file.
+
+[ci-url]: https://github.com/gulpjs/vinyl-sourcemap/actions?query=workflow:ci
+[ci-image]: https://img.shields.io/github/workflow/status/gulpjs/vinyl-sourcemap/ci?style=flat-square
