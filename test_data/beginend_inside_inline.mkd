@@ -1,1 +1,0 @@
-\( T(v) = \begin{bmatrix}\alpha & \beta \\ \gamma & \delta \end{bmatrix} \)
