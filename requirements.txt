@@ -1,0 +1,8 @@
+fuzzywuzzy
+inflect
+Jinja2
+MarkupSafe
+numpy
+pandas
+python-dateutil
+python-Levenshtein
