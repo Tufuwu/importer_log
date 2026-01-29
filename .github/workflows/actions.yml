@@ -8,73 +8,122 @@ on:
 #   maximum_number_of_builds: 0
 jobs:
   test:
-    runs-on: ubuntu-latest
+    runs-on: # this agent type is not supported: [[{"dist"=>"jammy"}]]
+             ubuntu-latest
+    env:
+      PYTHON_VERSION: 3.12-rc-bullseye
+      POSTGRES_VERSION: 15
     steps:
     - name: checkout
       uses: actions/checkout@v4.1.0
-    - uses: actions/setup-python@v5.0.0
-      with:
-        python-version: 3.8
-    - run: pip install tox-travis
-    - run: tox
-  test_2:
-    runs-on: ubuntu-latest
-    steps:
-    - name: checkout
-      uses: actions/checkout@v4.1.0
-    - uses: actions/setup-python@v5.0.0
-      with:
-        python-version: 3.9
-    - run: pip install tox-travis
-    - run: tox
-  test_3:
-    runs-on: ubuntu-latest
-    steps:
-    - name: checkout
-      uses: actions/checkout@v4.1.0
-    - uses: actions/setup-python@v5.0.0
-      with:
-        python-version: 3.1
 #     # 'sudo' was not transformed because there is no suitable equivalent in GitHub Actions
-    - run: pip install tox-travis
-    - run: tox
+    - run: docker-compose build
+    - run: docker-compose run --entrypoint="pytest tests" nycdb
+    services:
+#       # This item has no matching transformer
+#       docker:
+  test_2:
+    runs-on: # this agent type is not supported: [[{"dist"=>"jammy"}]]
+             ubuntu-latest
+    env:
+      PYTHON_VERSION: 3.11-bullseye
+      POSTGRES_VERSION: 15
+    steps:
+    - name: checkout
+      uses: actions/checkout@v4.1.0
+#     # 'sudo' was not transformed because there is no suitable equivalent in GitHub Actions
+    - run: docker-compose build
+    - run: docker-compose run --entrypoint="pytest tests" nycdb
+    services:
+#       # This item has no matching transformer
+#       docker:
+  test_3:
+    runs-on: # this agent type is not supported: [[{"dist"=>"jammy"}]]
+             ubuntu-latest
+    env:
+      PYTHON_VERSION: 3.11-bullseye
+      POSTGRES_VERSION: 14
+    steps:
+    - name: checkout
+      uses: actions/checkout@v4.1.0
+#     # 'sudo' was not transformed because there is no suitable equivalent in GitHub Actions
+    - run: docker-compose build
+    - run: docker-compose run --entrypoint="pytest tests" nycdb
+    services:
+#       # This item has no matching transformer
+#       docker:
   test_4:
-    runs-on: ubuntu-latest
+    runs-on: # this agent type is not supported: [[{"dist"=>"jammy"}]]
+             ubuntu-latest
+    env:
+      PYTHON_VERSION: 3.10-bullseye
+      POSTGRES_VERSION: 14
     steps:
     - name: checkout
       uses: actions/checkout@v4.1.0
-    - uses: actions/setup-python@v5.0.0
-      with:
-        python-version: pypy3.6
-    - run: pip install tox-travis
-    - run: tox
+#     # 'sudo' was not transformed because there is no suitable equivalent in GitHub Actions
+    - run: docker-compose build
+    - run: docker-compose run --entrypoint="pytest tests" nycdb
+    services:
+#       # This item has no matching transformer
+#       docker:
   test_5:
-    runs-on: ubuntu-latest
+    runs-on: # this agent type is not supported: [[{"dist"=>"jammy"}]]
+             ubuntu-latest
+    env:
+      PYTHON_VERSION: 3.10-bullseye
+      POSTGRES_VERSION: 13
     steps:
     - name: checkout
       uses: actions/checkout@v4.1.0
-    - uses: actions/setup-python@v5.0.0
-      with:
-        python-version: pypy3.7
-    - run: pip install tox-travis
-    - run: tox
+#     # 'sudo' was not transformed because there is no suitable equivalent in GitHub Actions
+    - run: docker-compose build
+    - run: docker-compose run --entrypoint="pytest tests" nycdb
+    services:
+#       # This item has no matching transformer
+#       docker:
   test_6:
-    runs-on: ubuntu-latest
+    runs-on: # this agent type is not supported: [[{"dist"=>"jammy"}]]
+             ubuntu-latest
+    env:
+      PYTHON_VERSION: 3.10-bullseye
+      POSTGRES_VERSION: 12
     steps:
     - name: checkout
       uses: actions/checkout@v4.1.0
-    - uses: actions/setup-python@v5.0.0
-      with:
-        python-version: pypy3.8
-    - run: pip install tox-travis
-    - run: tox
+#     # 'sudo' was not transformed because there is no suitable equivalent in GitHub Actions
+    - run: docker-compose build
+    - run: docker-compose run --entrypoint="pytest tests" nycdb
+    services:
+#       # This item has no matching transformer
+#       docker:
   test_7:
-    runs-on: ubuntu-latest
+    runs-on: # this agent type is not supported: [[{"dist"=>"jammy"}]]
+             ubuntu-latest
+    env:
+      PYTHON_VERSION: 3.9-bullseye
+      POSTGRES_VERSION: 14
     steps:
     - name: checkout
       uses: actions/checkout@v4.1.0
-    - uses: actions/setup-python@v5.0.0
-      with:
-        python-version: pypy3.9
-    - run: pip install tox-travis
-    - run: tox
+#     # 'sudo' was not transformed because there is no suitable equivalent in GitHub Actions
+    - run: docker-compose build
+    - run: docker-compose run --entrypoint="pytest tests" nycdb
+    services:
+#       # This item has no matching transformer
+#       docker:
+  test_8:
+    runs-on: # this agent type is not supported: [[{"dist"=>"jammy"}]]
+             ubuntu-latest
+    env:
+      PYTHON_VERSION: 3.8-bullseye
+      POSTGRES_VERSION: 14
+    steps:
+    - name: checkout
+      uses: actions/checkout@v4.1.0
+#     # 'sudo' was not transformed because there is no suitable equivalent in GitHub Actions
+    - run: docker-compose build
+    - run: docker-compose run --entrypoint="pytest tests" nycdb
+    services:
+#       # This item has no matching transformer
+#       docker:
