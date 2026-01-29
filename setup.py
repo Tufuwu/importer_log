@@ -1,54 +1,24 @@
-import os
-from setuptools import setup
+from setuptools import setup, find_packages
 
-with open(os.path.join(os.path.dirname(__file__), 'README.rst'), encoding='utf-8') as f:
-    README = f.read()
-
-# allow setup.py to be run from any path
-os.chdir(os.path.normpath(os.path.join(os.path.abspath(__file__), os.pardir)))
+version = __import__('shopify_webhook').__version__
 
 setup(
-    name="SimpleIDML",
-    version="1.1.3",
-    license='BSD Licence',
-    author='Stanislas Guerra',
-    author_email='stanislas.guerra@gmail.com',
-    description='A library to manipulate Adobe(r) IDML(r) files.',
-    long_description=README,
-    url='https://github.com/Starou/SimpleIDML',
-    project_urls={
-        'Source Code': 'https://github.com/Starou/SimpleIDML',
-        'Issue Tracker': 'https://github.com/Starou/SimpleIDML/issues',
-    },
-    package_dir={'': 'src'},
-    install_requires=['lxml', 'suds-py3'],
-    packages=[
-        'simple_idml',
-        'simple_idml.indesign',
+    name = 'django-shopify-webhook',
+    version = version,
+    description = 'A package for the creation of Shopify Apps using the Embedded App SDK.',
+    long_description = open('README.md').read(),
+    long_description_content_type='text/markdown',
+    author = 'Gavin Ballard',
+    author_email = 'gavin@discolabs.com',
+    url = 'https://github.com/discolabs/django-shopify-webhook',
+    license = 'None',
+
+    packages = find_packages(),
+
+    install_requires = [
+        'django >=1.7',
     ],
-    package_data={
-        'simple_idml.indesign': [
-            'scripts/*.jsx',
-        ]
-    },
-    data_files=[],
-    scripts=[
-        'src/scripts/simpleidml_create_package_from_dir.py',
-        'src/scripts/simpleidml_indesign_save_as.py',
-        'src/scripts/simpleidml_indesign_close_all_documents.py',
-    ],
-    classifiers=[
-        'Environment :: Console',
-        'Intended Audience :: Developers',
-        'License :: OSI Approved :: BSD License',
-        'Operating System :: OS Independent',
-        'Programming Language :: Python',
-        'Programming Language :: Python :: 3',
-        'Programming Language :: Python :: 3.6',
-        'Programming Language :: Python :: 3.7',
-        'Programming Language :: Python :: 3.8',
-        'Topic :: Multimedia :: Graphics',
-        'Topic :: Printing',
-        'Topic :: Software Development :: Libraries :: Python Modules',
-    ],
+
+    zip_safe = True,
+    classifiers = [],
 )

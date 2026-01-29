@@ -1,10 +1,6 @@
+.idea
 *.pyc
-*.log
-.vagrant
+MANIFEST
 build
 dist
-src/SimpleIDML.egg-info
-tests/regressiontests/outputs
-tests/.coverage
-tests/coverage.lcov
-tests/htmlcov
+django_shopify_webhook.egg-info

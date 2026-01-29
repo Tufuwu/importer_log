@@ -15,14 +15,20 @@ jobs:
     - uses: actions/setup-python@v5.0.0
       with:
         python-version: "${{ matrix.python }}"
-    - run: pip install -q coverage
-    - run: pip install -q coveralls
-    - run: pip install -q mock
-    - run: pip install .
-    - run: cd tests
-    - run: make coverage
-    - run: coveralls --rc=coveragerc
+#     # 'sudo' was not transformed because there is no suitable equivalent in GitHub Actions
+    - run: pip install -q $DJANGO
+    - run: pip install -r requirements.txt
+    - run: python test.py
     strategy:
       matrix:
+        DJANGO:
+        - Django<3.0
+        - Django<3.2
+        - Django<4.0
+        - Django<5.0
         python:
-        - 3.8
+        - '3.8'
+        - '3.9'
+        - '3.10'
+    env:
+      DJANGO: "${{ matrix.DJANGO }}"
