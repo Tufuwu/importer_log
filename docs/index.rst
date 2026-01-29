@@ -1,14 +1,20 @@
-.. include:: ../README.rst
-   :end-before: end-of-readme-intro
-
-Table of contents
-=================
+Welcome to Django Model Path Converter's documentation!
+======================================
 
 .. toctree::
-   :includehidden:
    :maxdepth: 2
+   :caption: Contents:
 
-   overview.rst
-   api.rst
-   resources.rst
-   project.rst
+   readme
+   installation
+   usage
+   modules
+   contributing
+   authors
+   history
+
+Indices and tables
+==================
+* :ref:`genindex`
+* :ref:`modindex`
+* :ref:`search`

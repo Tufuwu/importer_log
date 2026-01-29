@@ -1,72 +1,59 @@
-import re
+#!/usr/bin/env python
+# -*- coding: utf-8 -*-
 
-try:
-    from setuptools import setup
-except ImportError:
-    from distutils.core import setup
+"""The setup script."""
 
-with open("loguru/__init__.py", "r") as file:
-    regex_version = r'^__version__\s*=\s*[\'"]([^\'"]*)[\'"]'
-    version = re.search(regex_version, file.read(), re.MULTILINE).group(1)
+from setuptools import setup, find_packages
 
-with open("README.rst", "rb") as file:
-    readme = file.read().decode("utf-8")
+with open("README.rst") as readme_file:
+    readme = readme_file.read()
+
+with open("HISTORY.rst") as history_file:
+    history = history_file.read()
+
+requirements = [
+    "django>=2",
+]
+
+setup_requirements = [
+    "pytest-runner",
+]
+
+test_requirements = [
+    "pytest",
+]
 
 setup(
-    name="loguru",
-    version=version,
-    packages=["loguru"],
-    package_data={"loguru": ["__init__.pyi", "py.typed"]},
-    description="Python logging made (stupidly) simple",
-    long_description=readme,
-    long_description_content_type="text/x-rst",
-    author="Delgan",
-    author_email="delgan.py@gmail.com",
-    url="https://github.com/Delgan/loguru",
-    download_url="https://github.com/Delgan/loguru/archive/{}.tar.gz".format(version),
-    project_urls={
-        "Changelog": "https://github.com/Delgan/loguru/blob/master/CHANGELOG.rst",
-        "Documentation": "https://loguru.readthedocs.io/en/stable/index.html",
-    },
-    keywords=["loguru", "logging", "logger", "log"],
-    license="MIT license",
+    author="Daniel Hepper",
+    author_email="daniel@consideratecode.com",
     classifiers=[
-        "Development Status :: 5 - Production/Stable",
-        "Topic :: System :: Logging",
+        "Development Status :: 2 - Pre-Alpha",
         "Intended Audience :: Developers",
-        "Natural Language :: English",
         "License :: OSI Approved :: MIT License",
-        "Operating System :: OS Independent",
-        "Programming Language :: Python",
+        "Natural Language :: English",
         "Programming Language :: Python :: 3",
+        "Programming Language :: Python :: 3 :: Only",
+        "Programming Language :: Python :: 3.4",
         "Programming Language :: Python :: 3.5",
         "Programming Language :: Python :: 3.6",
         "Programming Language :: Python :: 3.7",
         "Programming Language :: Python :: 3.8",
         "Programming Language :: Python :: 3.9",
-        "Programming Language :: Python :: 3 :: Only",
-        "Programming Language :: Python :: Implementation :: PyPy",
-        "Programming Language :: Python :: Implementation :: CPython",
+        "Programming Language :: Python :: 3.10",
+        "Framework :: Django",
     ],
-    install_requires=[
-        "colorama>=0.3.4 ; sys_platform=='win32'",
-        "aiocontextvars>=0.2.0 ; python_version<'3.7'",
-        "win32-setctime>=1.0.0 ; sys_platform=='win32'",
-    ],
-    extras_require={
-        "dev": [
-            "black>=19.10b0 ; python_version>='3.6'",
-            "colorama>=0.3.4",
-            "docutils==0.16",
-            "flake8>=3.7.7",
-            "isort>=5.1.1 ; python_version>='3.6'",
-            "tox>=3.9.0",
-            "pytest>=4.6.2",
-            "pytest-cov>=2.7.1",
-            "Sphinx>=4.1.1 ; python_version>='3.6'",
-            "sphinx-autobuild>=0.7.1 ; python_version>='3.6'",
-            "sphinx-rtd-theme>=0.4.3 ; python_version>='3.6'",
-        ]
-    },
-    python_requires=">=3.5",
+    description="The Django Model Path Converter package dynamically creates custom path converters for you models.",
+    install_requires=requirements,
+    license="MIT license",
+    long_description=readme + "\n\n" + history,
+    include_package_data=True,
+    keywords="django-model-path-converter",
+    name="django-model-path-converter",
+    packages=find_packages(include=["model_path_converter"]),
+    setup_requires=setup_requirements,
+    test_suite="tests",
+    tests_require=test_requirements,
+    url="https://github.com/dhepper/django-model-path-converter",
+    version="0.1.0",
+    zip_safe=False,
 )

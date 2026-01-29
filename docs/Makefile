@@ -3,8 +3,8 @@
 
 # You can set these variables from the command line.
 SPHINXOPTS    =
-SPHINXBUILD   = sphinx-build
-SPHINXPROJ    = loguru
+SPHINXBUILD   = python -msphinx
+SPHINXPROJ    = model_path_converter
 SOURCEDIR     = .
 BUILDDIR      = _build
 
