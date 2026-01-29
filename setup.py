@@ -1,32 +1,47 @@
-from pathlib import Path
-from setuptools import setup
+#!/usr/bin/env python
+import os, sys
+from setuptools import setup, find_packages
 
+if sys.argv[-1] == 'publish':
+    os.system('python setup.py sdist upload')
+    sys.exit(0)
+
+with open('README.rst', 'r') as f:
+    long_description = f.read()
+
+# Dynamically calculate the version based on swingtime.VERSION.
+version=__import__('swingtime').get_version()
 
 setup(
-    author="Eduardo Cuducos",
-    author_email="cuducos@gmail.com",
+    name='django-swingtime',
+    url='https://github.com/dakrauth/django-swingtime',
+    author='David A Krauth',
+    author_email='dakrauth@gmail.com',
+    description='A Django calendaring application.',
+    version=version,
+    long_description=long_description,
+    long_description_content_type='text/x-rst',
+    platforms=['any'],
+    license='MIT License',
+    python_requires='>=3.6, <4',
+    install_requires=['Django>=2.2,<4.0', 'python-dateutil==2.8.0'],
     classifiers=[
-        "Development Status :: 4 - Beta",
-        "Environment :: Web Environment",
-        "Framework :: Django",
-        "Framework :: Flask",
-        "Intended Audience :: Developers",
-        "License :: OSI Approved :: MIT License",
-        "Programming Language :: Python :: 3.8",
-        "Programming Language :: Python :: 3.6",
-        "Programming Language :: Python :: 3.7",
+        'Development Status :: 5 - Production/Stable',
+        'Environment :: Web Environment',
+        'Framework :: Django',
+        'Framework :: Django :: 2.2',
+        'Framework :: Django :: 3.0',
+        'Framework :: Django :: 3.1',
+        'Framework :: Django :: 3.2',
+        'License :: OSI Approved :: MIT License',
+        'Programming Language :: Python',
+        'Programming Language :: Python :: 3.6',
+        'Programming Language :: Python :: 3.7',
+        'Programming Language :: Python :: 3.8',
+        'Programming Language :: Python :: 3.9',
+        'Topic :: Office/Business :: Scheduling',
     ],
-    description="Elm filter for webassets",
-    install_requires=["webassets"],
-    keywords=["elm", "webassets", "assets", "django", "flask"],
-    license="MIT",
-    long_description=Path("README.rst").read_text(),
-    name="webassets-elm",
-    py_modules=["webassets_elm"],
-    python_requires=">=3.5",
-    test_suite="nose.collector",
-    tests_require=["nose"],
-    url="https://github.com/cuducos/webassets-elm",
-    version="0.2.1",
+    packages=find_packages(),
+    package_data={'swingtime': ['locale/*/*/*.*',]},
     zip_safe=False,
 )

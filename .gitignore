@@ -1,20 +1,16 @@
-# Python
+*.log
+*.pot
 *.pyc
-.eggs/
-webassets_elm.egg-info/
-build/
-dist/
-
-# Elm
-elm-stuff/
-node_modules/
-
-# Python third-party packages
+karate.db
+demo/static
+/build
+MANIFEST
+dist
+.tox/
+django_swingtime.egg-info/
+/dev
+.cache/
 .coverage
-.python-version
-.tox
-cover/
-
-# OS, IDE & editor
-.DS_Store
-.ropeproject/
+.pytest_cache
+venv
+Dockerrun.aws.json
