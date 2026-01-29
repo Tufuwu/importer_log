@@ -12,5 +12,22 @@ jobs:
     steps:
     - name: checkout
       uses: actions/checkout@v4.1.0
-    - run: pip install .[dev]
+    - uses: actions/setup-python@v5.0.0
+      with:
+        python-version: "${{ matrix.python }}"
+    - run: "./download_etcd.sh 3.4.0"
+    - run: pip install --upgrade setuptools
+    - run: pip install coveralls
+    - run: pip install coverage
+    - run: pip install pytest
+    - run: pip install tox-travis
+    - run: bin/buildout
     - run: tox
+    - run: coveralls
+      if: "${{ success() }}"
+    strategy:
+      matrix:
+        python:
+        - '3.9'
+        - '3.10'
+        - '3.11'

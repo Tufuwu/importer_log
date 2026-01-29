@@ -1,72 +1,55 @@
-# LyricsGenius
-# Copyright 2018 John W. Miller
-# See LICENSE for details.
+from setuptools import setup, find_packages
+import os
 
-import sys
-import re
-from os import path
-from setuptools import find_packages, setup
+here = os.path.abspath(os.path.dirname(__file__))
 
-assert sys.version_info[0] == 3, "LyricsGenius requires Python 3."
+def read_file(filename):
+    path = os.path.join(here, filename)
+    return open(path, encoding="utf-8").read() if os.path.exists(path) else ""
 
-VERSIONFILE = "lyricsgenius/__init__.py"
-ver_file = open(VERSIONFILE, "rt").read()
-VSRE = r"^__version__ = ['\"]([^'\"]*)['\"]"
-mo = re.search(VSRE, ver_file, re.M)
+README = read_file("README.rst")
+NEWS = read_file("NEWS.txt")
 
-if mo:
-    version = mo.group(1)
-else:
-    raise RuntimeError(
-        "Unable to find version string in {}".format(VERSIONFILE))
+version = "0.5.0"
 
-this_directory = path.abspath(path.dirname(__file__))
-with open(path.join(this_directory, 'README.md'), encoding='utf-8') as f:
-    long_description = f.read()
+install_requires = [
+    "urllib3>=1.7.1",
+    "dnspython>=1.13.0",
+]
 
 extras_require = {
-    'docs': [
-        'sphinx~=3.3',
-        'sphinx-rtd-theme',
-        'jinja2<3.1',
-    ],
-    'checks': [
-        'tox~=3.2',
-        'doc8',
-        'flake8',
-        'flake8-bugbear',
-        'pygments',
+    "test": [
+        "pytest",
+        "pytest-mock",
+        "pyOpenSSL>=0.14",
     ]
 }
-extras_require['dev'] = (
-    extras_require['docs'] + extras_require['checks']
-)
 
 setup(
-    name='lyricsgenius',
+    name="python-etcd",
     version=version,
-    description='Download lyrics and metadata from Genius.com',
-    long_description=long_description,
-    long_description_content_type='text/markdown',
-    license="MIT",
-    author='John W. Miller',
-    author_email='john.w.millr+lg@gmail.com',
-    url='https://github.com/johnwmillr/lyricsgenius',
-    keywords='genius api genius-api music lyrics artists albums songs',
-    packages=find_packages(exclude=['tests']),
-    install_requires=[
-        'beautifulsoup4>=4.6.0',
-        'requests>=2.20.0'
-    ],
-    extras_require=extras_require,
-    entry_points={
-        'console_scripts': [
-            'lyricsgenius = lyricsgenius.__main__:main']
-    },
+    description="A python client for etcd",
+    long_description=README + "\n\n" + NEWS,
+    long_description_content_type="text/x-rst",
     classifiers=[
-        'Topic :: Software Development :: Libraries',
-        'Operating System :: OS Independent',
-        'Programming Language :: Python',
-        'Programming Language :: Python :: 3',
-    ]
+        "Topic :: System :: Distributed Computing",
+        "Topic :: Software Development :: Libraries",
+        "License :: OSI Approved :: MIT License",
+        "Programming Language :: Python :: 3",
+        "Programming Language :: Python :: 3 :: Only",
+        "Topic :: Database :: Front-Ends",
+    ],
+    keywords="etcd raft distributed log api client",
+    author="Jose Plana",
+    author_email="jplana@gmail.com",
+    url="http://github.com/jplana/python-etcd",
+    license="MIT",
+    packages=find_packages("src"),
+    package_dir={"": "src"},
+    include_package_data=True,
+    zip_safe=False,
+    install_requires=install_requires,
+
+    # Modern testing: no nose, no test_suite
+    extras_require=extras_require,
 )
