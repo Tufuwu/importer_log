@@ -15,19 +15,19 @@ jobs:
     - uses: actions/setup-python@v5.0.0
       with:
         python-version: "${{ matrix.python }}"
-    - run: "./download_etcd.sh 3.4.0"
-    - run: pip install --upgrade setuptools
-    - run: pip install coveralls
-    - run: pip install coverage
-    - run: pip install pytest
-    - run: pip install tox-travis
-    - run: bin/buildout
-    - run: tox
+    - run: pip install pytest pytest-cov coveralls
+    - run: py.test --cov validictory --cov-config=.coveragerc
     - run: coveralls
       if: "${{ success() }}"
+#     # This item has no matching transformer
+#     - email:
+#       - dev@jamesturk.net
     strategy:
       matrix:
         python:
+        - '3.8'
         - '3.9'
         - '3.10'
         - '3.11'
+        - '3.12'
+        - pypy3.9

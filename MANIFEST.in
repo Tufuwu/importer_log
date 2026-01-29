@@ -1,4 +1,7 @@
-include AUTHORS
-include LICENSE.txt
-include README.rst
-include NEWS.txt
+include *.rst
+recursive-include docs *.py
+recursive-include docs *.rst
+recursive-include docs *.txt
+recursive-include docs Makefile
+recursive-include validictory *.py
+exclude .readthedocs.yaml
