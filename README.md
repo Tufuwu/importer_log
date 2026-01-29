@@ -1,88 +1,82 @@
-# Gearman Client and Worker
+# gradle-to-js
 
-[![Greenkeeper badge](https://badges.greenkeeper.io/mreinstein/node-gearman.svg)](https://greenkeeper.io/)
+[![NPM Version](https://img.shields.io/npm/v/gradle-to-js.svg)](https://www.npmjs.com/package/gradle-to-js)
+[![Build Status][1]][2]
 
-![tests](https://github.com/mreinstein/node-gearman/actions/workflows/main.yml/badge.svg)
+## What's this `gradle-to-js` thing?
 
+gradle-to-js is a quick & dirty Gradle build file to JavaScript object parser. It is quick & dirty in the sense that it doesn't give you an exact replica of whatever the build file represents during runtime, as evaluations and similar bits are (currently) too much of a hassle to accurately represent while parsing.
 
-### pros:
+## Installation
 
-* full implementation of worker and client
-* lean abstraction over raw gearman protocol
-* lots of unit tests
-* fast
-* small
-* fully interoperable with gearman clients and workers written in other languages
+Simply run the following command to include it into your project:
 
-### cons:
-
-* lacks elegant high level abstractions for doing work. A bit more boilerplate to write
-* only supports 1 server connection per client/worker
-
-
-## usage
-[![NPM](https://nodei.co/npm/gearman.png)](https://nodei.co/npm/gearman/)
-
-
-
-## examples
-
-### create a client, create 1 job, and handle it's completion
-
-```javascript
-const gearman = require('gearman')
-
-let client = gearman("localhost", 4730 , {timeout: 3000})  // timeout in milliseconds. 
-
-// handle timeout 
-client.on('timeout', function() {
-	console.log('Timeout occurred')
-	client.close()
-})
-
-
-// handle finished jobs
-client.on('WORK_COMPLETE', function(job) {
-	console.log('job completed, result:', job.payload.toString())
-	client.close()
-})
-
-// connect to the gearman server
-client.connect(function() {
-	// submit a job to uppercase a string with normal priority in the foreground
-	client.submitJob('upper', 'Hello, World!')
-})
-	
+```sh
+npm install gradle-to-js --save
 ```
 
+## Usage
 
-### create a worker, register a function, and handle jobs
+### As a module
 
-```javascript
-const gearman = require('gearman')
+Using `gradle-to-js` as a module, you can parse both strings and files as seen below.
 
-let worker = gearman('127.0.0.1', 4730)
+#### Files
 
-// handle jobs assigned by the server
-worker.on('JOB_ASSIGN', function(job) {
-	console.log(job.func_name + ' job assigned to this worker')
-	let result = job.payload.toString().toUpperCase()
-	// notify the server the job is done
-	worker.sendWorkComplete(job.handle, result)
-
-	// go back to sleep, telling the server we're ready for more work
-	worker.preSleep()
-});
-
-// grab a job when the server signals one is available
-worker.on('NOOP', function() {  worker.grabJob() })
-
-// connect to the gearman server	
-worker.connect(function(){
-	// register the functions this worker is capable of
-	worker.addFunction('upper')
-
-	// tell the server the worker is going to sleep, waiting for work
-	worker.preSleep()
+```js
+var g2js = require('gradle-to-js/lib/parser');
+g2js.parseFile('path/to/buildfile').then(function(representation) {
+  console.log(representation);
 });
 ```
+
+#### Strings
+
+```js
+var g2js = require('gradle-to-js/lib/parser');
+g2js.parseText('key "value"').then(function(representation) {
+  console.log(representation);
+});
+```
+
+The promise will eventually resolve an object matching the build file structure and values.
+
+### Using the CLI
+
+You can also use the module directly from the CLI, and get a json representation out of it. Nifty ey? Currently only supporting files from this direction.
+
+```bash
+./index.js test/sample-data/small.build.gradle
+```
+
+```json
+{
+  "testblock": {
+    "key1": "value1",
+    "key2": "value2",
+    "nestedKey": {
+      "key3": "value3",
+      "key4": "value4",
+      "key5": {
+        "key6": "value6"
+      }
+    }
+  },
+  "testblock2": {
+    "key1": "value1",
+    "key2": "value2"
+  },
+  "testblock3": "not really"
+}
+```
+
+## Author
+
+[Karl Lindmark](https://www.github.com/karllindmark)
+
+## License
+
+Apache 2.0
+
+[1]: https://github.com/ninetwozero/gradle-to-js/workflows/ci/badge.svg
+[2]: https://github.com/ninetwozero/gradle-to-js/actions

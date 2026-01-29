@@ -1,36 +1,39 @@
 {
-  "name": "gearman",
-  "preferGlobal": false,
-  "version": "2.1.0",
-  "author": "Mike Reinstein <reinstein.mike@gmail.com>",
-  "contributors": [
-    "goelvivek"
-  ],
-  "description": "gearman client and worker library",
+  "name": "gradle-to-js",
+  "version": "2.0.0",
+  "description": "A quick & dirty Gradle build file to JavaScript object parser",
+  "main": "lib/parser.js",
+  "bin": {
+    "gradle-to-js": "./cli.js"
+  },
+  "scripts": {
+    "test": "mocha --reporter spec"
+  },
   "repository": {
     "type": "git",
-    "url": "https://github.com/mreinstein/node-gearman"
+    "url": "git+https://github.com/ninetwozero/gradle-to-js.git"
   },
   "keywords": [
-    "gearman",
-    "javascript"
+    "gradle",
+    "javascript",
+    "parsing"
   ],
-  "dependencies": {
-    "binary": "0.3.x",
-    "debug": "^3.0.1",
-    "put": "0.0.x"
+  "files": [
+    "lib/",
+    "cli.js"
+  ],
+  "author": "Karl Lindmark",
+  "license": "Apache-2.0",
+  "bugs": {
+    "url": "https://github.com/ninetwozero/gradle-to-js/issues"
   },
+  "homepage": "https://github.com/ninetwozero/gradle-to-js#readme",
   "devDependencies": {
-    "tap": "^12.0.1"
+    "chai": "^4.2.0",
+    "mocha": "^6.2.0",
+    "multiline": "^2.0.0"
   },
-  "main": "index.js",
-  "scripts": {
-    "prepublish": "npm test",
-    "test": "tap tests/"
-  },
-  "noAnalyze": true,
-  "license": "MIT",
-  "engine": {
-    "node": ">=6"
+  "dependencies": {
+    "lodash.merge": "^4.6.2"
   }
 }
