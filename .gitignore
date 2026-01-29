@@ -1,11 +1,12 @@
-.vscode
-**/*.pyc
-**/.cache
-**/__pycache__
-*.egg-info
-dist
-build
+# PyCharm
+.idea
 
-delay_error.txt
-label_error.txt
-out.txt
+# Python
+*.pyc
+*.pyo
+*.pyd
+
+# Package
+/*egg-info
+/build
+/dist
