@@ -1,80 +1,63 @@
-Native Types
-============
-
-[![](https://github.com/AlexAltea/ntypes/actions/workflows/ci.yml/badge.svg)](https://github.com/AlexAltea/ntypes/actions/workflows/ci.yml)
-[![](https://coveralls.io/repos/github/AlexAltea/ntypes/badge.svg?branch=master)](https://coveralls.io/github/AlexAltea/ntypes?branch=master)
-[![](https://img.shields.io/pypi/v/nativetypes.svg)](https://pypi.python.org/pypi/nativetypes)
-
-Emulate native integer and floating-point types in Python 2.x and 3.x.
-
-Install the package via:
-
-```bash
-pip install nativetypes
-````
+![PyTeal logo](https://github.com/algorand/pyteal/blob/master/docs/pyteal.png?raw=true)
 
 
-## Comparison
+# PyTeal: Algorand Smart Contracts in Python
 
-There are several alternatives to *ntypes*, specifically: `ctypes`, `numpy`, `fixedint`, `cinc`, `cint`. However, *ntypes* also offers some features not present across all these packages.
+[![Build Status](https://travis-ci.com/algorand/pyteal.svg?branch=master)](https://travis-ci.com/algorand/pyteal)
+[![PyPI version](https://badge.fury.io/py/pyteal.svg)](https://badge.fury.io/py/pyteal)
+[![Documentation Status](https://readthedocs.org/projects/pyteal/badge/?version=latest)](https://pyteal.readthedocs.io/en/latest/?badge=latest)
+[![Code style: black](https://img.shields.io/badge/code%20style-black-000000.svg)](https://github.com/psf/black)
 
-|                  | *ntypes*     | [*ctypes*](https://docs.python.org/3/library/ctypes.html) | [*numpy*](https://pypi.python.org/pypi/numpy) | [*fixedint*](https://pypi.python.org/pypi/fixedint) | [*cinc*](https://pypi.python.org/pypi/cinc) | [*cint*](https://pypi.python.org/pypi/cint) |
-|------------------|:------------:|:--------:|:-------:|:----------:|:------:|:------:|
-| Floating-point   | __Yes__      | Yes      | Yes     | -          | -      | -      |
-| Implicit casts   | __Yes__      | -        | -       | Yes        | -      | Yes    |
-| Custom aliases   | __Yes__      | -        | -       | -          | -      | -      |
-| Slicing          | __Yes__      | -        | -       | Yes        | -      | -      |
-| High-performance | -            | Yes      | -       | -          | Yes    | Yes    |
+PyTeal is a Python language binding for [Algorand Smart Contracts (ASC1s)](https://developer.algorand.org/docs/features/asc1/). 
 
-Other reasons might include that `numpy` is way too large dependency to be imported just for the sake of fixed-size integers. Note that high-performance is not a goal for this library.
+Algorand Smart Contracts are implemented using a new language that is stack-based, 
+called [Transaction Execution Approval Language (TEAL)](https://developer.algorand.org/docs/features/asc1/teal/). 
 
+However, TEAL is essentially an assembly language. With PyTeal, developers can express smart contract logic purely using Python. 
+PyTeal provides high level, functional programming style abstractions over TEAL and does type checking at construction time.
 
-## FAQ
+### Install 
 
-> __What's the point of this library?__
+PyTeal requires Python version >= 3.6.
 
-This library is syntactic sugar for developers and reverse-engineers that want to port code from C/C++/ASM into Python and need all this low-level quirks: Overflows, underflows, casts, etc.
+#### Recommended: Install from PyPi
 
-Although Python prevents many headaches with its arbitrarily large integers, writing code equivalent to functions written in C/C++/ASM means masking every operation, and doing dozens of conversions manually between distinct types. This library does that work for you.
+Install the latest official release from PyPi:
 
-> __Where can read about the API?__
+* `pip install pyteal`
 
-The documentation is quite incomplete at this moment. Check the examples below or check the tests.
+#### Install Latest Commit
 
->  __Why is this package called *nativetypes*__?
+If needed, it's possible to install directly from the latest commit on master to use unreleased features:
 
-I'm not good with naming. Ideally, I would have registered *ntypes* instead, but that one was apparently taken.
+> **WARNING:** Unreleased code is experimental and may not be backwards compatible or function properly. Use extreme caution when installing PyTeal this way.
 
+* `pip install git+https://github.com/algorand/pyteal`
 
-## Examples
+### Documentation
 
-* Fast inverse square root (see [[1]](https://en.wikipedia.org/wiki/Fast_inverse_square_root#Overview_of_the_code))
+[PyTeal Docs](https://pyteal.readthedocs.io/)
 
-```python
-def rsqrt(number: float32):
-    i = reinterpret_cast(int32, number)
-    i = 0x5F3759DF - (i >> 1)
-    y = reinterpret_cast(float32, i)
-    y *= (1.5 - (0.5 * number * y * y))
-    return y
-```
+### Development Setup
 
-* Ranbyus DGA (see [[2]](https://www.govcert.admin.ch/blog/25/when-mirai-meets-ranbyus)):
-```python
-def ranbyus_dga(timestamp):
-    s = uint32(self.seed)
-    t1 = uint32(t.day)
-    t2 = uint32(t.month)
-    t3 = uint32(t.year)
-    
-    name = ""
-    for i in xrange(12):
-        t1 = (t1 >> 15) ^ (16 * (t1 & 0x1FFF ^ 4 * (t1 ^ s)))
-        t2 = ((t2 ^ (4 * t2)) >>  8) ^ ((t2 & 0xFFFFFFFE) * 14)
-        t3 = ((t3 ^ (7 * t3)) >> 11) | ((t3 & 0xFFFFFFF0) << 17)
-        s = (s >> 6) ^ (((t1 + 8 * s) << 8) & 0x3FFFF00)
-        name += string.ascii_lowercase[int(t1 ^ t2 ^ t3) % 25]
+Setup venv (one time):
+ * `python3 -m venv venv`
 
-    # TLD omitted
-    return name
-```
+Active venv:
+ * `. venv/bin/activate` (if your shell is bash/zsh)
+ * `. venv/bin/activate.fish` (if your shell is fish)
+
+Pip install PyTeal in editable state
+ * `pip install -e .`
+
+Install dependencies:
+* `pip install -r requirements.txt`
+ 
+Type checking using mypy:
+* `mypy pyteal`
+
+Run tests:
+* `pytest`
+
+Format code:
+* `black .`
