@@ -15,12 +15,10 @@ jobs:
     - uses: actions/setup-node@v4.0.0
       with:
         cache: npm
+        node-version: '16'
     - run: npm install
-    - run: npm test
-    strategy:
-      matrix:
-        node_js:
-        - '9'
-        - '8'
-        - '7'
-        - '6'
+    - run: npm run build:prod
+    - run: npm run test:coverage
+    - run: npm run lint
+    - run: bash <(curl -s https://codecov.io/bash) || echo "Codecov did not collect coverage reports"
+      if: "${{ success() }}"

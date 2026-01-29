@@ -1,44 +1,55 @@
 {
-  "name": "https-pem",
-  "version": "2.0.0",
-  "description": "Self-signed PEM key and certificate ready for use in your HTTPS server",
-  "main": "index.js",
+  "private": true,
   "scripts": {
-    "postinstall": "node install.js",
-    "test": "standard && node test.js"
-  },
-  "repository": {
-    "type": "git",
-    "url": "git+https://github.com/watson/https-pem.git"
-  },
-  "keywords": [
-    "tls",
-    "https",
-    "pem",
-    "key",
-    "keys",
-    "cert",
-    "certificate",
-    "selfsigned",
-    "self-signed",
-    "development",
-    "options",
-    "server"
-  ],
-  "author": "Thomas Watson Steen <w@tson.dk> (https://twitter.com/wa7son)",
-  "license": "MIT",
-  "bugs": {
-    "url": "https://github.com/watson/https-pem/issues"
-  },
-  "homepage": "https://github.com/watson/https-pem#readme",
-  "dependencies": {
-    "selfsigned": "^1.10.1"
+    "build:prod": "npm run build:prod --workspaces",
+    "build:jsx-highcharts": "npm run build:prod --workspace packages/react-jsx-highcharts",
+    "lint": "eslint \"packages/*/+(src|test)/**\"",
+    "test": "npm run build:jsx-highcharts && jest",
+    "test:coverage": "npm run build:jsx-highcharts && jest --coverage",
+    "test:watch": "jest --watch"
   },
   "devDependencies": {
-    "standard": "^10.0.2"
+    "@babel/cli": "^7.15.7",
+    "@babel/core": "^7.15.8",
+    "@babel/eslint-parser": "^7.15.8",
+    "@babel/plugin-transform-runtime": "^7.15.8",
+    "@babel/preset-env": "^7.15.8",
+    "@babel/preset-react": "^7.14.5",
+    "@babel/runtime": "^7.15.4",
+    "@testing-library/react": "^12.1.2",
+    "@types/react": "^17.0.33",
+    "babel-loader": "^8.2.3",
+    "babel-plugin-transform-react-remove-prop-types": "^0.4.24",
+    "cross-env": "^7.0.3",
+    "eslint": "^8.4.1",
+    "eslint-config-prettier": "^8.3.0",
+    "eslint-plugin-import": "^2.25.3",
+    "eslint-plugin-prettier": "^4.0.0",
+    "eslint-plugin-react": "^7.27.1",
+    "eslint-plugin-react-hooks": "^4.3.0",
+    "eslint-plugin-react-perf": "^3.3.1",
+    "highcharts": "^9.3.0",
+    "jest": "^27.3.1",
+    "prettier": "^2.4.1",
+    "prop-types": "^15.7.2",
+    "react": "^17.0.2",
+    "react-dom": "^17.0.2",
+    "react-test-renderer": "^17.0.2",
+    "rimraf": "^3.0.2",
+    "typescript": "^4.4.4",
+    "webpack": "^5.60.0",
+    "webpack-cli": "^4.9.1"
   },
-  "coordinates": [
-    55.7774667,
-    12.5906882
-  ]
+  "workspaces": {
+    "packages": [
+      "packages/react-jsx-highcharts",
+      "packages/react-jsx-highstock",
+      "packages/react-jsx-highmaps"
+    ]
+  },
+  "jest": {
+    "projects": [
+      "<rootDir>/packages/*"
+    ]
+  }
 }
