@@ -1,98 +1,127 @@
-# Flake8 Markdown
+# LyricsGenius: a Python client for the Genius.com API
+[![Build Status](https://travis-ci.org/johnwmillr/LyricsGenius.svg?branch=master)](https://travis-ci.org/johnwmillr/LyricsGenius)
+[![Documentation Status](https://readthedocs.org/projects/lyricsgenius/badge/?version=master)](https://lyricsgenius.readthedocs.io/en/latest/?badge=master)
+[![PyPI version](https://badge.fury.io/py/lyricsgenius.svg)](https://pypi.org/project/lyricsgenius/)
+[![Python version](https://img.shields.io/badge/python-3.x-brightgreen.svg)](https://pypi.org/project/lyricsgenius/)
 
-[
-![PyPI](https://img.shields.io/pypi/v/flake8-markdown.svg)
-![PyPI](https://img.shields.io/pypi/pyversions/flake8-markdown.svg)
-![PyPI](https://img.shields.io/github/license/johnfraney/flake8-markdown.svg)
-](https://pypi.org/project/flake8-markdown/)
-[![TravisCI](https://travis-ci.com/johnfraney/flake8-markdown.svg?branch=master)](https://travis-ci.com/johnfraney/flake8-markdown)
+`lyricsgenius` provides a simple interface to the song, artist, and lyrics data stored on [Genius.com](https://www.genius.com).
 
-Flake8 Markdown lints [GitHub-style Python code blocks](https://help.github.com/en/articles/creating-and-highlighting-code-blocks#fenced-code-blocks) in Markdown files using [`flake8`](https://flake8.readthedocs.io/en/stable/).
+The full documentation for `lyricsgenius` is available online at [Read the Docs](https://lyricsgenius.readthedocs.io/en/master/).
 
-This package helps improve a Python project's documentation by ensuring that code samples are error-free.
-
-## Features
-
-- Lints code blocks containing regular Python and Python interpreter code ([`pycon`](http://pygments.org/docs/lexers/#pygments.lexers.python.PythonConsoleLexer))
-- [pre-commit](#pre-commit-hook) hook to lint on commit
+## Setup
+Before using this package you'll need to sign up for a (free) account that authorizes access to [the Genius API](http://genius.com/api-clients). The Genius account provides a `access_token` that is required by the package. See the [Usage section](https://github.com/johnwmillr/LyricsGenius#usage) below for examples.
 
 ## Installation
+`lyricsgenius` requires Python 3.
 
-Flake8 Markdown can be installed from PyPI using `pip` or your package manager of choice:
+Use `pip` to install the package from PyPI:
 
-```shell
-pip install flake8-markdown
+```bash
+pip install lyricsgenius
+```
+
+Or, install the latest version of the package from GitHub:
+
+```bash
+pip install git+https://github.com/johnwmillr/LyricsGenius.git
 ```
 
 ## Usage
+Import the package and initiate Genius:
 
-### CLI
-
-You can use Flake8 Markdown as a CLI tool using the `flake8-markdown` command.
-
-`flake8-markdown` accepts one or more [globs](https://docs.python.org/3.7/library/glob.html) as its arguments.
-
-Example:
-
-```console
-$ flake8-markdown "tests/samples/*.md"
-tests/samples/emphasized_lines.md:6:1: F821 undefined name 'emphasized_imaginary_function'
-tests/samples/basic.md:8:48: E999 SyntaxError: EOL while scanning string literal
-tests/samples/basic.md:14:7: F821 undefined name 'undefined_variable'
+```python
+import lyricsgenius
+genius = lyricsgenius.Genius(token)
 ```
 
-### pre-commit hook
+If you don't pass a token to the `Genius` class, `lyricsgenus` will look for an environment variable called `GENIUS_ACCESS_TOKEN` and attempt to use that for authentication.
 
-You can also add `flake8-markdown` to your project using [pre-commit](https://pre-commit.com/). When configured, any staged Markdown files will be linted using `flake8-markdown` once you run `git commit`.
-
-To enable this hook in your local repository, add the following `repo` to your `.pre-commit-config.yaml` file:
-
-```yaml
-# .pre-commit-config.yaml
-repos:
-  - repo: https://github.com/johnfraney/flake8-markdown
-    rev: v0.4.0
-    hooks:
-      - id: flake8-markdown
+```python
+genius = Genius()
 ```
 
-## Code of Conduct
+Search for songs by a given artist:
 
-Everyone interacting in the project's codebases, issue trackers, chat rooms, and mailing lists is expected to follow the [PyPA Code of Conduct](https://www.pypa.io/en/latest/code-of-conduct/).
+```python
+artist = genius.search_artist("Andy Shauf", max_songs=3, sort="title")
+print(artist.songs)
+```
+By default, the `search_artist()` only returns songs where the given artist is the primary artist.
+However, there may be instances where it is desirable to get all of the songs that the artist appears on.
+You can do this by setting the `include_features` argument to `True`.
 
-## History
+```python
+artist = genius.search_artist("Andy Shauf", max_songs=3, sort="title", include_features=True)
+print(artist.songs)
+```
 
-### [0.4.0] - 2022-09-11
+Search for a single song by the same artist:
 
-#### Added
+```python
+song = artist.song("To You")
+# or:
+# song = genius.search_song("To You", artist.name)
+print(song.lyrics)
+```
 
-- Added support for `flake8` v5
-- Added support for `python` 3.10
+Add the song to the artist object:
 
-#### Removed
+```python
+artist.add_song(song)
+# the Artist object also accepts song names:
+# artist.add_song("To You")
+```
 
-- Dropped support for `python` 3.6
+Save the artist's songs to a JSON file:
 
-### [0.3.0] - 2021-10-19
+```python
+artist.save_lyrics()
+```
 
-#### Added
+Searching for an album and saving it:
 
-- Added support for `flake8` v4
+```python
+album = genius.search_album("The Party", "Andy Shauf")
+album.save_lyrics()
+```
 
-### [0.2.0] - 2019-06-14
+There are various options configurable as parameters within the `Genius` class:
 
-#### Added
+```python
+genius.verbose = False # Turn off status messages
+genius.remove_section_headers = True # Remove section headers (e.g. [Chorus]) from lyrics when searching
+genius.skip_non_songs = False # Include hits thought to be non-songs (e.g. track lists)
+genius.excluded_terms = ["(Remix)", "(Live)"] # Exclude songs with these words in their title
+```
 
-- [`pycon`](http://pygments.org/docs/lexers/#pygments.lexers.python.PythonConsoleLexer) code block support
+You can also call the package from the command line:
 
-### [0.1.1] - 2019-05-19
+```bash
+export GENIUS_ACCESS_TOKEN="my_access_token_here"
+python3 -m lyricsgenius --help
+```
 
-#### Changed
+Search for and save lyrics to a given song and album:
 
-- Fixed pre-commit example in README
+```bash
+python3 -m lyricsgenius song "Begin Again" "Andy Shauf" --save
+python3 -m lyricsgenius album "The Party" "Andy Shauf" --save
+```
 
-### [0.1.0] - 2019-05-19
+Search for five songs by 'The Beatles' and save the lyrics:
 
-#### Added
+```bash
+python3 -m lyricsgenius artist "The Beatles" --max-songs 5 --save
+```
 
-- Added code for initial release
+## Example projects
+
+  - [Trucks and Beer: A textual analysis of popular country music](http://www.johnwmillr.com/trucks-and-beer/)
+  - [Neural machine translation: Explaining the Meaning Behind Lyrics](https://github.com/tsandefer/dsi_capstone_3)
+  - [What makes some blink-182 songs more popular than others?](http://jdaytn.com/posts/download-blink-182-data/)
+  - [Sentiment analysis on hip-hop lyrics](https://github.com/Hugo-Nattagh/2017-Hip-Hop)
+  - [Does Country Music Drink More Than Other Genres?](https://towardsdatascience.com/does-country-music-drink-more-than-other-genres-a21db901940b)
+  - [49 Years of Lyrics: Why So Angry?](https://towardsdatascience.com/49-years-of-lyrics-why-so-angry-1adf0a3fa2b4)
+
+## Contributing
+Please contribute! If you want to fix a bug, suggest improvements, or add new features to the project, just [open an issue](https://github.com/johnwmillr/LyricsGenius/issues) or send me a pull request.
