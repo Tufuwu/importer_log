@@ -1,24 +1,42 @@
 {
-  "name": "class-extend",
-  "version": "0.1.2",
-  "description": "Backbone like Class.extend utility for Node",
-  "scripts": {
-    "test": "mocha"
+  "name": "schema-inspector",
+  "description": "Schema-Inspector is a powerful tool to sanitize and validate JS objects.",
+  "version": "2.0.1",
+  "main": "index.js",
+  "author": {
+    "name": "Sebastien Chopin",
+    "url": "https://twitter.com/atinux"
   },
-  "repository": "SBoudrias/class-extend",
+  "maintainers": [
+    "atinux"
+  ],
   "keywords": [
-    "inheritance",
-    "oop",
-    "class",
-    "extend"
+    "validation",
+    "sanitization",
+    "inspector",
+    "validator",
+    "json",
+    "validate",
+    "sanitize"
   ],
-  "author": "Simon Boudrias <admin@simonboudrias.com>",
   "license": "MIT",
-  "files": [
-    "index.js"
-  ],
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/schema-inspector/schema-inspector.git"
+  },
+  "bugs": {
+    "url": "https://github.com/schema-inspector/schema-inspector/issues"
+  },
+  "homepage": "http://schema-inspector.github.io/schema-inspector/",
+  "dependencies": {
+    "async": "~2.6.3"
+  },
   "devDependencies": {
-    "mocha": "^11.0.1",
-    "sinon": "^19.0.2"
-  }
+    "mocha": "^8.3.2",
+    "should": "^13.2.3"
+  },
+  "scripts": {
+    "test": "make test"
+  },
+  "readmeFilename": "README.md"
 }
