@@ -1,92 +1,98 @@
-[![CI](https://github.com/jneight/django-earthdistance/actions/workflows/ci.yml/badge.svg)](https://github.com/jneight/django-earthdistance/actions/workflows/ci.yml)
+# Flake8 Markdown
 
-[![pypi version](https://img.shields.io/pypi/v/django-earthdistance.svg)](https://pypi.python.org/pypi/django-earthdistance)
+[
+![PyPI](https://img.shields.io/pypi/v/flake8-markdown.svg)
+![PyPI](https://img.shields.io/pypi/pyversions/flake8-markdown.svg)
+![PyPI](https://img.shields.io/github/license/johnfraney/flake8-markdown.svg)
+](https://pypi.org/project/flake8-markdown/)
+[![TravisCI](https://travis-ci.com/johnfraney/flake8-markdown.svg?branch=master)](https://travis-ci.com/johnfraney/flake8-markdown)
 
-[![pypi license](http://img.shields.io/pypi/l/django-earthdistances.svg)](https://pypi.python.org/pypi/django-earthdistance)
+Flake8 Markdown lints [GitHub-style Python code blocks](https://help.github.com/en/articles/creating-and-highlighting-code-blocks#fenced-code-blocks) in Markdown files using [`flake8`](https://flake8.readthedocs.io/en/stable/).
 
-django-earthdistance
-====================
+This package helps improve a Python project's documentation by ensuring that code samples are error-free.
 
-Using PostgreSQL\'s EarthDistance extension for django 1.11, 2.2 and 3.2
-(for older versions see *with\_djorm\_expressions* branch)
+## Features
 
-Earthdistance allows to do fast geolocalized queries without using
-PostGIS
+- Lints code blocks containing regular Python and Python interpreter code ([`pycon`](http://pygments.org/docs/lexers/#pygments.lexers.python.PythonConsoleLexer))
+- [pre-commit](#pre-commit-hook) hook to lint on commit
 
-Usage
------
+## Installation
 
-Cube and EarthDistance extensions must be enabled in postgreSQL BD, so
-log in database using pgsql and install extensions:
+Flake8 Markdown can be installed from PyPI using `pip` or your package manager of choice:
 
-``` {.sql}
-=> create extension cube;
-=> create extension earthdistance;
+```shell
+pip install flake8-markdown
 ```
 
-Filter by rows inside a circunference of radius r
--------------------------------------------------
+## Usage
 
-``` {.python}
-from django.db import models
+### CLI
 
-from django_earthdistance.models import EarthDistanceQuerySet
+You can use Flake8 Markdown as a CLI tool using the `flake8-markdown` command.
 
-class MyModel(models.Model):
-    latitude = models.FloatField()
-    longitude = models.FloatField()
+`flake8-markdown` accepts one or more [globs](https://docs.python.org/3.7/library/glob.html) as its arguments.
 
-    objects = EarthDistanceQuerySet.as_manager()
+Example:
 
-# Define fields to query in DistanceExpression initialization
-# search with lat=0.2546 and lon=-38.25 and distance 1500 meters
-# use param `annotate` to set a custom field for the distance, `_ed_distance` as default
-
-MyModel.objects.in_distance(1500, fields=['latitude', 'longitude'], points=[0.2546, -38.25])
+```console
+$ flake8-markdown "tests/samples/*.md"
+tests/samples/emphasized_lines.md:6:1: F821 undefined name 'emphasized_imaginary_function'
+tests/samples/basic.md:8:48: E999 SyntaxError: EOL while scanning string literal
+tests/samples/basic.md:14:7: F821 undefined name 'undefined_variable'
 ```
 
-Annotate each row returned by a query with distance between two points
-----------------------------------------------------------------------
+### pre-commit hook
 
-``` {.python}
-from django_earthdistance.models import EarthDistance, LlToEarth
+You can also add `flake8-markdown` to your project using [pre-commit](https://pre-commit.com/). When configured, any staged Markdown files will be linted using `flake8-markdown` once you run `git commit`.
 
-MyModel.objects.filter(....).annotate(
-    distance=EarthDistance([
-        LlToEarth([0.2546, -38.25]),
-        LlToEarth(['latitude', 'longitude'])
-    ]))
+To enable this hook in your local repository, add the following `repo` to your `.pre-commit-config.yaml` file:
+
+```yaml
+# .pre-commit-config.yaml
+repos:
+  - repo: https://github.com/johnfraney/flake8-markdown
+    rev: v0.4.0
+    hooks:
+      - id: flake8-markdown
 ```
 
-Optimizing perfomance with indexes
-----------------------------------
+## Code of Conduct
 
-PostgreSQL allow to use GiST indexes with functions results, a good
-perfomance improvement is to store [ll\_to\_earth]{.title-ref} results
-in an index, [ll\_to\_earth]{.title-ref} is a function that calculates
-the position of a point on the surface of the earth (assuming earth is
-perfectly spherical)
+Everyone interacting in the project's codebases, issue trackers, chat rooms, and mailing lists is expected to follow the [PyPA Code of Conduct](https://www.pypa.io/en/latest/code-of-conduct/).
 
-``` {.sql}
--- Example MyModel table is app_mymodel and points columns are latitude and longitude
-CREATE INDEX mymodel_location ON app_mymodel USING gist (ll_to_earth(latitude, longitude));
-```
+## History
 
-### For django \< 1.7
+### [0.4.0] - 2022-09-11
 
-Also, using south is preferred, just add this migration to migrations/
-folder and edit it to your needs, index will be created
+#### Added
 
-``` {.python}
-class Migration(SchemaMigration):
+- Added support for `flake8` v5
+- Added support for `python` 3.10
 
-    def forwards(self, orm):
-        cursor = connection.cursor()
-        cursor.execute("CREATE INDEX mymodel_location ON app_mymodel USING gist (ll_to_earth(latitude, longitude));")
+#### Removed
 
+- Dropped support for `python` 3.6
 
-    def backwards(self, orm):
-        # Deleting field 'Venue.coords'
-        cursor = connection.cursor()
-        cursor.execute("DROP INDEX mymodel_location ON app_mymodel;")
-```
+### [0.3.0] - 2021-10-19
+
+#### Added
+
+- Added support for `flake8` v4
+
+### [0.2.0] - 2019-06-14
+
+#### Added
+
+- [`pycon`](http://pygments.org/docs/lexers/#pygments.lexers.python.PythonConsoleLexer) code block support
+
+### [0.1.1] - 2019-05-19
+
+#### Changed
+
+- Fixed pre-commit example in README
+
+### [0.1.0] - 2019-05-19
+
+#### Added
+
+- Added code for initial release
