@@ -1,55 +1,22 @@
-'use strict';
+// http://eslint.org/docs/user-guide/configuring
 
 module.exports = {
+  // Uses `require.resolve` to support npm linked eslint-config
+  extends: require.resolve('eslint-config-ostai'),
   root: true,
-  extends: ['eslint:recommended', 'prettier'],
-  parserOptions: {
-    ecmaVersion: 2018,
-  },
-  env: {
-    es6: true,
-  },
-  globals: {
-    exports: true,
-    module: true,
-    require: true,
-    window: true,
-    describe: true,
-    it: true,
-    test: true,
-    expect: true,
-  },
-  plugins: ['prettier'],
   rules: {
-    'no-prototype-builtins': 'off',
-    'prettier/prettier': [
-      'warn',
-      {
-        printWidth: 100,
-        singleQuote: true,
-        trailingComma: 'es5',
-      },
-    ],
-    strict: ['warn', 'global'],
-  },
-  overrides: [
-    {
-      files: ['lib/implementedProperties.js', 'lib/properties.js'],
-      rules: {
-        'prettier/prettier': 'off',
-      },
-    },
-    {
-      files: 'scripts/**/*',
-      rules: {
-        'no-console': 'off',
-      },
-    },
-    {
-      files: ['scripts/**/*', 'tests/**/*'],
-      env: {
-        node: true,
-      },
-    },
-  ],
-};
+    'no-underscore-dangle': ['error', {
+      allowAfterThis: true,
+      enforceInMethodNames: false,
+      // node-ignore only
+      allow: ['_rules', '_test']
+    }],
+
+    indent: ['error', 2, {
+      MemberExpression: 0,
+
+      // Eslint bug
+      ignoreComments: true
+    }]
+  }
+}

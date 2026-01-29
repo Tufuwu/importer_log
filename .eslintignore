@@ -1,4 +1,5 @@
-node_modules
-lib/implementedProperties.js
-lib/properties.js
-jest.config.js
+/build
+/coverage
+/no-track
+/test/ts/simple.js
+/legacy.js
