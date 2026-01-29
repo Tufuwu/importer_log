@@ -1,18 +1,51 @@
 {
-  "name": "spawn-command",
-  "author": "Maciej Małecki <me@mmalecki.com>",
-  "description": "Spawn commands like `child_process.exec` does but return a `ChildProcess`",
-  "version": "0.0.2-1",
-  "main": "./lib/spawn-command",
-  "repository": {
-    "type": "git",
-    "url": "https://github.com/mmalecki/spawn-command"
+  "name": "grunt-modernizr",
+  "description": "Build out a lean, mean Modernizr machine.",
+  "version": "3.0.2",
+  "main": "Gruntfile.js",
+  "bin": {
+    "grunt-modernizr": "bin/grunt-modernizr"
   },
-  "scripts": {
-    "test": "node test/spawn-command-test.js"
+  "bugs": "https://github.com/Modernizr/grunt-modernizr/issues",
+  "homepage": "https://github.com/Modernizr/grunt-modernizr",
+  "repository": "https://github.com/Modernizr/grunt-modernizr.git",
+  "license": "MIT",
+  "author": {
+    "name": "Modernizr",
+    "url": "https://modernizr.com/"
+  },
+  "contributors": [
+    {
+      "name": "Richard Herrera",
+      "url": "https://twitter.com/doctyper"
+    }
+  ],
+  "engines": {
+    "node": ">=10"
+  },
+  "dependencies": {
+    "customizr": "^2.0.3",
+    "lodash.merge": "^4.6.2"
   },
   "devDependencies": {
-    "assert-called": "0.1.x"
+    "assert": "^2.0.0",
+    "grunt": "^1.3.0",
+    "grunt-contrib-clean": "^2.0.0",
+    "grunt-contrib-jshint": "^3.0.0",
+    "grunt-contrib-nodeunit": "^2.1.0",
+    "grunt-contrib-watch": "^1.1.0",
+    "mocha": "^8.3.2",
+    "nexpect": "^0.6.0"
   },
-  "license": "MIT"
+  "scripts": {
+    "test": "grunt clean && mocha test/runner.js"
+  },
+  "keywords": [
+    "gruntplugin",
+    "modernizr",
+    "customizr"
+  ],
+  "directories": {
+    "test": "test"
+  }
 }

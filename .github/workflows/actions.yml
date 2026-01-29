@@ -15,10 +15,12 @@ jobs:
     - uses: actions/setup-node@v4.0.0
       with:
         cache: npm
+    - run: npm install grunt-cli -g
     - run: npm install
     - run: npm test
     strategy:
       matrix:
         node_js:
-        - '0.10'
-        - '0.11'
+        - '10'
+        - '12'
+        - '14'
