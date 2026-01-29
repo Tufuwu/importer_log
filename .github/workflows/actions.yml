@@ -12,6 +12,17 @@ jobs:
     steps:
     - name: checkout
       uses: actions/checkout@v4.1.0
-    - run: pip install -r requirements.txt
-    - run: echo "from Default.settings import *" > settings.py
-    - run: "./generate.py"
+    - uses: actions/setup-python@v5.0.0
+      with:
+        python-version: "${{ matrix.python }}"
+    - run: pip install -q coverage
+    - run: pip install -q coveralls
+    - run: pip install -q mock
+    - run: pip install .
+    - run: cd tests
+    - run: make coverage
+    - run: coveralls --rc=coveragerc
+    strategy:
+      matrix:
+        python:
+        - 3.8
