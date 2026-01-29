@@ -1,19 +1,28 @@
-# mqtt-match
+# hyphenate-style-name
 
-> Match mqtt formatted topic strings to strings
+[![npm version](http://img.shields.io/npm/v/hyphenate-style-name.svg?style=flat-square)](https://www.npmjs.com/package/hyphenate-style-name)[![npm](https://img.shields.io/npm/dm/hyphenate-style-name.svg?style=flat-square)](https://www.npmjs.com/package/hyphenate-style-name)[![npm bundle size](https://img.shields.io/bundlephobia/minzip/hyphenate-style-name.svg?style=flat-square)](https://bundlephobia.com/result?p=hyphenate-style-name)
 
-[![npm](https://img.shields.io/npm/v/mqtt-match.svg)](https://www.npmjs.com/package/mqtt-match)
-![Node version](https://img.shields.io/node/v/mqtt-match.svg)
-[![Node.js CI](https://github.com/ralphtheninja/mqtt-match/actions/workflows/node.js.yml/badge.svg)](https://github.com/ralphtheninja/mqtt-match/actions/workflows/node.js.yml)
-[![JavaScript Style Guide](https://img.shields.io/badge/code_style-standard-brightgreen.svg)](https://standardjs.com)
+Hyphenates a camelcased CSS property name. For example:
 
-### Usage
+- `backgroundColor` => `background-color`
+- `MozTransition` => `-moz-transition`
+- `msTransition` => `-ms-transition`
+- `color` => `color`
 
-```js
-const match = require('mqtt-match')
-console.log(match('foo/+', 'foo/bar'))
-// true
+# Installation
+
+```bash
+$ npm install --save hyphenate-style-name
 ```
 
-### License
-MIT
+# Usage
+
+```js
+var hyphenateStyleName = require('hyphenate-style-name')
+
+console.log(hyphenateStyleName('MozTransition')) // -moz-transition
+```
+
+# License
+
+BSD-3-Clause licensed. See LICENSE.

@@ -1,27 +1,41 @@
 {
-  "name": "mqtt-match",
-  "version": "2.0.3",
-  "description": "Match mqtt formatted topic strings to strings",
-  "main": "index.js",
+  "name": "hyphenate-style-name",
+  "version": "1.0.4",
+  "description": "Hyphenates a camelcased CSS property name",
+  "main": "index.cjs.js",
+  "module": "index.js",
+  "sideEffects": false,
   "scripts": {
-    "test": "tape test.js && standard"
+    "build": "rollup --input index.js --file index.cjs.js --format cjs",
+    "coverage": "nyc tape -- test/**/*.test.js",
+    "lint": "eslint . --ignore-path .gitignore",
+    "test": "tape test/**/*.test.js",
+    "precoverage": "npm run build",
+    "pretest": "npm run lint && npm run build",
+    "prepublishOnly": "npm run build"
   },
-  "keywords": [
-    "mqtt",
-    "topic",
-    "match"
-  ],
-  "author": "Lars-Magnus Skog <ralphtheninja@riseup.net>",
   "repository": {
     "type": "git",
-    "url": "git://github.com/ralphtheninja/mqtt-match"
+    "url": "git+ssh://git@github.com/rexxars/hyphenate-style-name.git"
   },
-  "license": "MIT",
-  "engines": {
-    "node": ">=12.0.0"
+  "keywords": [
+    "hyphenate",
+    "style",
+    "css",
+    "camelcase"
+  ],
+  "author": "Espen Hovlandsdal <espen@hovlandsdal.com>",
+  "license": "BSD-3-Clause",
+  "bugs": {
+    "url": "https://github.com/rexxars/hyphenate-style-name/issues"
   },
+  "homepage": "https://github.com/rexxars/hyphenate-style-name#readme",
   "devDependencies": {
-    "standard": "^16.0.4",
-    "tape": "^5.4.0"
+    "eslint": "^8.0.0",
+    "eslint-config-prettier": "^8.0.0",
+    "eslint-config-sanity": "^7.1.2",
+    "prettier": "^3.2.5",
+    "rollup": "^2.21.0",
+    "tape": "^5.7.5"
   }
 }
