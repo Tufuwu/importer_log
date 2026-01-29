@@ -1,87 +1,151 @@
-# redux-watch
+# serve-index
 
-[![NPM Package](https://img.shields.io/npm/v/redux-watch.svg?style=flat-square)](https://www.npmjs.org/package/redux-watch)
-[![Build Status](https://img.shields.io/travis/jprichardson/redux-watch.svg?branch=master&style=flat-square)](https://travis-ci.org/jprichardson/redux-watch)
+[![NPM Version][npm-image]][npm-url]
+[![NPM Downloads][downloads-image]][downloads-url]
+[![Linux Build Status][ci-image]][ci-url]
+[![Windows Build][appveyor-image]][appveyor-url]
+[![Coverage Status][coveralls-image]][coveralls-url]
 
-[![js-standard-style](https://cdn.rawgit.com/feross/standard/master/badge.svg)](https://github.com/feross/standard)
-
-Watch/observe [Redux](http://redux.js.org/) store state changes.
-
-## Why?
-
-Redux provides you with a `subscribe()` method so that you can be notified when the state changes. However, it does not let you know what changed. `redux-watch` will let you know what changed.
-
+  Serves pages that contain directory listings for a given path.
 
 ## Install
 
+This is a [Node.js](https://nodejs.org/en/) module available through the
+[npm registry](https://www.npmjs.com/). Installation is done using the
+[`npm install` command](https://docs.npmjs.com/getting-started/installing-npm-packages-locally):
+
+```sh
+$ npm install serve-index
 ```
-npm i --save redux-watch
-```
 
-## Usage
-
-`watch(getState [, objectPath [, comparison]])` -> `function`
-
-- `getState`: A `function` that is used to return the state. Also useful in conjunction with selectors.
-- `objectPath`: An **optional** `string` or `Array` that represents the path in an object. Uses [object-path](https://www.npmjs.com/package/object-path) ([mariocasciaro/object-path](https://github.com/mariocasciaro/object-path)) for value extraction.
-- `comparison`: An **optional** function to pass for comparison of the fields. Defaults to strict equal comparison (`===`).
-
-## Example
-
-##### basic example
+## API
 
 ```js
-// ... other imports/requires
-import watch from 'redux-watch'
-
-// assuming you have an admin reducer / state slice
-console.log(store.getState().admin.name) // 'JP'
-
-// store is THE redux store
-let w = watch(store.getState, 'admin.name')
-store.subscribe(w((newVal, oldVal, objectPath) => {
-  console.log('%s changed from %s to %s', objectPath, oldVal, newVal)
-  // admin.name changed from JP to JOE
-}))
-
-// somewhere else, admin reducer handles ADMIN_UPDATE
-store.dispatch({ type: 'ADMIN_UPDATE', payload: { name: 'JOE' }})
+var serveIndex = require('serve-index')
 ```
 
-##### example (w/ [reselect](https://www.npmjs.com/package/reselect) ([reactjs/reselect](https://github.com/reactjs/reselect)) selectors)
+### serveIndex(path, options)
 
-When using with selectors, you often times won't need to pass the object path. Most times the selectors will handle this for you.
+Returns middlware that serves an index of the directory in the given `path`.
+
+The `path` is based off the `req.url` value, so a `req.url` of `'/some/dir`
+with a `path` of `'public'` will look at `'public/some/dir'`. If you are using
+something like `express`, you can change the URL "base" with `app.use` (see
+the express example).
+
+#### Options
+
+Serve index accepts these properties in the options object.
+
+##### filter
+
+Apply this filter function to files. Defaults to `false`. The `filter` function
+is called for each file, with the signature `filter(filename, index, files, dir)`
+where `filename` is the name of the file, `index` is the array index, `files` is
+the array of files and `dir` is the absolute path the file is located (and thus,
+the directory the listing is for).
+
+##### hidden
+
+Display hidden (dot) files. Defaults to `false`.
+
+##### icons
+
+Display icons. Defaults to `false`.
+
+##### stylesheet
+
+Optional path to a CSS stylesheet. Defaults to a built-in stylesheet.
+
+##### template
+
+Optional path to an HTML template or a function that will render a HTML
+string. Defaults to a built-in template.
+
+When given a string, the string is used as a file path to load and then the
+following tokens are replaced in templates:
+
+  * `{directory}` with the name of the directory.
+  * `{files}` with the HTML of an unordered list of file links.
+  * `{linked-path}` with the HTML of a link to the directory.
+  * `{style}` with the specified stylesheet and embedded images.
+
+When given as a function, the function is called as `template(locals, callback)`
+and it needs to invoke `callback(error, htmlString)`. The following are the
+provided locals:
+
+  * `directory` is the directory being displayed (where `/` is the root).
+  * `displayIcons` is a Boolean for if icons should be rendered or not.
+  * `fileList` is a sorted array of files in the directory. The array contains
+    objects with the following properties:
+    - `name` is the relative name for the file.
+    - `stat` is a `fs.Stats` object for the file.
+  * `path` is the full filesystem path to `directory`.
+  * `style` is the default stylesheet or the contents of the `stylesheet` option.
+  * `viewName` is the view name provided by the `view` option.
+
+##### view
+
+Display mode. `tiles` and `details` are available. Defaults to `tiles`.
+
+## Examples
+
+### Serve directory indexes with vanilla node.js http server
 
 ```js
-// ... other imports requires
-import watch from 'redux-watch'
+var finalhandler = require('finalhandler')
+var http = require('http')
+var serveIndex = require('serve-index')
+var serveStatic = require('serve-static')
 
-// assuming mySelector is a reselect selector defined somewhere
-let w = watch(() => mySelector(store.getState()))
-store.subscribe(w((newVal, oldVal) => {
-  console.log(newVal)
-  console.log(oldVal)
-}))
+// Serve directory indexes for public/ftp folder (with icons)
+var index = serveIndex('public/ftp', {'icons': true})
+
+// Serve up public/ftp folder files
+var serve = serveStatic('public/ftp')
+
+// Create server
+var server = http.createServer(function onRequest(req, res){
+  var done = finalhandler(req, res)
+  serve(req, res, function onNext(err) {
+    if (err) return done(err)
+    index(req, res, done)
+  })
+})
+
+// Listen
+server.listen(3000)
 ```
 
-#### Note on Comparisons.
-
-By default, `redux-watch` uses `===` (strict equal) operator to check for changes. This may not be want you want. Sometimes you may want to do a deep inspection. You should use either [deep-equal](https://www.npmjs.com/package/deep-equal) ([substack/node-deep-equal](https://github.com/substack/node-deep-equal)) or [is-equal](https://www.npmjs.com/package/is-equal) ([ljharb/is-equal](https://github.com/ljharb/is-equal)). `is-equal` is better since it supports ES6 types like Maps/Sets.
-
-##### is-equal example
+### Serve directory indexes with express
 
 ```js
-import isEqual from 'is-equal'
-import watch from 'redux-watch'
+var express    = require('express')
+var serveIndex = require('serve-index')
 
-let w = watch(store.getState, 'admin', isEqual)
-store.subscribe(w((newVal, oldVal, objectPath) => {
-  // response to changes
-}))
+var app = express()
+
+// Serve URLs like /ftp/thing as public/ftp/thing
+// The express.static serves the file contents
+// The serveIndex is this module serving the directory
+app.use('/ftp', express.static('public/ftp'), serveIndex('public/ftp', {'icons': true}))
+
+// Listen
+app.listen(3000)
 ```
 
 ## License
 
-MIT
+[MIT](LICENSE). The [Silk](http://www.famfamfam.com/lab/icons/silk/) icons
+are created by/copyright of [FAMFAMFAM](http://www.famfamfam.com/).
 
-Copyright (c) [JP Richardson](https://github.com/jprichardson)
+[appveyor-image]: https://img.shields.io/appveyor/ci/dougwilson/serve-index/master.svg?label=windows
+[appveyor-url]: https://ci.appveyor.com/project/dougwilson/serve-index
+[ci-image]: https://badgen.net/github/checks/expressjs/serve-index/master?label=ci
+[ci-url]: https://github.com/expressjs/serve-index/actions/workflows/ci.yml
+[coveralls-image]: https://img.shields.io/coveralls/expressjs/serve-index/master.svg
+[coveralls-url]: https://coveralls.io/r/expressjs/serve-index?branch=master
+[downloads-image]: https://img.shields.io/npm/dm/serve-index.svg
+[downloads-url]: https://npmjs.org/package/serve-index
+[npm-image]: https://img.shields.io/npm/v/serve-index.svg
+[npm-url]: https://npmjs.org/package/serve-index
