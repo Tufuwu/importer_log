@@ -15,20 +15,12 @@ jobs:
     - uses: actions/setup-python@v5.0.0
       with:
         python-version: "${{ matrix.python }}"
-    - name: Set up cache
-      uses: actions/cache@v3.3.2
-      with:
-        path: "${{ github.workspace }}/.cache/pip"
-        key: "${{ runner.os }}-path"
-#     # 'sudo' was not transformed because there is no suitable equivalent in GitHub Actions
-    - run: travis_retry pip install -q -U pytest
-    - run: python setup.py -q install
-    - run: python --version
-    - run: py.test tests
+    - run: pip install tox
+    - run: tox
     strategy:
       matrix:
         python:
-        - '3.8'
-        - '3.9'
-        - nightly
-#       # 'allow_failures' transformations are currently unsupported.
+        - 3.8
+        - 3.9
+        - 3.1
+        - pypy3.7
