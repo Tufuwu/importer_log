@@ -1,49 +1,48 @@
-#!/usr/bin/env python
-# -*- test-case-name: ampoule -*-
-
-# Copyright (c) 2008 Valentino Volonghi.
-# See LICENSE for details.
-
-"""
-Distutils/Setuptools installer for AMPoule.
-"""
-
+import os
 from setuptools import setup
 
-install_requires = ["Twisted[tls]>=17"]
+this = os.path.dirname(os.path.realpath(__file__))
 
-description = """A process pool built on Twisted and AMP."""
-long_description = open('README.md').read()
+
+def read(name):
+    with open(os.path.join(this, name)) as f:
+        return f.read()
+
 
 setup(
-    name = "ampoule",
-    author = "Valentino Volonghi",
-    author_email = "dialtone@gmail.com",
-    maintainer = "Glyph Lefkowitz",
-    maintainer_email = "glyph@twistedmatrix.com",
-    description = description,
-    description_content_type='text/markdown',
-    long_description = long_description,
-    long_description_content_type='text/markdown',
-    license = "MIT License",
-    install_requires=install_requires + ['incremental'],
-    url="https://github.com/glyph/ampoule",
-    classifiers = [
-        'Development Status :: 4 - Beta',
-        'Environment :: Console',
-        'Intended Audience :: Developers',
-        'License :: OSI Approved :: MIT License',
-        'Natural Language :: English',
-        'Programming Language :: Python',
-        'Programming Language :: Python :: 2.7',
-        'Programming Language :: Python :: 3',
-        'Programming Language :: Python :: 3.6',
-        'Topic :: System',
+    name="sqlalchemy_mptt",
+    version="0.2.5",
+    url="http://github.com/uralbash/sqlalchemy_mptt/",
+    author="Svintsov Dmitry",
+    author_email="sacrud@uralbash.ru",
+    packages=["sqlalchemy_mptt"],
+    include_package_data=True,
+    zip_safe=False,
+    test_suite="nose.collector",
+    license="MIT",
+    description="SQLAlchemy MPTT mixins (Nested Sets)",
+    long_description=read("README.rst") + "\n" + read("CHANGES.rst"),
+    install_requires=read("requirements.txt"),
+    tests_require=read("requirements.txt") + read("requirements-test.txt"),
+    classifiers=[
+        "Development Status :: 5 - Production/Stable",
+        "Environment :: Console",
+        "Environment :: Web Environment",
+        "Intended Audience :: Developers",
+        "Natural Language :: English",
+        "Operating System :: OS Independent",
+        "Programming Language :: Python",
+        "Programming Language :: Python :: 2.6",
+        "Programming Language :: Python :: 2.7",
+        "Programming Language :: Python :: 3",
+        "Programming Language :: Python :: 3.4",
+        "Programming Language :: Python :: 3.5",
+        "Programming Language :: Python :: 3.6",
+        "Programming Language :: Python :: 3.7",
+        "Framework :: Pyramid",
+        "Framework :: Flask",
+        "Topic :: Internet",
+        "Topic :: Database",
+        "License :: OSI Approved :: MIT License",
     ],
-    packages=["ampoule", "ampoule.test"],
-    package_data={'twisted': ['plugins/ampoule_plugin.py']},
-    use_incremental=True,
-    setup_requires=['incremental'],
-    include_package_data = True,
-    zip_safe=False
 )
