@@ -1,4 +1,10 @@
-node_modules
-bower_components
-dist
-coverage
+logs
+*.log
+npm-debug.log*
+node_modules/
+.idea/
+*.code-workspace
+.nyc_output/
+coverage/
+coverage.lcov
+*.iml

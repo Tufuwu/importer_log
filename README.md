@@ -1,57 +1,206 @@
-[![REUSE status](https://api.reuse.software/badge/github.com/SAP/openui5-worklist-app)](https://api.reuse.software/info/github.com/SAP/openui5-worklist-app)
-[![Build Status](https://github.com/SAP/openui5-worklist-app/actions/workflows/github-ci.yml/badge.svg)](https://github.com/SAP/openui5-worklist-app/actions/workflows/github-ci.yml)
-![OpenUI5 logo](http://openui5.org/images/OpenUI5_new_big_side.png)
+# i18n-zipcodes [![Build Status](https://travis-ci.org/sarcadass/i18n-zipcodes.svg?branch=master)](https://travis-ci.org/sarcadass/i18n-zipcodes) [![codecov](https://codecov.io/gh/sarcadass/i18n-zipcodes/branch/master/graph/badge.svg)](https://codecov.io/gh/sarcadass/i18n-zipcodes)
 
-# openui5-worklist-app
-OpenUI5 worklist app using the UI5 Build and Development Tooling.
+International zipcodes validator in Javascript, based on Regex for Node.js and the browser.
 
-This template implements a typical worklist floorplan, one of the design patterns that is specified by the SAP Fiori Design Guidelines. 
-It includes generic application functionality and tests that can be easily extended.
+## Install
+
+### For Node.js:
+```sh
+$ npm install i18n-zipcodes
+```
+
+### For the browser:
+* Download the script in the `dist` folder
 
 
-## More information
-* [Live Demo](http://sap.github.io/openui5-worklist-app/test/mockServer.html)
-* [Documentation](https://help.sap.com/docs/SAP_FIORI_tools/17d50220bcd848aa854c9c182d65b699/dcd9f97aa8de4adab8270315550f2b23.html)
-* [SAP Fiori Design Guidelines](https://experience.sap.com/fiori-design/)
-* [UI5 Tooling](https://github.com/SAP/ui5-tooling). 
-* [OpenUI5](https://github.com/SAP/openui5)
+## Usage
 
-## Prerequisites
-The **UI5 build and development tooling command line interface (UI5 CLI)** has to be installed.
-For installation instructions please see [Installing the UI5 CLI](https://github.com/SAP/ui5-tooling#installing-the-ui5-cli).
+```js
+i18nZipcodes(countryCode: string, zipCode: string): boolean
+// countryCode param is case insensitive
+```
 
-## Setup
-1. Clone the repository and navigate into it
-    ```sh
-    git clone https://github.com/SAP/openui5-worklist-app.git
-    cd openui5-worklist-app
-    ```
-1. Install all dependencies
-    ```sh
-    npm install
-    ```
+### For Node.js
+```js
+// CommonJS Syntax
+const i18nZipcodes = require('i18n-zipcodes');
+// or ES Syntax
+import i18nZipcodes from 'i18n-zipcodes';
 
-1. Start a local server and run the application (http://localhost:8080/index.html)
-    ```sh
-    ui5 serve -o /index.html
-    ```
+i18nZipcodes('US', '90210'); // true
 
-## Testing
-* Run ESLint code validation
-    ```sh
-    npm run lint
-    ```
-* Start a local server and execute the tests automatically after every change
-    ```sh
-    npm run watch
-    ```
-* Run ESLint, start a local server and run the tests in CI mode
-    ```sh
-    npm test
-    ```
+i18nZipcodes('fr', '5632'); // false
+```
 
-For more build and development options please see: [UI5 Build and Development Tooling](https://github.com/SAP/ui5-tooling)
+### For the browser
+```html
+<script src="i18n-zipcodes.min.js"></script>
+<script>
+    console.log(i18nZipcodes('fr', '75014')); // true
+</script>
+```
 
-## Support
-This repository is based on the [OpenUI5 template demo apps](https://sdk.openui5.org/demoapps) and updated regularly with our latest recommendations. 
-If you found a bug, please create an [OpenUI5 issue](https://github.com/sap/openui5/issues). Thank you!
+
+## 115 Countries supported
+Country codes use the [ISO 3166-1](https://en.wikipedia.org/wiki/ISO_3166-1) format.
+
+### A
+- 🇦🇩 (`AD`) Andorra
+- 🇦🇲 (`AM`) Armenia
+- 🇦🇷 (`AR`) Argentina
+- 🇦🇸 (`AS`) American Samoa
+- 🇦🇹 (`AT`) Austria
+- 🇦🇺 (`AU`) Australia
+- 🇦🇿 (`AZ`) Azerbaijan
+
+### B
+- 🇧🇦 (`BA`) Bosnia and Herzegovina
+- 🇧🇩 (`BD`) Bangladesh
+- 🇧🇪 (`BE`) Belgium
+- 🇧🇬 (`BG`) Bulgaria
+- 🇧🇯 (`BJ`) Benin
+- 🇧🇲 (`BM`) Bermuda
+- 🇧🇳 (`BN`) Brunei
+- 🇧🇷 (`BR`) Brazil
+- 🇧🇾 (`BY`) Belarus
+
+### C
+- 🇨🇦 (`CA`) Canada
+- 🇨🇭 (`CH`) Switzerland
+- 🇨🇳 (`CN`) China
+- 🇨🇺 (`CU`) Cuba
+- 🇨🇽 (`CX`) Christmas Island
+- 🇨🇾 (`CY`) Cyprus
+- 🇨🇿 (`CZ`) Czechia
+
+### D
+- 🇩🇪 (`DE`) Germany
+- 🇩🇰 (`DK`) Denmark
+- 🇩🇿 (`DZ`) Algeria
+
+### E
+- 🇪🇪 (`EE`) Estonia
+- 🇪🇸 (`ES`) Spain
+
+### F
+- 🇫🇮 (`FI`) Finland
+- 🇫🇲 (`FM`) Micronesia
+- 🇫🇴 (`FO`) Faroe Islands
+- 🇫🇷 (`FR`) France
+
+### G
+- 🇬🇪 (`GE`) Georgia
+- 🇬🇫 (`GF`) French Guiana
+- 🇬🇱 (`GL`) Greenland
+- 🇬🇵 (`GP`) Guadeloupe
+- 🇬🇷 (`GR`) Greece
+- 🇬🇹 (`GT`) Guatemala
+- 🇬🇺 (`GU`) Guam
+- 🇬🇼 (`GW`) Guinea-Bissau
+
+### H
+- 🇭🇷 (`HR`) Croatia
+- 🇭🇺 (`HU`) Hungary
+
+### I
+- 🇮🇨 (`IC`) Canary Islands
+- 🇮🇩 (`ID`) Indonesia
+- 🇮🇪 (`IE`) Ireland
+- 🇮🇱 (`IL`) Israel
+- 🇮🇳 (`IN`) Inde
+- 🇮🇸 (`IS`) Iceland
+- 🇮🇹 (`IT`) Italy
+
+### J
+- 🇯🇵 (`JP`) Japan
+
+### K
+- 🇰🇪 (`KE`) Kenya
+- 🇰🇬 (`KG`) Kyrgyzstan
+- 🇰🇷 (`KR`) South Korea
+- 🇰🇼 (`KW`) Kuwait
+- 🇰🇿 (`KZ`) Kazakhstan
+
+### L
+- 🇱🇮 (`LI`) Liechtenstein
+- 🇱🇹 (`LT`) Lithuania
+- 🇱🇺 (`LU`) Luxembourg
+- 🇱🇻 (`LV`) Latvia
+
+### M
+- 🇲🇦 (`MA`) Morocco
+- 🇲🇩 (`MD`) Moldova
+- 🇲🇪 (`ME`) Montenegro
+- 🇲🇬 (`MG`) Madagascar
+- 🇲🇭 (`MH`) Marshall Islands
+- 🇲🇰 (`MK`) North Macedonia
+- 🇲🇲 (`MM`) Myanmar
+- 🇲🇳 (`MN`) Mongolia
+- 🇲🇵 (`MP`) Northern Mariana Islands
+- 🇲🇶 (`MQ`) Martinique
+- 🇲🇹 (`MT`) Malta
+- 🇲🇻 (`MV`) Maldives
+- 🇲🇽 (`MX`) Mexico
+- 🇲🇾 (`MY`) Malaysia
+- 🇲🇿 (`MZ`) Mozambique
+
+### N
+- 🇳🇱 (`NL`) Netherlands
+- 🇳🇴 (`NO`) Norway
+- 🇳🇿 (`NZ`) New Zealand
+
+### P
+- 🇵🇭 (`PH`) Philippines
+- 🇵🇰 (`PK`) Pakistan
+- 🇵🇱 (`PL`) Poland
+- 🇫🇷 (`PM`) Saint Pierre and Miquelon
+- 🇵🇷 (`PR`) Puerto Rico
+- 🇵🇸 (`PS`) Palestine
+- 🇵🇹 (`PT`) Portugal
+- 🇵🇼 (`PW`) Palau
+
+### R
+- 🇷🇪 (`RE`) Réunion
+- 🇷🇴 (`RO`) Romania
+- 🇷🇸 (`RS`) Serbia
+- 🇷🇺 (`RU`) Russian Federation
+
+### S
+- 🇸🇦 (`SA`) Saudi Arabia
+- 🇸🇩 (`SD`) Sudan
+- 🇸🇪 (`SE`) Sweden
+- 🇸🇬 (`SG`) Singapore
+- 🇸🇮 (`SI`) Slovenia
+- 🇸🇰 (`SK`) Slovakia
+- 🇸🇲 (`SM`) San Marino
+- 🇸🇿 (`SZ`) Swaziland
+
+### T
+- 🇹🇭 (`TH`) Thailand
+- 🇹🇯 (`TJ`) Tajikistan
+- 🇹🇲 (`TM`) Turkmenistan
+- 🇹🇳 (`TN`) Tunisia
+- 🇹🇷 (`TR`) Turkey
+- 🇹🇼 (`TW`) Taiwan
+
+### U
+- 🇺🇦 (`UA`) Ukraine
+- 🇬🇧 (`UK`) United Kingdom
+- 🇺🇸 (`US`) United States of America
+- 🇺🇾 (`UY`) Uruguay
+- 🇺🇿 (`UZ`) Uzbekistan
+
+### V
+- 🇻🇪 (`VE`) Venezuela
+- 🇻🇮 (`VI`) Virgin Islands (U.S.)
+- 🇻🇳 (`VN`) Viet Nam
+
+### X
+- 🇽🇰 (`XK`) Kosovo
+
+### Y
+- (`YU`) Yugoslavia
+
+### Z
+- 🇿🇦 (`ZA`) South Africa
+- 🇿🇲 (`ZM`) Zambia
