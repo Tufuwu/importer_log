@@ -1,6 +1,7 @@
-include README.md
-include CHANGELOG.adoc
 include LICENSE
-include MANIFEST.in
-include etc/ldap.conf
-include etc/openssh-lpk.schema
+include AUTHORS.rst
+include CHANGES.rst
+include README.rst
+
+recursive-exclude * __pycache__
+recursive-exclude * *.py[co]

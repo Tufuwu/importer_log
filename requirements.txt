@@ -1,6 +1,5 @@
-pycodestyle
+pre-commit
 pytest
 pytest-cov
-pytest-describe
-pytest-mock
-python-ldap>=3.0.0,<4
+tox
+tox-gh-actions

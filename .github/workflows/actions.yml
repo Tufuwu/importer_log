@@ -10,32 +10,63 @@ jobs:
   test:
     runs-on: # this agent type is not supported: [[{"dist"=>"noble"}]]
              ubuntu-latest
+    env:
+      TOX_ENV: py38
     steps:
     - name: checkout
       uses: actions/checkout@v4.1.0
+    - run: rm -rf ${{ github.workspace }}/.cache/pip/log
+    - name: Set up cache
+      uses: actions/cache@v3.3.2
+      with:
+        path: "${{ github.workspace }}/.cache/pip"
+        key: "${{ runner.os }}-path"
     - uses: actions/setup-python@v5.0.0
       with:
-        python-version: "${{ matrix.python }}"
-#     # 'sudo' was not transformed because there is no suitable equivalent in GitHub Actions
-    - run: sed '/pypandoc/d' -i requirements.txt
-    - run: pip install -U -r requirements.txt
-    - run: "./setup.py install"
-    - run: py.test --cov=ssh_ldap_pubkey --cov-report term -vv
-    - run: pycodestyle
-#     # This item has no matching transformer
-#     - pypi:
-#         provider: pypi
-#         user: jirutka
-#         password:
-#           secure: 2tzmNOMTjVcyIckYun5iZbgr9/6nrhImD4eFYOCbFFDezilGmPHwfbgp0zx55nrkdNOSB/mgsV+pYAdq8+0CRd/BcZZb9oosyS7n1vjPAP9fMNa02SsaqTWDzDpcNnGbfg7qOhKC/FyQ+H4uXp8w+pe4RfJFCUS/ywOimBEYrSI=
-#         skip_cleanup: true
-#         'on':
-#           tags: true
-#           python: 3.1
-#       if: "${{ github.event_name == 'push' && ${{ github.ref }} }}"
-    strategy:
-      matrix:
-        python:
-        - 3.8
-        - 3.9
-        - 3.1
+        python-version: 3.8
+    - run: pip install -U -r requirements-dev.txt
+    - run: pip install .
+    - run: tox -e $TOX_ENV
+    - run: pytest --dead-fixtures
+  test_2:
+    runs-on: # this agent type is not supported: [[{"dist"=>"noble"}]]
+             ubuntu-latest
+    env:
+      TOX_ENV: py39
+    steps:
+    - name: checkout
+      uses: actions/checkout@v4.1.0
+    - run: rm -rf ${{ github.workspace }}/.cache/pip/log
+    - name: Set up cache
+      uses: actions/cache@v3.3.2
+      with:
+        path: "${{ github.workspace }}/.cache/pip"
+        key: "${{ runner.os }}-path"
+    - uses: actions/setup-python@v5.0.0
+      with:
+        python-version: 3.9
+    - run: pip install -U -r requirements-dev.txt
+    - run: pip install .
+    - run: tox -e $TOX_ENV
+    - run: pytest --dead-fixtures
+  test_3:
+    runs-on: # this agent type is not supported: [[{"dist"=>"noble"}]]
+             ubuntu-latest
+    env:
+      TOX_ENV: pypy3.7
+    steps:
+    - name: checkout
+      uses: actions/checkout@v4.1.0
+    - run: rm -rf ${{ github.workspace }}/.cache/pip/log
+    - name: Set up cache
+      uses: actions/cache@v3.3.2
+      with:
+        path: "${{ github.workspace }}/.cache/pip"
+        key: "${{ runner.os }}-path"
+    - uses: actions/setup-python@v5.0.0
+      with:
+        python-version: pypy3.7
+    - run: pip install -U -r requirements-dev.txt
+    - run: pip install .
+    - run: tox -e $TOX_ENV
+    - run: pytest --dead-fixtures
