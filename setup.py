@@ -1,67 +1,51 @@
-#! /usr/bin/env python
-# coding=utf-8
+"""
 
-try:
-    from setuptools import setup
-except ImportError:
-    from distutils.core import setup
+Datakit
+-------
 
+`datakit-core` is a pluggable command-line tool for creating custom
+data science workflows.
 
-with open('README.rst') as readme_file:
-    readme = readme_file.read()
+It's intended to be used with one or more compatible plugins. Check out the
+ `Associated Pess Github account <https://github.com/search?q=topic%3Adatakit-cli+org%3Aassociatedpress&type=Repositories>`_
+ for an evolving set of plugins or learn
+ `how to write your own <http://datakit-core.readthedocs.io/en/latest/developers.html#creating-plugins>`_.
 
-with open('CHANGELOG.rst') as history_file:
-    history = history_file.read().replace('.. :changelog:', '')
+"""
 
-requirements = [
-]
-
-test_requirements = [
-    # TODO: put package test requirements here
-]
+from setuptools import setup, find_packages
 
 setup(
-    name='python-nvd3',
-    version='0.14.2',
-    description="Python NVD3 - Chart Library for d3.js",
-    long_description=readme + '\n\n' + history,
-    keywords='plot, graph, nvd3, d3',
-    author='Belaid Arezqui',
-    author_email='areski@gmail.com',
-    url='http://github.com/areski/python-nvd3',
-    license="MIT",
-    py_modules=['nvd3'],
-    namespace_packages=[],
-    test_suite='tests',
-    packages=[
-        'nvd3',
-    ],
-    include_package_data=True,
-    zip_safe=False,
-    install_requires=[
-        'python-slugify>=1.2.5',
-        'Jinja2>=2.8'
-        # -*- Extra requirements: -*-
-    ],
-    entry_points={
-        'console_scripts': [
-            'nvd3 = nvd3.NVD3Chart:_main',
-        ],
-    },
+    name='datakit-core',
+    version='0.3.1',
+    description="A pluggable command-line tool for custom data science workflows.",
+    long_description=__doc__,
+    author="Serdar Tumgoren",
+    author_email='zstumgoren@gmail.com',
+    url='https://github.com/associatedpress/datakit-core',
+    license="ISCL",
+    keywords='datakit',
     classifiers=[
-        'Development Status :: 5 - Production/Stable',
-        'Environment :: Console',
+        'Development Status :: 3 - Alpha',
         'Intended Audience :: Developers',
-        'License :: OSI Approved :: MIT License',
-        'Operating System :: OS Independent',
-        'Programming Language :: Python',
-        'Programming Language :: Python :: 2',
-        'Programming Language :: Python :: 2.7',
-        'Programming Language :: Python :: 3',
+        'License :: OSI Approved :: ISC License (ISCL)',
+        'Natural Language :: English',
         'Programming Language :: Python :: 3.3',
         'Programming Language :: Python :: 3.4',
         'Programming Language :: Python :: 3.5',
-        'Topic :: Multimedia :: Graphics :: Presentation',
-        'Topic :: Software Development :: Libraries :: Python Modules',
+        'Programming Language :: Python :: 3.6',
+        'Environment :: Console',
     ],
+    packages=find_packages(exclude=['contrib', 'docs', 'tests']),
+    include_package_data=True,
+    install_requires=['cliff'],
+    entry_points={
+        'console_scripts': [
+            'datakit=datakit.main:main',
+        ],
+        'datakit.plugins': []
+    },
+    test_suite='tests',
+    tests_require=['pytest', 'pytest-mock'],
+    zip_safe=False,
 )
