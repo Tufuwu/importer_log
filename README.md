@@ -1,208 +1,238 @@
-# Pa11y Dashboard
+# Localicious
 
-Pa11y Dashboard is a web interface to the [Pa11y][pa11y] accessibility reporter; allowing you to focus on *fixing* issues rather than hunting them down.
+localicious is a toolchain for working with localization files in a platform-agnostic way. With it, you can:
 
-![Version][shield-version]
-[![Node.js version support][shield-node]][info-node]
-[![Build status][shield-build]][info-build]
-[![GPL-3.0 licensed][shield-license]][info-license]
+* Maintain all your localized copy and accessibility key/value pairs in one file, grouped per component.
+* Verify the integrity of your base localization file against a schema
+* Generate locale files for both Android, iOS or JS from your base localization file
 
-![dashboard](https://user-images.githubusercontent.com/6110968/61603347-0bce1000-abf2-11e9-87b2-a53f91d315bb.jpg)
-![results-page](https://user-images.githubusercontent.com/6110968/62183438-05851580-b30f-11e9-9bc4-b6a4823ae9e8.jpg)
+The goals of localicious are:
 
+* **Copywriter-friendliness**
+  
+  Likewise, it should be easy for copywriters to change and add copy. For each string copywriters should be able to easily get an overview of the translations provided for the various languages.
+
+* **Developer-friendliness**
+  
+  It should be easy for developers maintaining and developing features to work with the new system. They should be able to trust that the necessary copy will be there for any language. Moreover, the format in which the copy is delivered should be predictable to minimise dependencies between developers and copywriters in a fast-paced environment.
+
+* **Robustness**
+
+  One cannot blindly import localization files into the app and expect everything to work. Therefore, localicious enables both validation and conversion. Together, these two operations can support a robust workflow that minimises the potential for mistakes.
+
+## Workflow
+
+localicious assumes the following workflow:
+
+1. You keep all your localizable strings in a YAML file that adheres to the structure defined by localicious.
+2. When committed to a source repository, the YAML file is guaranteed to have passed localicious verification.
+3. You point to the current working version of the YAML file in your iOS or Android project.
+4. Using localicious, you generate the localization files when desired.
+
+## Requirements and installation
+
+localicious requires node 10.12.0 or later.
+
+## The Localicipe
+
+The central concept of localicious is the so-called Localicipe. It is a YAML file that contains all localized copy and accessibility strings grouped by feature and screen. The strings in the Localicipe can be divided into different collections. Multiple collections can be combined when [Converting the Localicipe](#converting-the-localicipe) into platform specific outputs.
+
+Using collections it's easy to keep track of strings that are used on a single platform and strings that are shared across multiple platforms. 
+For an existing iOS and Android app, it could be useful to create three different collections: 
+- `IOS`(containing all iOS specific strings) 
+- `ANDROID`(containing all Android specific strings)
+- `SHARED`(containing all strings that are shared between iOS and Android).
+
+Each leaf node in a collection is either a `COPY` group or an `ACCESSIBILITY` group. The required structure of both groups is explained below:
+```
+<COLLECTION NAME>:
+  Feature:
+    Screen:
+      Element:
+        COPY:
+          en: "Translation for English speakers"
+          nl: "Vertaling voor Nederlandstaligen"
+        ACCESSIBILITY:
+          HINT|LABEL|VALUE:
+            en: "Accessibility for English speakers"
+            nl: "Toegankelijkheid voor Nederlandstaligen"
+      AnotherElement:
+        COPY:
+          ZERO|ONE|OTHER:
+            en: "Plural translation for English speakers"
+            nl: "Meervoudige vertaling voor Nederlandstaligen"
+        ...
+      ...
+    ...
+  ...
+...
+```
+
+## Retrieving the Localicipe
+
+If you are working with a team, you probably want to store your Localicipe in a Git repository and manage changes like you handle changes to your source code. Localicious supports that workflow. Simply create a repository that hosts your Localicipe. Then, in the root of the source repository of your Android or iOS project, you add the following `LocaliciousConfig.yaml`:
+
+```
+source:
+  git:
+    url: 'https://github.com/localicious/localicious-test.git'
+languages:
+  - en
+  - nl
+outputTypes:
+  - IOS
+collections:
+  - IOS
+  - SHARED
+```
+
+To retrieve the latest version of the file in your repository, simply run `localicious install`. localicious also supports specifying a specific Git branch (by adding `:branch`).
+
+## Converting the Localicipe
+
+Using the `render` command, a Localicipe can be converted into platform specific outputs. Here's an overview on how the command works:
+
+**Syntax**
+
+`localicious render <localicipe path> <output path>`
+
+**Options**
+
+`--outputTypes/-ot` (required)
+- The platform/language for which the output files will be generated (`Localized.strings` for iOS, `strings.xml` for Android, `strings.json` for JS).
+- Available options are: `ios`, `android` or `js`
+
+`--collections/-c` (required)
+- The collections, defined in the Localicipe, that should be included into the output.
+
+`--languages/-l` (required)
+- The languages that should be included into the output.
+
+Consider the following Localicipe:
+
+```
 ---
-
-## Requirements
-
-Pa11y Dashboard is a [Node.js][node] application and requires a stable or LTS version of Node, currently version 12 or 14.
-
-⚠️ At the moment, Pa11y Dashboard won't work with Node.js v16. Please use Node.js 12 or 14. ⚠️
-
-Pa11y Dashboard uses a [MongoDB][mongo] database to store the results of the tests. The database doesn't have to be in the same server or computer where Pa11y Dashboard is running from.
-
-Pa11y Dashboard uses [puppeteer](https://www.npmjs.com/package/puppeteer) to create a headless instance of the Chromium browser in order to run the tests. On certain environments this may require additional dependencies to be installed. For example, in Debian/Ubuntu systems you may need to install the `libnss3` and `libgconf-2-4` libraries in order to be able to run tests on Pa11y Dashboard. Please refer to the documentation from your provider for details on how to do this.
-
-## Setting up Pa11y Dashboard
-
-In order to run Pa11y Dashboard, we recommend cloning this repository locally:
-
-```sh
-git clone https://github.com/pa11y/pa11y-dashboard.git
+# Strings that are used in Android only
+ANDROID:
+  Checkout:
+    OrderOverview:
+      Total:
+        COPY:
+          en: 'Total price: %1{{s}}'  # This placeholder will expand to %1$@ on iOS and %1$s on Android
+          nl: 'Totaal: %1{{s}}'
+# Strings that are used in iOS only
+IOS:
+  Settings:
+    PushPermissionsRequest:
+      Title:
+        COPY:
+          en: 'Stay up to date'
+          nl: 'Blijf op de hoogte'
+# Strings that are shared between Android and iOS
+SHARED:
+  Delivery:
+    Widget:
+      Title:
+        COPY:
+          en: "Help"
+          nl: "Help"
+      SubTitle:
+        COPY:
+          ZERO:
+            en: '%1{{d}} Pending order'
+            nl: '%1{{d}} Lopende bestelling'
+          ONE:
+            en: '%1{{d}} Pending order'
+            nl: '%1{{d}} Lopende bestelling'
+          OTHER:
+            en: '%1{{d}} Pending Orders'
+            nl: '%1{{d}} Lopende bestellingen'
 ```
 
-Then installing the dependencies:
+By running the following localicious command:
 
-```sh
-cd pa11y-dashboard
-npm install
+`localicious render ./copy.yaml ./output_path --outputTypes android --collections ANDROID,SHARED --languages en`
+
+We can generate a strings.xml file for Android with the English translations provided:
+
+```
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+  <string name="Checkout.OrderOverview.Total.COPY">Total price: %1$s</string>
+  <string name="Delivery.Widget.Title.COPY">Help</string>
+  <plurals name="Delivery.Widget.SubTitle.COPY">
+    <item quantity="zero">%1$d Pending order</item>
+    <item quantity="one">%1$d Pending order</item>
+    <item quantity="other">%1$d Pending Orders</item>
+  </plurals>
+</resources>
 ```
 
-### Installing MongoDB
+A similar file with the Dutch translations will be created as well if we request localicious to do so:
 
-Instructions for installing and running MongoDB are outside the scope of this document. When in doubt, please refer to the [MongoDB installation instructions](https://docs.mongodb.com/manual/installation/) for details of how to install and run MongoDB on your specific operating system. An example of the installation and configuration process for macOS follows.
+`localicious render ./copy.yaml ./output_path --outputTypes android --collections ANDROID,SHARED --languages en,nl`
 
-Pa11y Dashboard currently uses version 3 of the Node.js MongoDB driver, which means that [only MongoDB servers of versions 4.4 or older are supported](https://docs.mongodb.com/drivers/node/current/compatibility/#mongodb-compatibility). Please ensure that your MongoDB server fills the requirements before trying to run Pa11y Dashboard.
+By changing the destination output type, like so:
 
-#### Example MongoDB installation for macOS
+`localicious render ./copy.yaml ./output_path --outputTypes ios --collections IOS,SHARED --languages en`
 
-On recent versions of macOS (10.13 or later), you can use [Homebrew](https://brew.sh/) to install MongoDB Community Edition. More recent versions of MongoDB are untested and unsupported.
+the following Localizable.strings file will be generated for iOS:
 
-Tap the MongoDB Homebrew Tap:
-
-```sh
-brew tap mongodb/brew
+```
+"Settings.PushPermissionsRequest.Title.COPY" = "Stay up to date";
+"Delivery.Widget.Title.COPY" = "Help";
+"Delivery.Widget.SubTitle.COPY.ZERO" = "%1$d Pending order";
+"Delivery.Widget.SubTitle.COPY.ONE" = "%1$d Pending order";
+"Delivery.Widget.SubTitle.COPY.OTHER" = "%1$d Pending Orders";
 ```
 
-Install a supported Community version of MongoDB:
+## Validating
 
-```sh
-brew install mongodb-community@4.4
+Whenever we make changes to the Localicipe, it is important to verify that the format of the file is still correct.
+Using the `validate` command, a Localicipe can be validated.
+
+**Syntax**
+
+`localicious validate <localicipe path> <output path>`
+
+**Options**
+
+`--collections/-c` (required)
+- The collections, defined in the Localicipe, that should be validated.
+
+`--required-languages/-l` (required)
+- The languages that are required in the provided Localicipe.
+
+`--optional-languages/-o`
+- The languages that are optional in the provided Localicipe.
+
+
+Imagine that we change the file in the previous example and add another entry for iOS:
+
+```
+Settings:
+  PushPermissionsRequest:
+    Subtitle:
+      COPY
+        en: 'Stay up to date'
 ```
 
-Start the MongoDB server:
+Using the validation feature, we can validate whether the structure of the file is still correct after the change:
 
-```sh
-brew services start mongodb/brew/mongodb-community@4.4
+`localicious validate ./copy.yaml --collections IOS --required-languages en,nl`
+
+Since we forgot to add a Dutch localization for the `Settings.PushPermissionsRequest.Subtitle.COPY` key, this will fail:
+
+```
+❌ Your Localicipe contains some issues.
 ```
 
-Check that the service has started properly:
+localicious also supports the concept of optional languages. If we were to run the validator as follows:
 
-```sh
-$ brew services list
-Name              Status  User       Plist
-mongodb-community started pa11y      /Users/pa11y/Library/LaunchAgents/homebrew.mxcl.mongodb-community.plist
-```
+`localicious validate ./copy.yaml --collections IOS --required-languages en --optional-languages nl`
 
-### Configuring Pa11y Dashboard
+the above file would pass validation even without the Dutch translation missing for some entries.
 
-The last step before being able to run Pa11y Dashboard is to define a configuration for it. This can be done in two ways:
+## Migration
 
-#### Option 1: Using environment variables
-
-Each configuration can be set with an environment variable rather than a config file. For example to run the application on port `8080` you can use the following:
-
-```sh
-PORT=8080 node index.js
-```
-
-The [available configurations](#configurations) are documented in the next section.
-
-#### Option 2: Using config files
-
-You can store the configuration for Pa11y Dashboard on a JSON file. You can use a different configuration file for each environment you're planning to run Pa11y Dashboard on. You can choose a specific environment to run the application from by setting the `NODE_ENV` environment variable:
-
-```sh
-NODE_ENV=development node index.js
-```
-
-Three example files are provided in this repository, you can copy and customise them to your liking:
-
-```sh
-cp config/development.sample.json config/development.json
-cp config/production.sample.json config/production.json
-cp config/test.sample.json config/test.json
-```
-
-The [available configurations](#configurations) are documented in the next section.
-
-If you run into problems, check the [troubleshooting guide][#troubleshooting].
-
-## Configurations
-
-The boot configurations for Pa11y Dashboard are as follows. Look at the sample JSON files in the repo for example usage.
-
-### port
-
-*(number)* The port to run the application on. Set via a config file or the `PORT` environment variable.
-
-### noindex
-
-*(boolean)* If set to `true` (default), the dashboard will not be indexed by search engines. Set to `false` to allow indexing. Set via a config file or the `NOINDEX` environment variable.
-
-### readonly
-
-*(boolean)* If set to `true`, users will not be able to add, delete or run URLs (defaults to `false`). Set via a config file or the `READONLY` environment variable.
-
-### siteMessage
-
-*(string)* A message to display prominently on the site home page. Defaults to `null`.
-
-### webservice
-
-This can either be an object containing [Pa11y Webservice configurations][pa11y-webservice-config], or a string which is the base URL of a [Pa11y Webservice][pa11y-webservice] instance you are running separately. If using environment variables, prefix the webservice vars with `WEBSERVICE_`.
-
-## Contributing
-
-There are many ways to contribute to Pa11y Dashboard, we cover these in the [contributing guide](CONTRIBUTING.md) for this repo.
-
-If you're ready to contribute some code, you'll need to clone the repo and get set up as outlined in the [setup guide](#setup). You'll then need to start the application in test mode with:
-
-```sh
-NODE_ENV=test node index.js
-```
-
-You'll now be able to run the following commands:
-
-```sh
-make verify              # Verify all of the code (ESLint)
-make test                # Run all tests
-make test-integration    # Run the integration tests
-```
-
-To compile the client-side JavaScript and CSS, you'll need the following commands. Compiled code is committed to the repository.
-
-```sh
-make less    # Compile the site CSS from LESS files
-make uglify  # Compile and uglify the client-side JavaScript
-```
-
-## Useful resources
-
-* [Setting up An Accessibility Dashboard from Scratch with Pa11y on DigitalOcean](https://una.im/pa11y-dash/)
-* [Monitoring Web Accessibility Compliance With Pa11y Dashboard](https://www.lullabot.com/articles/monitoring-web-accessibility-compliance-with-pa11y-dashboard)
-
-## Troubleshooting
-
-### Common issues
-
-* `500` errors or `Could not connect to pa11y-webservice` messages are often related to MongoDB. Ensure that you have the [appropriate version of MongoDB][#installing-mongodb] installed, and that it's running - it doesn't always start automatically.
-* Error messages saying that pa11y-webservice isn't running may be due to dependency installation problems. Try deleting your `pa11y-dashboard/node_modules` directory and running `npm install` again.
-
-### Create a new issue
-
-Check the [issue tracker][issues] for similar issues before creating a new one. If the problem that you're experiencing is not covered by one of the existing issues, you can [create a new issue][create-issue]. Please include your node.js and MongoDB version numbers, and your operating system, as well as any information that may be useful in debugging the issue.
-
-## Support and Migration
-
-Pa11y Dashboard major versions are normally supported for 6 months after their last minor release. This means that patch-level changes will be added and bugs will be fixed. The table below outlines the end-of-support dates for major versions, and the last minor release for that version.
-
-We also maintain a [migration guide](MIGRATION.md) to help you migrate.
-
-| :grey_question: | Major Version | Last Minor Release | Node.js Versions | Support End Date |
-| :-------------- | :------------ | :----------------- | :--------------- | :--------------- |
-| :heart:         | 4             | N/A                | 12+              | N/A              |
-| :hourglass:     | 3             | 3.3.0              | 8+               | 2022-05-26       |
-| :skull:         | 2             | 2.4.2              | 4+               | 2020-01-16       |
-| :skull:         | 1             | 1.12               | 0.10–6           | 2016-12-05       |
-
-If you're opening issues related to these, please mention the version that the issue relates to.
-
-## License
-
-Pa11y Dashboard is licensed under the [GNU General Public License 3.0][info-license].<br/>
-Copyright &copy; 2013–2020, Team Pa11y and contributors
-
-[gpl]: http://www.gnu.org/licenses/gpl-3.0.html
-[mongo]: http://www.mongodb.org/
-[node]: http://nodejs.org/
-[pa11y]: https://github.com/pa11y/pa11y
-[pa11y-webservice-config]: https://github.com/pa11y/webservice#configurations
-[issues]: https://github.com/pa11y/pa11y-dashboard/issues?utf8=%E2%9C%93&q=is%3Aissue
-[create-issue]: https://github.com/pa11y/pa11y-dashboard/issues/new
-[info-node]: package.json
-[info-build]: https://travis-ci.org/pa11y/pa11y-dashboard
-[info-license]: LICENSE
-[shield-version]: https://img.shields.io/github/package-json/v/pa11y/pa11y-dashboard.svg
-[shield-node]: https://img.shields.io/node/v/pa11y/pa11y-dashboard.svg
-[shield-build]: https://img.shields.io/travis/pa11y/pa11y-dashboard/master.svg
-[shield-license]: https://img.shields.io/badge/license-GPL%203.0-blue.svg
+Read all migration details in our [Migration Guide](MIGRATION.md).
