@@ -1,722 +1,639 @@
-# TinyTuya
+# Stock Statistics/Indicators Calculation Helper
 
-[![License](https://img.shields.io/github/license/jasonacox/tinytuya)](https://img.shields.io/github/license/jasonacox/tinytuya)
-[![PyPI version](https://badge.fury.io/py/tinytuya.svg)](https://badge.fury.io/py/tinytuya)
-[![Build Test](https://github.com/jasonacox/tinytuya/actions/workflows/test.yml/badge.svg)](https://github.com/jasonacox/tinytuya/actions/workflows/test.yml)
-[![PyPI - Python Version](https://img.shields.io/pypi/pyversions/tinytuya)](https://img.shields.io/pypi/pyversions/tinytuya)
-[![PyPI Downloads](https://static.pepy.tech/badge/tinytuya/month)](https://static.pepy.tech/badge/tinytuya/month)
+[![build & test](https://github.com/jealous/stockstats/actions/workflows/build-test.yml/badge.svg)](https://github.com/jealous/stockstats/actions/workflows/build-test.yml)
+[![codecov](https://codecov.io/gh/jealous/stockstats/branch/master/graph/badge.svg?token=IFMD1pVJ7T)](https://codecov.io/gh/jealous/stockstats)
+[![pypi](https://img.shields.io/pypi/v/stockstats.svg)](https://pypi.python.org/pypi/stockstats)
 
-Python module to interface with Tuya WiFi smart devices
+VERSION: 0.4.0
 
-## Description
+## Introduction
 
-This python module controls and reads state of [Tuya](https://en.tuya.com/) compatible WiFi Smart Devices (Plugs, Switches, Lights, Window Covers, etc.) using the local area network (LAN) or the cloud (TuyaCloud API).  This is a compatible replacement for the `pytuya` PyPi module.
+Supply a wrapper ``StockDataFrame`` for ``pandas.DataFrame`` with inline stock
+statistics/indicators support.
 
-[Tuya](https://en.tuya.com/) devices are designed to communicate with the TuyaCloud but most also expose a local area network API, allowing us to directly control the devices without using the cloud. This python module provides a way to poll status and issue commands to these devices. Starting with v1.3.0, TinyTuya can also connect to the Tuya Cloud to poll status and issue commands to Tuya devices.
+Supported statistics/indicators are:
 
-![TinyTuya Diagram](https://raw.githubusercontent.com/jasonacox/tinytuya/master/docs/TinyTuya-diagram.svg)
+* change (in percent)
+* delta
+* permutation (zero based)
+* log return
+* max in range
+* min in range
+* middle = (close + high + low) / 3
+* compare: le, ge, lt, gt, eq, ne
+* count: both backward(c) and forward(fc)
+* cross: including upward cross and downward cross
+* SMA: Simple Moving Average
+* EMA: Exponential Moving Average
+* MSTD: Moving Standard Deviation
+* MVAR: Moving Variance
+* RSV: Raw Stochastic Value
+* RSI: Relative Strength Index
+* KDJ: Stochastic Oscillator
+* Bolling: Bollinger Band
+* MACD: Moving Average Convergence Divergence
+* CR: Energy Index (Intermediate Willingness Index)
+* WR: Williams Overbought/Oversold index
+* CCI: Commodity Channel Index
+* TR: True Range
+* ATR: Average True Range
+* DMA: Different of Moving Average (10, 50)
+* DMI: Directional Moving Index, including
+    * +DI: Positive Directional Indicator
+    * -DI: Negative Directional Indicator
+    * ADX: Average Directional Movement Index
+    * ADXR: Smoothed Moving Average of ADX
+* TRIX: Triple Exponential Moving Average
+* TEMA: Another Triple Exponential Moving Average
+* VR: Volatility Volume Ratio
+* MFI: Money Flow Index
+* VWMA: Volume Weighted Moving Average
+* CHOP: Choppiness Index
+* KAMA: Kaufman's Adaptive Moving Average
+* PPO: Percentage Price Oscillator
+* StochRSI: Stochastic RSI
+* WT: LazyBear's Wave Trend
 
-```python
-    # Example Usage of TinyTuya
-    import tinytuya
+## Installation
 
-    d = tinytuya.OutletDevice('DEVICE_ID_HERE', 'IP_ADDRESS_HERE', 'LOCAL_KEY_HERE')
-    d.set_version(3.3)
-    data = d.status() 
-    print('Device status: %r' % data)
+```pip install stockstats```
+
+## Compatibility
+
+The build checks the compatibility for the last two major release of python3 and
+the last release of python2.
+
+## License
+
+[BSD-3-Clause License](./LICENSE.txt)
+
+## Tutorial
+
+### Initialization
+
+`StockDataFrame` works as a wrapper for the `pandas.DataFrame`. You need to
+Initialize the `StockDataFrame` with `wrap` or `retype`.
+
+``` python
+import pandas as pd
+from stockstats import StockDataFrame
+
+df = pd.read_csv('stock.csv')
+stock = StockDataFrame.wrap(df)
 ```
 
-NOTE: This module requires the devices to have already been **activated** by Smart Life App.
+Formalize your data. This package takes for granted that your data is sorted by
+timestamp and contains certain columns. Please align your column name.
 
-## TinyTuya Installation  
+* `date`: timestamp of the record, optional.
+* `close`: the close price of the period
+* `high`: the highest price of the interval
+* `low`: the lowest price of the interval
+* `volume`: the volume of stocks traded during the interval
 
-TinyTuya supports python versions 2.7 and 3.x (recommended). You can install it using the python pip package manager ([see here](https://pip.pypa.io/en/stable/installation/)):
+Note these column names are case-insensitive. They are converted to lower case
+when you wrap the data frame.
 
-```bash
-  # Install TinyTuya
-  python -m pip install tinytuya
-```
+By default, the `date` column is used as the index. Users can also specify the
+index column name in the `wrap` or `retype` function.
 
-Pip will attempt to install `pycryptodome` and `requests` if not already installed. The modules `pycrypto`, `Crypto` or `pyaes` could be used instead.
-
-## Tuya Device Preparation
-
-Controlling and monitoring Tuya devices on your network requires the following:
-* *Address* - The network address (IPv4) of the device e.g. 10.0.1.100 
-* *Device ID* - The unique identifier for the Tuya device
-* *Version* - The Tuya protocol version used (3.1 or 3.3)
-* *Local_Key* - The security key required to access the Tuya device.
-
-### Network Scanner
-
-TinyTuya has a built in network scanner that can be used to find Tuya Devices on your local network. It will show *Address*, *Device ID* and *Version* for each device.  
-
-```bash
-python -m tinytuya scan
-```
-
-### Setup Wizard - Getting Local Keys
-
-TinyTuya has a built-in setup Wizard that uses the Tuya IoT Cloud Platform to generate a JSON list (devices.json) of all your registered devices, including secret *Local_Key* and *Name* of your devices. Follow the steps below:
-
-1. PAIR - Download the *Smart Life App* or *Tuya Smart App*, available for [iPhone](https://itunes.apple.com/us/app/smart-life-smart-living/id1115101477?mt=8) or [Android](https://play.google.com/store/apps/details?id=com.tuya.smartlife&hl=en). Pair all of your Tuya devices (this is important as you cannot access a device that has not been paired).
-
-2. SCAN - Run the TinyTuya scan to get a list of Tuya devices on your network. It will show device *Address*, *Device ID* and *Version* number (3.1 or 3.3):
-    ```bash
-    python -m tinytuya scan
-    ```
-    NOTE: You will need to use one of the displayed *Device IDs* for step 4.
-
-3. TUYA ACCOUNT - Set up a Tuya Account (see [PDF Instructions](https://github.com/jasonacox/tinytuya/files/8145832/Tuya.IoT.API.Setup.pdf)):
-    * Create a Tuya Developer account on [iot.tuya.com](https://iot.tuya.com/) and log in.  *NOTE: Tuya makes changes to their portal and this process frequently so details may vary. Please create an [issue](https://github.com/jasonacox/tinytuya/issues) or [pull request](https://github.com/jasonacox/tinytuya/pulls) with screenshots if we need to update these instructions.*
-    * Click on "Cloud" icon -> "Create Cloud Project"
-      1. Remember the "Data Center" you select.  This will be used by TinyTuya Wizard ([screenshot](https://user-images.githubusercontent.com/836718/138598647-c9657e49-1a89-4ed6-8105-ceee95d9513f.png)).
-      2. Skip the configuration wizard but remember the Authorization Key: *API ID* and *Secret* for below ([screenshot](https://user-images.githubusercontent.com/836718/138598788-f74d2fe8-57fa-439c-8003-18735a44e7e5.png)).
-    * Click on "Cloud" icon -> Select your project -> **Devices** -> **Link Tuya App Account** ([see screenshot](https://user-images.githubusercontent.com/836718/155827671-44d5fce4-0119-4d0e-a224-ef3715fafc24.png))
-    * Click **Add App Account** ([screenshot](https://user-images.githubusercontent.com/836718/155827671-44d5fce4-0119-4d0e-a224-ef3715fafc24.png)) and it will display a QR code. Scan the QR code with the *Smart Life app* on your Phone (see step 1 above) by going to the "Me" tab in the *Smart Life app* and clicking on the QR code button `[..]` in the upper right hand corner of the app. When you scan the QR code, it will link all of the devices registered in your *Smart Life app* into your Tuya IoT project.
-    * **NO DEVICES?** If no devices show up after scanning the QR code, you will need to select a different data center and edit your project (or create a new one) until you see your paired devices from the *Smart Life App* show up. ([screenshot](https://user-images.githubusercontent.com/35581194/148679597-391adecb-a271-453b-90c0-c64cdfad42e4.png)). The data center may not be the most logical. As an example, some in the UK have reported needing to select "Central Europe" instead of "Western Europe".
-    * **SERVICE API:** Under "Service API" ensure these APIs are listed: `IoT Core`, `Authorization` and `Smart Home Scene Linkage`. To be sure, click subscribe again on every service.  Very important: **disable popup blockers** otherwise subscribing won't work without providing any indication of a failure. Make sure you authorize your Project to use those APIs:
-        - Click "Service API" tab
-        - Click "**Go to Authorize**" button
-        - Select the API Groups from the dropdown and click `Subscribe` ([screenshot](https://user-images.githubusercontent.com/38729644/128742724-9ed42673-7765-4e21-94c8-76022de8937a.png))
-
-4. WIZARD - Run Setup Wizard:
-    * Tuya has changed their data center regions. Make sure you are using the latest version of TinyTuya (v1.2.10 or newer).
-    * From your Linux/Mac/Win PC run the TinyTuya Setup **Wizard** to fetch the *Local_Keys* for all of your registered devices:
-      ```bash
-      python -m tinytuya wizard   # use -nocolor for non-ANSI-color terminals e.g. Windows cmd
-      ```
-    * The **Wizard** will prompt you for the *API ID* key, API *Secret*, API *Region* (cn, us, us-e, eu, eu-w, or in) from your Tuya IoT project as set in Step 3 above.
-        * To find those again, go to [iot.tuya.com](https://iot.tuya.com/), choose your project and click `Overview`
-            * API Key: Access ID/Client ID
-            * API Secret: Access Secret/Client Secret
-    * It will also ask for a sample *Device ID*.  Use one from step 2 above or found in the Device List on your Tuya IoT project.
-    * The **Wizard** will poll the Tuya IoT Cloud Platform and print a JSON list of all your registered devices with the "name", "id" and "key" of your registered device(s). The "key"s in this list are the Devices' *Local_Key* you will use to access your device. 
-    * In addition to displaying the list of devices, **Wizard** will create a local file `devices.json` that TinyTuya will use to provide additional details for scan results from `tinytuya.deviceScan()` or when running `python -m tinytuya scan`. The wizard also creates a local file `tuya-raw.json` that contains the entire payload from Tuya Cloud.
-    * The **Wizard** will ask if you want to poll all the devices. If you do, it will display the status of all devices on record and create a `snapshot.json` file with these results.
-
-Notes:
-* If you ever reset or re-pair your smart devices, the *Local_Key* will be reset and you will need to repeat the steps above.
-* The TinyTuya *Wizard* was inspired by the TuyAPI CLI which is an alternative way to fetch the *Local_Keys*: `npm i @tuyapi/cli -g` and run `tuya-cli wizard`  
-
-
-## Programming with TinyTuya
-
-After importing tinytuya, you create a device handle for the device you want to read or control.  Here is an example for a Tuya smart switch or plug:
-
-```python
-    import tinytuya
-
-    d = tinytuya.OutletDevice('DEVICE_ID_HERE', 'IP_ADDRESS_HERE', 'LOCAL_KEY_HERE')
-    d.set_version(3.3)
-
-    # Get Status
-    data = d.status() 
-    print('set_status() result %r' % data)
-
-    # Turn On
-    d.turn_on()
-```
-
-### TinyTuya Module Classes and Functions 
-```
-Global Functions
-    devices = deviceScan()             # Returns dictionary of devices found on local network
-    scan()                             # Interactive scan of local network
-    wizard()                           # Interactive setup wizard
-    set_debug(toggle, color)           # Activate verbose debugging output
-
-Classes
-    OutletDevice(dev_id, address, local_key=None, dev_type='default')
-    CoverDevice(dev_id, address, local_key=None, dev_type='default')
-    BulbDevice(dev_id, address, local_key=None, dev_type='default')
-        dev_id (str): Device ID e.g. 01234567891234567890
-        address (str): Device Network IP Address e.g. 10.0.1.99 or 0.0.0.0 to auto-find
-        local_key (str, optional): The encryption key. Defaults to None.
-        dev_type (str): Device type for payload options (see below)
-    Cloud(apiRegion, apiKey, apiSecret, apiDeviceID, new_sign_algorithm)
-
-
-Functions:
-
-  Configuration Settings: 
-
-    set_version(version)               # Set device version 3.1 [default] or 3.3 (all new devices)
-    set_socketPersistent(False/True)   # Keep connect open with device: False [default] or True
-    set_socketNODELAY(False/True)      # Add cooldown period for slow Tuya devices: False or True [default]
-    set_socketRetryLimit(integer)      # Set retry count limit [default 5]
-    set_socketTimeout(s)               # Set connection timeout in seconds [default 5]
-    set_dpsUsed(dpsUsed)               # Set data points (DPs) to expect (rarely needed)
-    set_retry(retry=True)              # Force retry if response payload is truncated
-    set_sendWait(num_secs)             # Seconds to wait after sending for a response
-    set_bulb_type(type):               # For BulbDevice, set type to A, B or C
-
-  Device Commands:
-
-    status()                           # Fetch status of device (json payload)
-    detect_available_dps()             # Return list of DPS available from device
-    set_status(on, switch=1, nowait)   # Control status of the device to 'on' or 'off' (bool)
-                                       # nowait (default False) True to send without waiting for response
-    set_value(index, value, nowait)    # Send and set value of any DPS/index on device.
-    heartbeat(nowait)                  # Send heartbeat to device
-    updatedps(index=[1], nowait)       # Send updatedps command to device to refresh DPS values
-    turn_on(switch=1, nowait)          # Turn on device / switch #
-    turn_off(switch=1, nowait)         # Turn off device
-    set_timer(num_secs, nowait)        # Set timer for num_secs on devices (if supported)
-    generate_payload(command, data)    # Generate TuyaMessage payload for command with data
-    send(payload)                      # Send payload to device (do not wait for response)
-    receive()                          # Receive payload from device
-
-    OutletDevice:
-        set_dimmer(percentage):
-        
-    CoverDevice:
-        open_cover(switch=1):  
-        close_cover(switch=1):
-        stop_cover(switch=1):
-
-    BulbDevice
-        set_colour(r, g, b, nowait):
-        set_hsv(h, s, v, nowait):
-        set_white(brightness, colourtemp, nowait):
-        set_white_percentage(brightness=100, colourtemp=0, nowait):
-        set_brightness(brightness, nowait):
-        set_brightness_percentage(brightness=100, nowait):
-        set_colourtemp(colourtemp, nowait):
-        set_colourtemp_percentage(colourtemp=100, nowait):
-        set_scene(scene, nowait):             # 1=nature, 3=rave, 4=rainbow
-        set_mode(mode='white', nowait):       # white, colour, scene, music
-        result = brightness():
-        result = colourtemp():
-        (r, g, b) = colour_rgb():
-        (h,s,v) = colour_hsv():
-        result = state():
-    
-    Cloud
-        setregion(apiRegion)
-        getdevices(verbose=False)
-        getstatus(deviceid)
-        getfunctions(deviceid)
-        getproperties(deviceid)
-        getdps(deviceid)
-        sendcommand(deviceid, commands)
-```
-
-### TinyTuya Error Codes
-
-Starting with v1.2.0 TinyTuya functions will return error details in the JSON data responses instead of raising exceptions.  The format for this response:
-
-```json
-{ "Error":"Invalid JSON Payload", "Err":"900", "Payload":"{Tuya Message}" }
-```
-
-The "Err" number will be one of these:
-
-* 900 (ERR_JSON) - Invalid JSON Response from Device
-* 901 (ERR_CONNECT) - Network Error: Unable to Connect
-* 902 (ERR_TIMEOUT) - Timeout Waiting for Device
-* 903 (ERR_RANGE) - Specified Value Out of Range
-* 904 (ERR_PAYLOAD) - Unexpected Payload from Device
-* 905 (ERR_OFFLINE) - Network Error: Device Unreachable
-* 906 (ERR_STATE) - Device in Unknown State
-* 907 (ERR_FUNCTION) - Function Not Supported by Device
-* 908 (ERR_DEVTYPE) - Device22 Detected: Retry Command
-* 909 (ERR_CLOUDKEY) - Missing Tuya Cloud Key and Secret
-* 910 (ERR_CLOUDRESP) - Invalid JSON Response from Cloud
-* 911 (ERR_CLOUDTOKEN) - Unable to Get Cloud Token
-* 912 (ERR_PARAMS) - Missing Function Parameters
-* 913 (ERR_CLOUD) - Error Response from Tuya Cloud
-
-### Example Usage
-
-See the sample python script [test.py](test.py) for an OutletDevice example or look in the [examples](examples) directory for other scripts.
-
-```python
-    import tinytuya
-
-    """
-    OUTLET Device
-    """
-    d = tinytuya.OutletDevice('DEVICE_ID_HERE', 'IP_ADDRESS_HERE', 'LOCAL_KEY_HERE')
-    d.set_version(3.3)
-    data = d.status()  
-
-    # Show status and state of first controlled switch on device
-    print('Dictionary %r' % data)
-    print('State (bool, true is ON) %r' % data['dps']['1'])  
-
-    # Toggle switch state
-    switch_state = data['dps']['1']
-    data = d.set_status(not switch_state)  # This requires a valid key
-    if data:
-        print('set_status() result %r' % data)
-
-    # On a switch that has 4 controllable ports, turn the fourth OFF (1 is the first)
-    data = d.set_status(False, 4)
-    if data:
-        print('set_status() result %r' % data)
-        print('set_status() extra %r' % data[20:-8])
-
-    """
-    RGB Bulb Device
-    """
-    import time
-
-    d = tinytuya.BulbDevice('DEVICE_ID_HERE', 'IP_ADDRESS_HERE', 'LOCAL_KEY_HERE')
-    d.set_version(3.3)  # IMPORTANT to set this regardless of version
-    d.set_socketPersistent(True)  # Optional: Keep socket open for multiple commands
-    data = d.status()
-
-    # Show status of first controlled switch on device
-    print('Dictionary %r' % data)
-
-    # Set to RED Color - set_colour(r, g, b):
-    d.set_colour(255,0,0)  
-
-    # Cycle through the Rainbow
-    rainbow = {"red": [255, 0, 0], "orange": [255, 127, 0], "yellow": [255, 200, 0],
-              "green": [0, 255, 0], "blue": [0, 0, 255], "indigo": [46, 43, 95],
-              "violet": [139, 0, 255]}
-    for color in rainbow:
-        [r, g, b] = rainbow[color]
-        d.set_colour(r, g, b, nowait=True)  # nowait = Go fast don't wait for response
-        time.sleep(0.25)
-
-    # Brightness: Type A devices range = 25-255 and Type B = 10-1000
-    d.set_brightness(1000)
-
-    # Set to White - set_white(brightness, colourtemp):
-    #    colourtemp: Type A devices range = 0-255 and Type B = 0-1000
-    d.set_white(1000,10)
-
-    # Set Bulb to Scene Mode
-    d.set_mode('scene')
-
-    # Scene Example: Set Color Rotation Scene
-    d.set_value(25, '07464602000003e803e800000000464602007803e803e80000000046460200f003e803e800000000464602003d03e803e80000000046460200ae03e803e800000000464602011303e803e800000000')
+Example:
+`DataFrame` loaded from CSV.
 
 ```
-### Example Device Monitor
-
-You can set up a persistent connection to a device and then monitor the state changes with a continual loop. This is helpful for troubleshooting and discovering DPS values.
-
-```python
-import tinytuya
-
-d = tinytuya.OutletDevice('DEVICEID', 'DEVICEIP', 'DEVICEKEY')
-d.set_version(3.3)
-d.set_socketPersistent(True)
-
-print(" > Send Request for Status < ")
-payload = d.generate_payload(tinytuya.DP_QUERY)
-d.send(payload)
-
-print(" > Begin Monitor Loop <")
-while(True):
-    # See if any data is available
-    data = d.receive()
-    print('Received Payload: %r' % data)
-
-    # Send keyalive heartbeat
-    print(" > Send Heartbeat Ping < ")
-    payload = d.generate_payload(tinytuya.HEART_BEAT)
-    d.send(payload)
-
-    # NOTE If you are not seeing updates, you can force them - uncomment:
-    # print(" > Send Request for Status < ")
-    # payload = d.generate_payload(tinytuya.DP_QUERY)
-    # d.send(payload)
-
-    # NOTE Some smart plugs require an UPDATEDPS command to update power data
-    # print(" > Send DPS Update Request < ")
-    # payload = d.generate_payload(tinytuya.UPDATEDPS)
-    # d.send(payload)    
+          Date      Amount  Close   High    Low   Volume
+0     20040817  90923240.0  11.20  12.21  11.03  7877900
+1     20040818  52955668.0  10.29  10.90  10.29  5043200
+2     20040819  32614676.0  10.53  10.65  10.30  3116800
+...        ...         ...    ...    ...    ...      ...
+2810  20160815  56416636.0  39.58  39.79  38.38  1436706
+2811  20160816  68030472.0  39.66  40.86  39.00  1703600
+2812  20160817  62536480.0  40.45  40.59  39.12  1567600
 ```
 
-### Tuya Cloud Access
-
-You can poll and manage Tuya devices using the `Cloud` class and functions.
-
-```python
-import tinytuya
-
-# Connect to Tuya Cloud
-# c = tinytuya.Cloud()  # uses tinytuya.json 
-c = tinytuya.Cloud(
-        apiRegion="us", 
-        apiKey="xxxxxxxxxxxxxxxxxxxx", 
-        apiSecret="xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx", 
-        apiDeviceID="xxxxxxxxxxxxxxxxxxID")
-
-# Display list of devices
-devices = c.getdevices()
-print("Device List: %r" % devices)
-
-# Select a Device ID to Test
-id = "xxxxxxxxxxxxxxxxxxID"
-
-# Display Properties of Device
-result = c.getproperties(id)
-print("Properties of device:\n", result)
-
-# Display Status of Device
-result = c.getstatus(id)
-print("Status of device:\n", result)
-
-# Send Command - Turn on switch
-commands = {
-	'commands': [{
-		'code': 'switch_1',
-		'value': True
-	}, {
-		'code': 'countdown_1',
-		'value': 0
-	}]
-}
-print("Sending command...")
-result = c.sendcommand(id,commands)
-print("Results\n:", result)
-```
-
-### Encryption notes
-
-These devices uses AES encryption which is not available in the Python standard library. There are three options:
-
- 1) PyCryptodome (recommended)
- 2) PyCrypto
- 3) pyaes (note Python 2.x support requires https://github.com/ricmoo/pyaes/pull/13)
-
-### Command Line
+After conversion to `StockDataFrame`
 
 ```
-    python -m tinytuya [command] [<max_retry>] [-nocolor] [-h]
-
-      command = scan        Scan local network for Tuya devices.
-      command = wizard      Launch Setup Wizard to get Tuya Local KEYs.
-      command = devices     Scan all devices listed in devices.json file.
-      command = snapshot    Scan devices listed in snapshot.json file.
-      command = json        Scan devices listed in snapshot.json file [JSON].
-      max_retry             Maximum number of retries to find Tuya devices [Default=15]
-      -nocolor              Disable color text output.
-      -force                Force network scan for device IP addresses.
-      -h                    Show usage.
+              amount  close   high    low   volume
+date
+20040817  90923240.0  11.20  12.21  11.03  7877900
+20040818  52955668.0  10.29  10.90  10.29  5043200
+20040819  32614676.0  10.53  10.65  10.30  3116800
+...              ...    ...    ...    ...      ...
+20160815  56416636.0  39.58  39.79  38.38  1436706
+20160816  68030472.0  39.66  40.86  39.00  1703600
+20160817  62536480.0  40.45  40.59  39.12  1567600 
 ```
 
-### Scan Tool 
-The function `tinytuya.scan()` will listen to your local network (UDP 6666 and 6667) and identify Tuya devices broadcasting their Address, Device ID, Product ID and Version and will print that and their stats to stdout.  This can help you get a list of compatible devices on your network. The `tinytuya.deviceScan()` function returns all found devices and their stats (via dictionary result).
+### Access the Data
 
-You can run the scanner from the command line using these interactive commands:
-  ```bash
-  # Listen for Tuya Devices and match to devices.json if available
-  python -m tinytuya scan
+`StockDataFrame` is a subclass of `pandas.DataFrame`. All the functions
+of `pandas.DataFrame` should work the same as before.
 
-  # The above creates a snapshot.json file with IP addresses for devices
-  # You can use this command to get a rapid poll of status of all devices
-  python -m tinytuya snapshot
+#### Retrieve the data with symbol
 
-  # The sames thing as above but with a non-interactive JSON response
-  python -m tinytuya json
+We allow the user to access the statistics directly with some specified column
+name, such as: `kdjk`, `macd`, `rsi`.
 
-  # List all register devices discovered from Wizard and poll them
-  python -m tinytuya devices
+Note that the value of these columns are calculated the first time you access
+them from the data frame. You need to delete those columns first if you want the
+lib to re-evaluate the value.
 
-  ```
+#### Retrieve the Series
 
-By default, the scan functions will retry 15 times to find new devices. If you are not seeing all your devices, you can increase max_retries by passing an optional arguments (eg. 50 retries):
+If you need the `Series`, you can use `macd = stock['macd']`
+or `rsi = stock.get('rsi')`.
 
-  ```bash
-  # command line
-  python -m tinytuya scan 50
-  ```
+#### Retrieve the symbol with 2 arguments
 
-  ```python
-  # invoke verbose interactive scan
-  tinytuya.scan(50)
+For some statistics, we allow the user to supply the column name and the window,
+such as: delta, shift, simple moving average, etc. You can use the following
+patter to calculate them: `<columnName>_<windowSize>_<statistics>`
 
-  # return payload of devices
-  devices = tinytuya.deviceScan(false, 50)
-  ```
+Here are some examples for the pattern:
 
-## Troubleshooting
+* 5 periods simple moving average of the high price: `high_5_sma`
+* 10 periods exponential moving average of the close: `close_10_ema`
+* 1 period delta of the high price: `high_-1_d`
+  The `-` symbol stands for looking backwards.
 
-* Tuya devices only allow one TCP connection at a time.  Make sure you close the TuyaSmart or SmartLife app before using *TinyTuya* to connect.
-* Some devices ship with older firmware that may not work with *TinyTuya*. If you're experiencing issues, please try updating the device's firmware in the official app.
-* The LOCAL KEY for Tuya devices will change every time a device is removed and re-added to the TuyaSmart app. If you're getting decrypt errors, try getting the key again as it might have changed. 
-* Devices running protocol version 3.1 (e.g. below Firmware 1.0.5) do not require a device *Local_Key* to read the status. Both 3.1 and 3.3 devices will require a device *Local_Key* to control the device.
-* Some devices with 22 character IDs will require additional setting to poll correctly - here is an example:
-  ```python
-    a = tinytuya.OutletDevice('here_is_my_key', '192.168.x.x', 'secret_key_here', 'device22')
-    a.set_version(3.3)
-    a.set_dpsUsed({"1": None})  # This needs to be a datapoint available on the device
-    data =  a.status()
-    print(data)
-  ```
-* Windows 10 Users - TinyTuya `wizard` and `scan` interactive tools use ANSI color. This will work correctly in PowerShell but will show cryptic escape codes when run in Windows `CMD`.  You can fix this by using the `-nocolor` option on tinytuya, or by changing the Windows `CMD` console registry to process ANSI escape codes by doing something like this:
-  ```
-  reg add HKEY_CURRENT_USER\Console /v VirtualTerminalLevel /t REG_DWORD /d 0x00000001 /f
-  ```
+#### Retrieve the symbol with 1 arguments
 
-## Tuya Data Points - DPS Table
+Some statistics allows the user to specify the window but not the column. Use
+following patter to specify your window: `<statistics>_<windowSize>`
 
-The Tuya devices send back data points (DPS) also called device function points, in a json string.  The DPS attributes define the state of the device.  Each key in the DPS dictionary refers to key value pair, the key is the DP ID and its value is the dpValue. You can refer to the [Tuya developer platform](https://iot.tuya.com/index/) for definition of function points for the products.
+For example:
 
-The following table represents several of the standard Tuya DPS values and their properties. It represents data compiled from Tuya documentation and self-discovery. Devices may vary. Feedback or additional data would would be appreciated.  Please submit a Issue or Pull Request if you have additional data that would be helpful for others.
+* 6 periods RSI: `rsi_6`
+* 10 periods CCI: `cci_10`
+* 13 periods ATR: `atr_13`
 
-To find Tuya DPS for devices not listed below, you can discover the DPS values using the Tuya IoT platform. See this help here: [Find your Data Point](https://www.zigbee2mqtt.io/advanced/support-new-devices/03_find_tuya_data_points.html#_8-display-device-logs).
+Normally, these statistics have default windows.  
+Check their document for detail.
 
-DPS Read and Set Example:
-```python
-# Read Value of DPS 25
-data = d.status()  
-print("Value of DPS 25 is ", data['dps']['25'])
+### Statistics/Indicators
 
-# Set Value of DPS 25
-d.set_value(25, '010e0d0000000000000003e803e8')
+Some statistics has configurable parameters. They are class level fields. Change
+of these fields are global. And they won't affect the existing results. Removing
+existing results to trigger the re-calculation of these columns.
+
+#### Change of the Close
+
+`df['change']` is the change of the `close` price in percentage.
+
+#### Delta of Periods
+
+Using pattern `<column>_<window>_d` to retrieve the delta between different periods.
+
+You can also use `<column>_delta` as a shortcut to `<column>_-1_d` 
+
+
+For example:
+* `df['close_-1_d']` retrieves the close price delta between current and prev. period.
+* `df['close_delta']` is the save as `df['close_-1_d']`
+* `df['high_2_d']` retrieves the high price delta between current and 2 days later
+
+#### Shift Periods
+
+Shift the column backward or forward. It takes 2 parameters:
+
+* the name of the column to shift
+* periods to shift, can be negative
+
+We fill the head and tail with the nearest data.
+
+See the example below:
+
+``` python
+In [15]: df[['close', 'close_-1_s', 'close_2_s']]
+Out[15]:
+          close  close_-1_s  close_2_s
+date
+20040817  11.20       11.20      10.53
+20040818  10.29       11.20      10.55
+20040819  10.53       10.29      10.10
+20040820  10.55       10.53      10.25
+...         ...         ...        ...
+20160812  39.10       38.70      39.66
+20160815  39.58       39.10      40.45
+20160816  39.66       39.58      40.45
+20160817  40.45       39.66      40.45
+
+[2813 rows x 3 columns]
 ```
 
-### Version 3.1 Devices
+#### RSI - Relative Strength Index
 
-#### Version 3.1 - Plug or Switch Type
-| DP ID        | Function Point | Type        | Range       | Units |
-| ------------- | ------------- | ------------- | ------------- |------------- |
-|1|Switch|bool|True/False||
-|2|Countdown?|integer|0-86400|s|
-|4|Current|integer|0-30000|mA|
-|5|Power|integer|0-50000|W|
-|6|Voltage|integer|0-5000|V|
+RSI stands
+for [Relative Strength Index](https://en.wikipedia.org/wiki/Relative_strength_index)
 
-#### Version 3.1 - Light Type (RGB)
-| DP ID        | Function Point | Type        | Range       | Units |
-| ------------- | ------------- | ------------- | ------------- |------------- |
-| 1|Switch|bool|True/False||
-| 2|Mode|enum|white,colour,scene,music||
-| 3|Bright|integer|10-1000*||
-| 4|Color Temp|integer|0-1000*||
-| 5|Color|hexstring|r:0-255,g:0-255,b:0-255,h:0-360,s:0-255,v:0-255|rgb+hsv|
+It has a configurable window. The default window size is 14 which is
+configurable through `StockDataFrame.RSI`. e.g.
 
-### Version 3.3 Devices
+* `df['rsi']`: 14 periods RSI
+* `df['rsi_6']`: 6 periods RSI
 
-#### Version 3.3 - Plug, Switch, Power Strip Type
-| DP ID        | Function Point | Type        | Range       | Units |
-| ------------- | ------------- | ------------- | ------------- |------------- |
-|1|Switch 1|bool|True/False||
-|2|Switch 2|bool|True/False||
-|3|Switch 3|bool|True/False||
-|4|Switch 4|bool|True/False||
-|5|Switch 5|bool|True/False||
-|6|Switch 6|bool|True/False||
-|7|Switch 7/usb|bool|True/False||
-|9|Countdown 1|integer|0-86400|s|
-|10|Countdown 2|integer|0-86400|s|
-|11|Countdown 3|integer|0-86400|s|
-|12|Countdown 4|integer|0-86400|s|
-|13|Countdown 5|integer|0-86400|s|
-|14|Countdown 6|integer|0-86400|s|
-|15|Countdown 7|integer|0-86400|s|
-|17|Add Electricity|integer|0-50000|kwh|
-|18|Current|integer|0-30000|mA|
-|19|Power|integer|0-50000|W|
-|20|Voltage|integer|0-5000|V|
-|21|Test Bit|integer|0-5|n/a|
-|22|Voltage coeff.|integer|0-1000000||
-|23|Current coeff.|integer|0-1000000||
-|24|Power coeff.|integer|0-1000000||
-|25|Electricity coeff.|integer|0-1000000||
-|26|Fault|fault|ov_cr||
-|38|Power-on state setting|enum|off, on, memory||
-|39|Overcharge Switch|bool|True/False||
-|40|Indicator status setting|enum|none, on, relay, pos||
-|41|Child Lock|bool|True/False||
-|42|UNKNOWN||||
-|43|UNKNOWN||||
-|44|UNKNOWN||||
+#### Log Return of the Close
 
-#### Version 3.3 - Dimmer Switch
-| DP ID        | Function Point | Type        | Range       | Units |
-| ------------- | ------------- | ------------- | ------------- |------------- |
-| 1|Switch|bool|True/False||
-| 2|Brightness|integer|10-1000*||
-| 3|Minimum of Brightness|integer|10-1000*||
-| 4|Type of light source1|enum|LED,incandescent,halogen||
-| 5|Mode|enum|white||
+Logarithmic return = ln( close / last close)
 
-#### Version 3.3 - Light Type (RGB)
-| DP ID        | Function Point | Type        | Range       | Units |
-| ------------- | ------------- | ------------- | ------------- |------------- |
-| 20|Switch|bool|True/False||
-| 21|Mode|enum|white,colour,scene,music||
-| 22|Bright|integer|10-1000*||
-| 23|Color Temp|integer|0-1000||
-| 24|Color|hexstring|h:0-360,s:0-1000,v:0-1000|hsv|
-| 25|Scene|string|n/a||
-| 26|Left time|integer|0-86400|s|
-| 27|Music|string|n/a||
-| 28|Debugger|string|n/a||
-| 29|Debug|string|n/a||
+From [wiki](https://en.wikipedia.org/wiki/Rate_of_return):
 
-#### Version 3.3 - Automated Curtain Type
-| DP ID        | Function Point | Type        | Range       | Units |
-| ------------- | ------------- | ------------- | ------------- |------------- |
-|1|Curtain Switch 1|enum|open, stop, close, continue||
-|2|Percent control 1|integer|0-100|%|
-|3|Accurate Calibration 1|enum|start, end||
-|4|Curtain Switch 2|enum|open, stop, close, continue||
-|5|Percent control 2|integer|0-100||
-|6|Accurate Calibration 2|enum|start, end||
-|8|Motor Steer 1|enum|forward, back||
-|9|Motor steer 2|enum|forward, back||
-|10|Quick Calibration 1|integer|1-180|s|
-|11|Quick Calibration 2|integer|1-180|s|
-|12|Motor Mode 1|enum|strong_power, dry_contact||
-|13|Motor Mode 2|enum|strong_power, dry_contact||
-|14|Light mode|enum|relay, pos, none||
+> For example, if a stock is priced at 3.570 USD per share at the close on
+> one day, and at 3.575 USD per share at the close the next day, then the
+> logarithmic return is: ln(3.575/3.570) = 0.0014, or 0.14%.
 
-#### Version 3.3 - Fan Switch Type
-| DP ID        | Function Point | Type        | Range       | Units |
-| ------------- | ------------- | ------------- | ------------- |------------- |
-|1|Fan switch|bool|True/False|n/a|
-|2|Fan countdown|integer|0-86400|s|
-|3|Fan speed|enum|level_1, level_2, level_3, level_4, level_5||
-|4|Fan speed|integer|1-100|%|
-|5|Fan light switch|bool|True/False||
-|6|Brightness integer|integer|10-1000||
-|7|Fan light countdown|integer|0-86400||
-|8|Minimum brightness|integer|10-1000||
-|9|Maximum brightness|integer|10-1000||
-|10|Mode|enum|white||
-|11|Power-on state setting|enum|off, on, memory||
-|12|Indicator status setting|enum|none, relay, pos||
-|13|Backlight switch|bool|True/False||
+Use `df['log-ret']` to access this column.
 
-#### Version 3.3 - Universal IR Controller with optional Temp/Humidity
-| DP ID        | Function Point | Type        | Range       | Units |
-| ------------- | ------------- | ------------- | ------------- |------------- |
-|101|Current Temperature|integer|0-600|10x Celsius|
-|102|Current Humidity|integer|0-100|%|
-|201|IR Commands (set only)|JSON*|n/a|n/a|
+#### Count of Non-Zero Value
 
-  ```python
-  # The IR Commands JSON has the following format:
-  command = {
-      "control": "send_ir",
-      "head": "",
-      "key1": "[[TO_BE_REPLACED]]",
-      "type": 0,
-      "delay": 300
-  }
-  # Sending the IR command:
-  payload = d.generate_payload(tinytuya.CONTROL, {"201": json.dumps(command)})
-  d.send(payload)
-  ```
+Count non-zero value of a specific range. It requires a column and a window.
 
-The `key1` attribute is a base64 string that contains the IR signal. You can extract it using this procedure:
+Examples:
 
-1. Register a new IR device on Tuya Smart / Smart Life app (if not registered already) and map, setup or import your buttons.
-2. Tap multiple times on the button you wish to control.
-3. Go to [Tuya IoT Platform](https://iot.tuya.com/) and select your app under Cloud > Development section.
-4. Go to to the Device tab and select "Debug Device" on the parent device. Browse Device Logs section and retrieve the `key1` attribute that matches your tapping timestamp from step 2 above. Use that `key1` attribute in the payload example above.
+* count how many typical price are larger than close in the past 10 periods
 
-You need to repeat these steps for each button (cloud logging is not always sequential).
+``` python
+In [22]: tp = df['middle']                             
+                                                       
+In [23]: df['res'] = df['middle'] > df['close']        
+                                                       
+In [24]: df[['middle', 'close', 'res', 'res_-10_c']]    
+Out[24]:                                               
+             middle  close    res  res_10_c            
+date                                                   
+20040817  11.480000  11.20   True       1.0            
+20040818  10.493333  10.29   True       2.0            
+20040819  10.493333  10.53  False       2.0            
+20040820  10.486667  10.55  False       2.0            
+20040823  10.163333  10.10   True       3.0            
+...             ...    ...    ...       ...            
+20160811  38.703333  38.70   True       5.0            
+20160812  38.916667  39.10  False       5.0            
+20160815  39.250000  39.58  False       4.0            
+20160816  39.840000  39.66   True       5.0            
+20160817  40.053333  40.45  False       5.0            
+                                                       
+[2813 rows x 4 columns]                                
+```
 
-#### Version 3.3 - Sensor Type
+* Count ups in the past 10 periods
 
-_Important Note:_
-Battery-powered Tuya sensors are usually designed to stay in sleep mode until a state change (eg.open or close alert). This means you will not be able to poll these devices except in the brief moment they awake, connect to the WiFi and send their state update payload the the Tuya Cloud. Keep in mind that if you manage to poll the device enough to keep it awake, you will likely quickly drain the battery.
+``` python
+In [26]: df['ups'], df['downs'] = df['change'] > 0, df['change'] < 0 
+                                                                     
+In [27]: df[['ups', 'ups_10_c', 'downs', 'downs_10_c']]              
+Out[27]:                                                             
+            ups  ups_10_c  downs  downs_10_c                         
+date                                                                 
+20040817  False       0.0  False         0.0                         
+20040818  False       0.0   True         1.0                         
+20040819   True       1.0  False         1.0                         
+20040820   True       2.0  False         1.0                         
+20040823  False       2.0   True         2.0                         
+...         ...       ...    ...         ...                         
+20160811  False       3.0   True         7.0                         
+20160812   True       3.0  False         7.0                         
+20160815   True       4.0  False         6.0                         
+20160816   True       5.0  False         5.0                         
+20160817   True       5.0  False         5.0                         
+                                                                     
+[2813 rows x 4 columns]                                              
+```
 
-| DP ID        | Function Point | Type        | Range       | Units |
-| ------------- | ------------- | ------------- | ------------- |------------- |
-|1|Door Sensor|bool|True/False||
-|2|Battery level state|enum|low, middle, high||
-|3|Battery level|integer|0-100|%|
-|4|Temper alarm|bool|True/False||
-|5|Flooding Detection State|enum|alarm, normal||
-|6|Luminance detection state|enum|low, middle, high, strong||
-|7|Current Luminance|integer|0-100|%|
-|8|Current Temperature|integer|400-2000||
-|9|Current Humidity|integer|0-100|%|
-|10|Shake State|enum|normal, vibration, drop, tilt||
-|11|Pressure State|enum|alarm, normal||
-|12|PIR state|enum|pir, none||
-|13|Smoke Detection State|enum|alarm, normal||
-|14|Smoke value|integer|0-1000||
-|15|Alarm Volume|enum|low, middle, high, mute||
-|16|Alarm Ringtone|enum|1, 2, 3, 4, 5||
-|17|Alarm Time|integer|0-60|s|
-|18|Auto-Detect|bool|True/False||
-|19|Auto-Detect Result|enum|checking, check_success, check_failure, others||
-|20|Preheat|bool|True/False||
-|21|Fault Alarm|fault|fault, serious_fault, sensor_fault, probe_fault, power_fault|Barrier|
-|22|Lifecycle|bool|True/False||
-|23|Alarm Switch|bool|True/False||
-|24|Silence|bool|True/False||
-|25|Gas Detection State|enum|alarm, normal||
-|26|Detected Gas|integer|0-1000||
-|27|CH4 Detection State|enum|alarm, normal||
-|28|CH4 value|integer|0-1000||
-|29|Alarm state|enum|alarm_sound, alarm_light, alarm_sound_light, normal||
-|30|VOC Detection State|enum|alarm, normal||
-|31|VOC value|integer|0-999||
-|32|PM2.5 state|enum|alarm, normal||
-|33|PM2.5 value|integer|0-999||
-|34|CO state|enum|alarm, normal||
-|35|CO value|integer|0-1000||
-|36|CO2 Detection State|enum|alarm, normal||
-|37|CO2 value|integer|0-1000||
-|38|Formaldehyde Detection State|enum|alarm, normal||
-|39|CH2O value|integer|0-1000||
-|40|Master mode|enum|disarmed, arm, home, sos||
-|41|Air quality index|enum|level_1, level_2, level_3, level_4, level_5, level_6||
+#### Max and Min of the Periods
 
-NOTE (*) - The range can vary depending on the device. As an example, for dimmers, it may be 10-1000 or 25-255.
+Retrieve the max/min value of specified periods. They require column and
+window.  
+Note the window does NOT simply stand for the rolling window.
 
-#### Version 3.3 - Robot Mower Type
+Examples:
 
+* `close_-3,2_max` stands for the max of 2 periods later and 3 periods ago
+* `close_-2~0_min` stands for the min of 2 periods ago till now
 
-| DP ID        | Function Point | Type        | Range       | Units |
-| ------------- | ------------- | ------------- | ------------- |------------- |
-| 6    | Battery | integer |  0-100 | % |
-| 101  | Machine Status | enum | <ul><li>STANDBY MOWING</li><li>CHARGING</li><li>EMERGENCY</li><li>LOCKED</li><li>PAUSED</li><li>PARK</li><li>CHARGING_WITH_TASK_SUSPEND</li><li>FIXED_MOWING</li></ul> ||
-| 102  | Machine error | integer | 0, ? ||
-| 103  | Machine warning | enum | <ul><li>MOWER_LEAN</li><li>MOWER_EMERGENCY</li><li>MOWER_UI_LOCKED</li><ul> ||
-| 104  | Rain mode | boolean | True/False ||
-| 105  | Work time | interger | 1-99 | hours |
-| 106  | Machine password | byte str | ? ||
-| 107  | Clear machine appointment | boolean | True/False ||
-| 108  | Query machine reservation | boolean | True/False ||
-| 109  | Query partition parameters | boolean | True/False ||
-| 110  | Report machine reservation | byte str |||
-| 111  | Error log | byte str |||
-| 112  | Work log | byte str |||
-| 113  | Partition parameters | byte str |||
-| 114  | Work mode | enum | AutoMode/?? ||                                                                                                                           | 115  | Machine control CMD | enum | <ul><li>StartMowing</li><li>StartFixedMowing</li><li>PauseWork</li><li>CancelWork</li><li>StartReturnStation</li><ul> ||
+#### RSV - Raw Stochastic Value
 
-Reference [pymoebot](https://github.com/Whytey/pymoebot) for further definition.
+RSV is essential for calculating KDJ. It takes a window parameter.
+Use `df['rsv']` or `df['rsv_6']` to access it.
 
-### Tuya References
+#### RSI - Relative Strength Index
 
-* Tuya Hardware Development - Protocol: https://developer.tuya.com/en/docs/iot/device-development/embedded-software-development/mcu-development-access/wifi-mcu-sdk-solution/tuya-cloud-universal-serial-port-access-protocol?id=K9hhi0xxtn9cb
-* TuyaMCU listing of Tuya DP IDs: https://tasmota.github.io/docs/TuyaMCU/#switches-or-plugspower-strips
+[RSI](https://en.wikipedia.org/wiki/Relative_strength_index) chart the current
+and historical strength or weakness of a stock. It takes a window parameter.
 
-## Credits
+The default window is 14. Use `StockDataFrame.RSI` to tune it.
 
-  * TuyAPI https://github.com/codetheweb/tuyapi by codetheweb and blackrozes.
-    Protocol reverse engineering from jepsonrob and clach04.
-  * PyTuya https://github.com/clach04/python-tuya by clach04. 
-    The origin of this python module (now abandoned). Thanks to nijave for pycryptodome support and testing, Exilit for unittests and docstrings, mike-gracia for improved Python version support, samuscherer for RGB Bulb support, magneticflux for improved Python version support, sean6541 for initial PyPi package and Home Assistant support <https://github.com/sean6541/tuya-homeassistant>, ziirish - for resolving a dependency problem related to version numbers at install time
-  * https://github.com/rospogrigio/localtuya-homeassistant by rospogrigio. 
-    Updated pytuya to support devices with Device IDs of 22 characters
+Examples:
 
-## Related Projects
+* `df['rsi']`: retrieve the RSI of 14 periods
+* `df['rsi_6']`: retrieve the RSI of 6 periods
 
-  * https://github.com/sean6541/tuyaapi Python API to the web api
-  * https://github.com/codetheweb/tuyapi node.js
-  * https://github.com/Marcus-L/m4rcus.TuyaCore - .NET
-  * https://github.com/SDNick484/rectec_status/ - RecTec pellet smokers control (with Alexa skill)
-  * https://github.com/TradeFace/tuyaface - Python Async Tuya API
+#### Stochastic RSI
 
-## TinyTuya Powered Projects
+[Stochastic RSI](https://www.investopedia.com/terms/s/stochrsi.asp) gives
+traders an idea of whether the current RSI value is overbought or oversold. It
+takes a window parameter.
 
-Please feel free to submit a PR or open an issue to add your project.
+The default window is 14. Use `StockDataFrame.RSI` to tune it.
 
-* https://github.com/mafrosis/tinytuya2mqtt - A bridge between TinyTuya and Home Assistant via MQTT
-* https://github.com/Whytey/pymoebot - A Python library intended to monitor and control the MoeBot robotic lawn mowers.
+Examples:
+
+* `df['stochrsi']`: retrieve the Stochastic RSI of 14 periods
+* `df['stochrsi_6']`: retrieve the Stochastic RSI of 6 periods
+
+#### WT - Wave Trend
+
+Retrieve
+the [LazyBear's Wave Trend](https://medium.com/@samuel.mcculloch/lets-take-a-look-at-wavetrend-with-crosses-lazybear-s-indicator-2ece1737f72f)
+with `df['wt1']` and `df['wt2']`.
+
+Wave trend uses two parameters. You can tune them with
+`StockDataFrame.WAVE_TREND_1` and `StockDataFrame.WAVE_TREND_2`.
+
+#### SMMA - Smoothed Moving Average
+
+It takes two parameters, column and window.
+
+For example, use `df['close_7_smma']` to retrieve the 7 periods smoothed moving
+average of the close price.
+
+#### TRIX - Triple Exponential Average
+
+[Trix, the triple exponential average](https://www.investopedia.com/articles/technical/02/092402.asp)
+, is used to identify oversold and overbought markets.
+
+The algorithm is:
+
+```
+TRIX = (TripleEMA - LastTripleEMA) -  * 100 / LastTripleEMA
+TripleEMA = EMA of EMA of EMA
+LastTripleEMA =  TripleEMA of the last period
+```
+
+It takes two parameters, column and window. By default, the column is `close`,
+the window is 12.
+
+Use `StockDataFrame.TRIX_EMA_WINDOW` to change the default window.
+
+Examples:
+
+* `df['trix']` stands for 12 periods Trix for the close price.
+* `df['middle_10_trix']` stands for the 10 periods Trix for the typical price.
+
+#### TEMA - Another Triple Exponential Average
+
+Tema is another implementation for the triple exponential moving average. You
+can find the
+algorithm [here](https://www.forextraders.com/forex-education/forex-technical-analysis/triple-exponential-moving-average-the-tema-indicator/)
+.
+
+```
+TEMA=(3 x EMA) - (3 x EMA of EMA) + (EMA of EMA of EMA)
+```
+
+It takes two parameters, column and window. By default, the column is `close`,
+the window is 5.
+
+Use `StockDataFrame.TEMA_EMA_WINDOW` to change the default window.
+
+Examples:
+
+* `df['tema']` stands for 12 periods TEMA for the close price.
+* `df['middle_10_tema']` stands for the 10 periods TEMA for the typical price.
+
+#### WR - Williams Overbought/Oversold Index
+
+[Williams Overbought/Oversold index](https://www.investopedia.com/terms/w/williamsr.asp)
+is a type of momentum indicator that moves between 0 and -100 and measures
+overbought and oversold levels.
+
+It takes a window parameter. The default window is 14. Use `StockDataFrame.WR`
+to change the default window.
+
+Examples:
+
+* `df['wr']` retrieves the 14 periods WR.
+* `df['wr_6']` retrieves the 6 periods WR.
+
+#### CCI - Commodity Channel Index
+
+CCI stands
+for [Commodity Channel Index](https://www.investopedia.com/terms/c/commoditychannelindex.asp)
+.
+
+It requires a window parameter. The default window is 14. Use
+`StockDataFrame.CCI` to change it.
+
+Examples:
+
+* `df['cci']` retrieves the default 14 periods CCI.
+* `df['cci_6']` retrieves the 6 periods CCI.
+
+#### TR - True Range of Trading
+
+TR is a measure of volatility of a High-Low-Close series. It is used for
+calculating the ATR.
+
+#### ATR - Average True Range
+
+The [Average True Range](https://en.wikipedia.org/wiki/Average_true_range) is an
+N-period smoothed moving average (SMMA) of the true range value.  
+Default to 14 periods.
+
+Users can modify the default window with `StockDataFrame.ATR_SMMA`.
+
+Example:
+
+* `df['atr']` retrieves the 14 periods ATR.
+* `df['atr_5']` retrieves the 5 periods ATR.
+
+#### DMA - Difference of Moving Average
+
+`df['dma']` retreives the difference of 10 periods SMA of the close price and
+the 50 periods SMA of the close price.
+
+#### DMI - Directional Movement Index
+
+The [directional movement index (DMI)](https://www.investopedia.com/terms/d/dmi.asp)
+identifies in which direction the price of an asset is moving.
+
+It has several lines:
+
+* `df['pdi']` is the positive directional movement line (+DI)
+* `df['mdi']` is the negative directional movement line (-DI)
+* `df['dx']` is the directional index (DX)
+* `df['adx']` is the average directional index (ADX)
+* `df['adxr']` is an EMA for ADX
+
+It has several parameters.
+
+* `StockDataFrame.PDI_SMMA` - window for +DI
+* `StockDataFrame.MDI_SMMA` - window for -DI
+* `StockDataFrame.DX_SMMA` - window for DX
+* `StockDataFrame.ADX_EMA` - window for ADX
+* `StockDataFrame.ADXR_EMA` - window for ADXR
+
+#### KDJ Indicator
+
+It consists of three lines:
+* `df['kdfk']` - K series
+* `df['kdfd']` - D series
+* `df['kdfj']` - J series
+
+The default window is 9.  Use `StockDataFrame.KDJ_WINDOW` to change it.
+Use `df['kdjk_6']` to retrieve the K series of 6 periods.
+
+KDJ also has two configurable parameter named `StockDataFrame.KDJ_PARAM`.
+The default value is `(2.0/3.0, 1.0/3.0)`
+
+#### CR - Energy Index
+
+The [Energy Index (Intermediate Willingness Index)](https://support.futunn.com/en/topic167/?lang=en-us)
+uses the relationship between the highest price, the lowest price and
+yesterday's middle price to reflect the market's willingness to buy
+and sell.
+
+It contains 4 lines:
+* `df['cr']` - the CR line
+* `df['cr-ma1']` - `StockDataFrame.CR_MA1` periods of the CR moving average
+* `df['cr-ma2']` - `StockDataFrame.CR_MA2` periods of the CR moving average
+* `df['cr-ma3']` - `StockDataFrame.CR_MA3` periods of the CR moving average
+
+#### Typical Price
+
+It's the average of `high`, `low` and `close`.
+Use `df['middle']` to access this value.
+
+#### Bollinger Bands
+
+The Bollinger bands includes three lines
+* `df['boll']` is the baseline
+* `df['boll_ub']` is the upper band
+* `df['boll_lb']` is the lower band
+
+The default period of the Bollinger Band can be changed with
+`StockDataFrame.BOLL_PERIOD`.  The width of the bands can be turned with
+`StockDataFrame.BOLL_STD_TIMES`.  The default value is 2.
+
+#### MACD - Moving Average Convergence Divergence
+
+We use the close price to calculate the MACD lines.
+* `df['macd']` is the difference between two exponential moving average.
+* `df['macds]` is the signal line.
+* `df['macdh']` is he histogram line.
+
+The period of short and long EMA can be tuned with 
+`StockDataFrame.MACD_EMA_SHORT` and `StockDataFrame.MACD_EMA_LONG`.  The default
+value are 12 and 26
+
+The period of the signal line can be tuned with 
+`StockDataFrame.MACD_EMA_SIGNAL`. The default value is 9.
+
+#### PPO - Percentage Price Oscillator
+
+The [Percentage Price Oscillator](https://stockcharts.com/school/doku.php?id=chart_school:technical_indicators:price_oscillators_ppo)
+includes three lines.
+
+* `df['ppo']` derives from the difference of 2 exponential moving average.
+* `df['ppos]` is the signal line.
+* `df['ppoh']` is he histogram line.
+
+The period of short and long EMA can be tuned with 
+`StockDataFrame.PPO_EMA_SHORT` and `StockDataFrame.PPO_EMA_LONG`.  The default
+value are 12 and 26
+
+The period of the signal line can be tuned with 
+`StockDataFrame.PPO_EMA_SIGNAL`. The default value is 9.
+
+#### Moving Standard Deviation
+
+Follow the pattern `<columnName>_<window>_mstd` to retrieve the moving STD.
+
+#### Moving Variance
+
+Follow the pattern `<columnName>_<window>_mvar` to retrieve the moving VAR.
+
+#### Volume Weighted Moving Average
+
+It's the [moving average weighted by volume](https://www.investopedia.com/articles/trading/11/trading-with-vwap-mvwap.asp).
+
+It has a parameter for window size.  The default window is 14.  Change it with
+`StockDataFrame.VWMA`.
+
+Examples:
+* `df['vwma']` retrieves the 14 periods VWMA
+* `df['vwma_6']` retrieves the 6 periods VWMA
+
+#### CHOP - Choppiness Index
+
+The [Choppiness Index](https://www.tradingview.com/education/choppinessindex/) 
+determines if the market is choppy.
+
+It has a parameter for window size.  The default window is 14.  Change it with
+`StockDataFrame.CHOP`.
+
+Examples:
+* `df['chop']` retrieves the 14 periods CHOP
+* `df['chop_6']` retrieves the 6 periods CHOP
+
+#### MFI - Money Flow Index
+
+The [Money Flow Index](https://www.investopedia.com/terms/m/mfi.asp)
+identifies overbought or oversold signals in an asset.
+
+It has a parameter for window size.  The default window is 14.  Change it with
+`StockDataFrame.MFI`.
+
+Examples:
+* `df['mfi']` retrieves the 14 periods MFI
+* `df['mfi_6']` retrieves the 6 periods MFI
+
+#### KAMA - Kaufman's Adaptive Moving Average
+
+[Kaufman's Adaptive Moving Average](https://school.stockcharts.com/doku.php?id=technical_indicators:kaufman_s_adaptive_moving_average)
+is designed to account for market noise or volatility.
+
+It has 2 optional parameter and 2 required parameter
+* fast - optional, the parameter for fast EMA smoothing, default to 5
+* slow - optional, the parameter for slow EMA smoothing, default to 34
+* column - required, the column to calculate
+* window - required, rolling window size
+
+The default value for fast and slow can be configured with
+`StockDataFrame.KAMA_FAST` and `StockDataFrame.KAMA_SLOW`
+
+Examples:
+* `df['close_10_kama_2_30']` retrieves 10 periods KAMA of the close price with 
+  `fast = 2` and `slow = 30`
+* `df['close_2_kama']` retrieves 2 periods KAMA of the close price
+
+#### Cross Upwards and Cross Downwards
+
+Use the pattern `<A>_xu_<B>` to check when A crosses up B.
+
+Use the pattern `<A>_xd_<B>` to check when A crosses down B.
+
+Use the pattern `<A>_x_<B>` to check when A crosses B.
+
+Examples:
+* `kdjk_x_kdjd` returns a series marks the cross of KDJK and KDJD
+* `kdjk_xu_kdjd` returns a series marks where KDJK crosses up KDJD
+* `kdjk_xd_kdjd` returns a series marks where KDJD crosses down KDJD
+
+## Issues
+
+We use [Github Issues](https://github.com/jealous/stockstats/issues) to track
+the issues or bugs.
+
+## Others
+
+MACDH Note:
+
+In July 2017 the code for MACDH was changed to drop an extra 2x multiplier on
+the final value to align better with calculation methods used in tools like
+cryptowatch, tradingview, etc.
+
+## Contact author:
+
+- Cedric Zhuang <jealous@163.com>
