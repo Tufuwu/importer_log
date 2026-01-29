@@ -1,75 +1,30 @@
-#! /usr/bin/env python
-#
-# Copyright (C) 2018 Raphael Vallat
+from setuptools import setup, find_packages
+import install_bashhub
+from bashhub.version import __version__ as version
 
-DESCRIPTION = "Yet Another Spindle Algorithm"
-LONG_DESCRIPTION = """YASA (Yet Another Spindle Algorithm) : fast and robust detection of spindles, slow-waves, and rapid eye movements from sleep EEG recordings..
-"""
+exec (open('bashhub/version.py').read())
 
-DISTNAME = 'yasa'
-MAINTAINER = 'Raphael Vallat'
-MAINTAINER_EMAIL = 'raphaelvallat9@gmail.com'
-URL = 'https://github.com/raphaelvallat/yasa/'
-LICENSE = 'BSD (3-clause)'
-DOWNLOAD_URL = 'https://github.com/raphaelvallat/yasa/'
-VERSION = '0.6.0'
-PACKAGE_DATA = {'yasa.data.icons': ['*.svg']}
+tests_require = ['pytest>=3.3.1']
 
-INSTALL_REQUIRES = [
-    'numpy',
-    'scipy',
-    'pandas',
-    'matplotlib',
-    'seaborn',
-    'mne>=0.20.0',
-    'numba',
-    'outdated',
-    'antropy',
-    'scikit-learn',
-    'tensorpac>=0.6.5',
-    'pyriemann>=0.2.7',
-    'lspopt',
-    'ipywidgets',
-    'joblib'
-]
-
-PACKAGES = [
-    'yasa',
-]
-
-CLASSIFIERS = [
-    'Intended Audience :: Science/Research',
-    'Programming Language :: Python :: 3.7',
-    'Programming Language :: Python :: 3.8',
-    'Programming Language :: Python :: 3.9',
-    'License :: OSI Approved :: BSD License',
-    'Operating System :: POSIX',
-    'Operating System :: Unix',
-    'Operating System :: MacOS'
-]
-
-try:
-    from setuptools import setup
-    _has_setuptools = True
-except ImportError:
-    from distutils.core import setup
-
-if __name__ == "__main__":
-
-    setup(name=DISTNAME,
-          author=MAINTAINER,
-          author_email=MAINTAINER_EMAIL,
-          maintainer=MAINTAINER,
-          maintainer_email=MAINTAINER_EMAIL,
-          description=DESCRIPTION,
-          long_description=LONG_DESCRIPTION,
-          license=LICENSE,
-          url=URL,
-          version=VERSION,
-          download_url=DOWNLOAD_URL,
-          install_requires=INSTALL_REQUIRES,
-          include_package_data=True,
-          packages=PACKAGES,
-          package_data=PACKAGE_DATA,
-          classifiers=CLASSIFIERS,
-          )
+setup(name='bashhub',
+      version=version,
+      description='Bashhub.com python client',
+      url='https://github.com/rcaloras/bashhub-client',
+      author='Ryan Caloras',
+      author_email='ryan@bashhub.com',
+      license='Apache',
+      packages=find_packages(),
+      include_package_data=True,
+      install_requires=[
+          'requests==2.23.0', 'jsonpickle==2.0.0', 'click==6.7',
+          'npyscreen==4.10.5', 'python-dateutil==2.8.1',
+          'pymongo==3.10.1', 'inflection==0.3.1', 'humanize==1.0.0',
+          'future==0.18.3', 'mock==3.0.5'
+      ],
+      tests_require=tests_require,
+      extras_require={'test': tests_require},
+      entry_points={
+          'console_scripts': ['bh=bashhub.bh:main',
+                              'bashhub=bashhub.bashhub:main']
+      },
+      zip_safe=False)

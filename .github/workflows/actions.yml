@@ -14,32 +14,23 @@ jobs:
       uses: actions/checkout@v4.1.0
     - uses: actions/setup-python@v5.0.0
       with:
-        python-version: 3.8
-#     # 'sudo' was not transformed because there is no suitable equivalent in GitHub Actions
-    - run: pip install -r requirements.txt
-    - run: pip install -r requirements-test.txt
+        python-version: "${{ matrix.python }}"
+    - run: sudo add-apt-repository ppa:duggan/bats --yes
+    - run: sudo apt-get update -qq
+    - run: sudo apt-get install -qq bats
+    - run: sudo apt-get install -qq zsh
     - run: pip install .
-    - run: export NUMBA_DISABLE_JIT=1
-    - run: pytest
-    - run: codecov
-      if: "${{ success() }}"
+    - run: bats tests/shell
+    - run: py.test
 #     # This item has no matching transformer
-#     - email: raphaelvallat9@gmail.com
-  test_2:
-    runs-on: ubuntu-latest
-    steps:
-    - name: checkout
-      uses: actions/checkout@v4.1.0
-    - uses: actions/setup-python@v5.0.0
-      with:
-        python-version: 3.9
-#     # 'sudo' was not transformed because there is no suitable equivalent in GitHub Actions
-    - run: pip install -r requirements.txt
-    - run: pip install -r requirements-test.txt
-    - run: pip install .
-    - run: export NUMBA_DISABLE_JIT=1
-    - run: pytest
-    - run: codecov
-      if: "${{ success() }}"
-#     # This item has no matching transformer
-#     - email: raphaelvallat9@gmail.com
+#     - email:
+#         on_success: never
+    strategy:
+      matrix:
+        functional_test:
+        - 'true'
+        python:
+        - '3.8'
+        - '3.9'
+    env:
+      FUNCTIONAL_TEST: "${{ matrix.functional_test }}"
