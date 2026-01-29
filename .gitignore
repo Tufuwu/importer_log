@@ -1,6 +1,5 @@
-/build
-/node_modules
-/public/roms/local
-/src/index.css
+*.zip
+node_modules
+package-lock.json
+reports
 .DS_Store
-yarn-error.log
