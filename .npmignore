@@ -1,6 +1,5 @@
-test
-perf
-coverage
-.*
-
-
+src/
+test/
+.babelrc
+.eslintrc.json
+.travis.yml
