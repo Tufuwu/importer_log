@@ -1,1 +1,3 @@
-* text=auto
+Resources/Public/**/*.js binary
+Resources/Public/**/*.css binary
+*.map binary
