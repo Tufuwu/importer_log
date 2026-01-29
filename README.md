@@ -1,152 +1,261 @@
-# check-engine ![Build Status](https://github.com/mohlsen/check-engine/actions/workflows/validation.yml/badge.svg?branch=master)
-A utility to check your [package.json engines](https://docs.npmjs.com/files/package.json#engines) in Node.js projects. Inspired by the [Thali Project][thali] in [validateBuildEnvironment.js][thalicode]
+Mitm.js
+=======
+[![NPM version][npm-badge]](https://www.npmjs.com/package/mitm)
+[![Build status][build-badge]](https://github.com/moll/node-mitm/actions/workflows/node.yaml)
 
-## About
+Mitm.js is a library for Node.js (and Io.js) to **intercept and mock** outgoing
+network **TCP** and **HTTP** connections.  Mitm.js intercepts and gives you
+a `Net.Socket` to communicate as if you were the remote server. For **HTTP
+requests** it even gives you `Http.IncomingMessage` and `Http.ServerResponse`
+— just like you're used to when writing Node.js servers.  Except there's no
+actual server running, it's all just _In-Process Interception™_.
 
-### Why
-For projects of all sizes, but especially for mid to large size teams, environments get out of sync.  Even slight variations in these build / development environments can kill productivity.  
+Intercepting connections and requests is **extremely useful to test and ensure
+your code does what you expect**. Assert on request parameters and send back
+various responses to your code without ever having to hit the real network.
+**Fast as hell** and **a lot easier to develop with than external test
+servers**.
 
-### What This Does
-Validates your system to make sure you have the correct system tools and dependencies installed.  Uses the [engine  object][engines] from a `package.json` located in the current or specified directory to determine what system dependencies
-or installed tools validate.
+Mitm.js works on all Node versions: ancient **v0.10**, **v0.11** and **v0.12** versions, previous and current LTS versions like **v4** to **v12** and the newest **v22** and beyond. For all it has **automated tests** to ensure it will stay that way.
 
-### Supported Dependencies
-Currently Supporting:
+I've developed Mitm.js on a need-to basis for testing [Monday
+Calendar][monday]'s syncing, so if you find a use-case I haven't come across,
+please fling me an [email][email], a [tweet][twitter] or [create an
+issue][issues] on GitHub.
 
-| Dependencies                         | Semantic Versioning |
-|--------------------------------------|:-------------------:|
-| OS X (MacOS)                         |                     |
-| Node.js                              | :white_check_mark:  |
-| npm                                  | :white_check_mark:  |
-| jx (JXCore)                          |                     |
-| cordova                              |                     |
-| appium                               |                     |
-| ios-deploy                           |                     |
-| ios-sim                              |                     |
-| bower                                | :white_check_mark:  |
-| ios-webkit-debug-proxy               |                     |
-| ideviceinstaller                     |                     |
-| java                                 |                     |
-| ant                                  |                     |
-| git                                  |                     |
-| gulp-cli                             |                     |
-| [cocoapods][cocoapods]               |                     |
-| xcodebuild                           |                     |
-| [carthage][carthage]                 |                     |
-| [xcpretty][xcpretty]                 |                     |
-| [libimobiledevice][libimobiledevice] |                     |
-| [deviceconsole][deviceconsole]       |                     |
-| [check-engine][check-engine]         |                     |
-| [yarn][yarn]                         | :white_check_mark:  |
-| [nsp][nsp]                           |                     |
-| [pnpm][pnpm]                         | :white_check_mark:  |
+[npm-badge]: https://img.shields.io/npm/v/mitm.svg
+[build-badge]: https://github.com/moll/js-j6pack/actions/workflows/node.yaml/badge.svg
 
-See the [validatorRules.js file][validator] file for the full list of things that are supported.
+### Tour
+- Intercept both **TCP socket connections** (`Net.connect`) and **HTTP
+  requests** (`Http.request` and `Https.request`).  
 
-Some dependencies support engines with [Semantic Versioning](https://semver.org/).
+- Hooks to Node.js's network functions at a **very low level** with the goal of
+  not having to patch existing classes and have everything behave as if bytes
+  were arriving from the network.
 
-## Install
-check-engine can be installed globally or in a local directory.
+- Does *not* have any kitchen sink features or yet another API to assert on
+  intercepted connections.  
+  That's a different responsibility handled better by assertion libraries
+  (you'll do no better than to pick [Must.js][must] for that ;-).
 
-- **Globally**: `npm install -g check-engine`
-- **Local**: `npm install check-engine`
+- Use an **API you already know** to assert or respond to requests — Mitm.js
+  gives you access to a vanilla `Net.Socket` to respond with:
 
-## Usage
+  ```javascript
+  mitm.on("connection", function(socket) { socket.write("Hello back!") })
 
-### CLI
+  var socket = Net.connect(22, "example.org")
+  socket.write("Hello!")
+  socket.setEncoding("utf8")
+  socket.on("data", console.log) // => "Hello back!"
+  ```
 
-Simply run:
+- When you do **HTTP or HTTPS** requests, Mitm.js gives you both
+  a `Http.IncomingMessage` and `Http.ServerResponse` to play the server with.
+  That means you'll be using an **API you're already familiar with**
+  rather than yet another idiosyncratic domain specific language.
 
-`check-engine [path_to_package.json] [options]`
+  Mitm.js comes very handy to ensure your code makes requests with the
+  appropriate parameters:
+  ```javascript
+  mitm.on("request", function(req, res) {
+    req.headers.authorization.must.equal("OAuth DEADBEEF")
+  })
 
-Where:
+  Http.get("http://example.org")
+  ```
 
-- `path_to_package.json` is an optional path to a package.json
-  file containing a list of [engines](https://docs.npmjs.com/files/package.json#engines)
-  to validate.  If omitted, a package.json file will be looked
-  for in the current working directory.
+  It's also useful to see if your code behaves as you'd expect if everything is
+  not `200 OK`:
+  ```javascript
+  mitm.on("request", function(req, res) {
+    res.statusCode = 402
+    res.end("Pay up, sugar!")
+  })
 
-and [options]:
+  Http.get("http://example.org", function(res) {
+    res.setEncoding("utf8")
+    res.statusCode // => 402
+    res.on("data", console.log) // => "Pay up, sugar!"
+  })
+  ```
 
-- `--ignore`: Ignore package validation errors and do not return an error exit code. Parsing issues or 
-  fatal errors will still return a error code.
-- `--help`: Display command line options
-- `--version`: Display version
+  `Http.IncomingMessage` and `Http.ServerResponse` are the same objects
+  you get when you write Node.js HTTP servers with `Net.Server` or use a library
+  like [Express.js][express].
 
-**Note:** If check-engine is installed locally and you are not running it
-as part of an [npm script](https://docs.npmjs.com/misc/scripts), you will
-have to specify the path to the check-engine executable, which will be
-`./node_modules/.bin/check-engine`.  Specifying this path is not necessary
-within npm scripts, because npm automatically puts the `./node_modules/.bin`
-folder into the environment's `PATH`.
+- **Bypass** interception selectively for some connections (such as your SQL
+  server) and let them connect as usual.
+  ```javascript
+  mitm.on("connect", function(socket, opts) {
+    if (opts.host == "sql.example.org" && opts.port == 5432) socket.bypass()
+  })
+  ```
+
+- **Developed with automated tests**. Yeah, I know, why should one list this
+  a feature when writing tests is just a sign of professionalism and respect
+  towards other developers? But in a world where so many libraries and
+  "production" software are released without *any* tests, I like to point out
+  that I even write tests for testing libraries. ;-)
+
+[must]: https://github.com/moll/js-must
+[express]: http://expressjs.com
 
 
-### Programmatic
-```javascript
-var checkEngine = require('check-engine');
-
-checkEngine('<path to package.json>').then((result) => {
-    if (result.status !== 0) {
-        console.log('it failed!');
-    } else {
-        console.log('it worked!');
-    }
-}
-
+Installing
+----------
+```
+npm install mitm
 ```
 
-The resolved object contains higher level status, as well as information for individual packages that were validated.  The above example only shows the high level. The object structure for the result object is as follows:
+From v1.0.0 Mitm.js will follow [semantic versioning][semver], but until then,
+breaking changes may appear between minor versions (the middle number).
 
+[semver]: http://semver.org/
+
+
+Using
+-----
+Require Mitm.js and invoke it as a function to both create an instance of `Mitm`
+and enable intercepting:
 ```javascript
-{
-    status: 0 if successful, -1 otherwise
-    message: {
-        text: 'overall error description'
-        type: 'error' or 'success'
-    },
-    packages: [
-        {
-            name: 'name of package',
-            type: 'error', 'success', or 'warn',
-            validatorFound: true or false,
-            expectedVersion: 'version listed in package.json for this package', // exists only if validatorFound is true
-            commandError: 'error result from validator process execution', // exists only if error occurred
-            foundVersion: 'version number found' // exists only if validatorFound is true and there was no commandError error
-        }
-    ]
-}
+var Mitm = require("mitm")
+var mitm = Mitm()
 ```
 
-For example usage of this, see [check-engine.js][check-engine-packages].
+Mitm.js will then intercept all requests until you disable it:
+```javascript
+mitm.disable()
+```
 
-## Developing check-engine
+### Intercepting in tests
+In tests, it's best to use the _before_ and _after_ hooks to enable and disable
+intercepting for each test case:
+```javascript
+beforeEach(function() { this.mitm = Mitm() })
+afterEach(function() { this.mitm.disable() })
+```
 
-### Building and Testing
-1. Fork and clone repo then `cd check-engine`.
-2. Install ESLint: `npm i -g eslint`.
-3. Make changes.
-4. Run `npm run lint`.
-5. Run `npm test`.
-6. Push and send a PR.
+### Intercepting TCP connections
+After you've called `Mitm()`, Mitm.js will intercept and emit `connection` on
+itself for each new connection.  
+The `connection` event will be given a server side `Net.Socket` for you to reply
+with:
 
-### Publishing to NPM and Releasing
-1. Update the version by calling `npm version [major, minor, or patch]`.
-2. Run `npm publish`.
-3. `git push --tags`
-4. Create a release for the tag on GitHub and describe changes.
+```javascript
+mitm.on("connection", function(socket) { socket.write("Hello back!") })
+
+var socket = Net.connect(22, "example.org")
+socket.write("Hello!")
+socket.setEncoding("utf8")
+socket.on("data", console.log) // => "Hello back!"
+```
+
+### Intercepting HTTP/HTTPS requests
+After you've called `Mitm()`, Mitm.js will intercept and emit `request` on itself for each new HTTP or HTTPS request.  
+The `request` event will be given a server side `Http.IncomingMessage` and
+`Http.ServerResponse`.
+
+For example, asserting on HTTP requests would look something like this:
+```javascript
+mitm.on("request", function(req, res) {
+  req.headers.authorization.must.equal("OAuth DEADBEEF")
+})
+
+Http.get("http://example.org")
+```
+
+Responding to requests is just as easy and exactly like you're used to from
+using Node.js HTTP servers (or from libraries like [Express.js][express]):
+```javascript
+mitm.on("request", function(req, res) {
+  res.statusCode = 402
+  res.end("Pay up, sugar!")
+})
+
+Http.get("http://example.org", function(res) {
+  res.statusCode // => 402
+  res.setEncoding("utf8")
+  res.on("data", console.log) // => "Pay up, sugar!"
+})
+```
+
+Please note that HTTPS requests are currently "morphed" into HTTP requests.
+That's to save us from having to set up certificates and disable their
+verification. But if you do need to test this, please ping me and we'll see if
+we can get Mitm.js to support that.
+
+#### Custom HTTP Methods
+Unfortunately because [Node.js's web server doesn't seem to support custom HTTP methods](https://github.com/nodejs/node-v0.x-archive/issues/3192) (that is, ones beyond `require("http").METHODS`), Mitm.js doesn't support them out of the box either. The Node.js HTTP parser throws an error given a request with an unsupported method. However, as Mitm.js also supports intercepting at the TCP level, you could hook in your own HTTP parser. I've briefly alluded to it in [issue #63](https://github.com/moll/node-mitm/issues/63).
+
+### Bypassing interception
+You can bypass connections listening to the `connect` event on the Mitm instance
+and then calling `bypass` on the given socket. To help you do
+so selectively, `connect` is given the `options` object that was given to
+`Net.connect`:
+
+```javascript
+mitm.on("connect", function(socket, opts) {
+  if (opts.host == "sql.example.org" && opts.port == 5432) socket.bypass()
+})
+```
+
+Bypassed connections do **not** emit `connection` or `request` events. They're
+ignored by Mitm.js.
+
+In most cases you don't need to bypass because by the time you call `Mitm` in
+your tests to start intercepting, all of the long-running connections, such as
+database or cache connections, are already made.
+
+You might need to bypass connections you make to *localhost* when you're running
+integration tests against the HTTP server you started in the test process, but
+still want to intercept some other connections that this request might invoke.  
+The following should suffice:
+
+```javascript
+mitm.on("connect", function(socket, opts) {
+  if (opts.host == "localhost") socket.bypass()
+})
+```
 
 
-[thali]: http://thaliproject.org/
-[thalicode]: https://github.com/thaliproject/Thali_CordovaPlugin/blob/master/thali/install/validateBuildEnvironment.js
-[engines]: https://docs.npmjs.com/files/package.json#engines
-[validator]: lib/validatorRules.js
-[check-engine-packages]: https://github.com/mohlsen/check-engine/blob/master/bin/check-engine.js#L29
-[cocoapods]:https://cocoapods.org/
-[carthage]:https://github.com/Carthage/Carthage
-[xcpretty]:https://github.com/supermarin/xcpretty
-[libimobiledevice]:http://www.libimobiledevice.org/
-[deviceconsole]:https://github.com/rpetrich/deviceconsole
-[check-engine]:https://github.com/mohlsen/check-engine
-[yarn]:https://yarnpkg.com/
-[nsp]:https://github.com/nodesecurity/nsp
-[pnpm]:https://pnpm.io/
+Events
+------
+All events that Mitm will emit on an instance of itself (see [Using
+Mitm.js](#using) for examples):
+
+Event      | Description
+-----------|------------
+connect    | Emitted when a TCP connection is made.<br> Given the **client side** `Net.Socket` and `options` from `Net.connect`.
+connection | Emitted when a TCP connection is made.<br> Given the **server side** `Net.Socket` and `options` from `Net.connect`.
+request    | Emitted when a HTTP/HTTPS request is made.<br> Given the server side `Http.IncomingMessage` and `Http.ServerResponse`.
+
+
+License
+-------
+Mitm.js is released under a *Lesser GNU Affero General Public License*, which
+in summary means:
+
+- You **can** use this program for **no cost**.
+- You **can** use this program for **both personal and commercial reasons**.
+- You **do not have to share your own program's code** which uses this program.
+- You **have to share modifications** (e.g. bug-fixes) you've made to this
+  program.
+
+For more convoluted language, see the `LICENSE` file.
+
+
+About
+-----
+**[Andri Möll][moll]** typed this and the code.  
+[Monday Calendar][monday] supported the engineering work.
+
+If you find Mitm.js needs improving, please don't hesitate to type to me now
+at [andri@dot.ee][email] or [create an issue online][issues].
+
+[email]: mailto:andri@dot.ee
+[issues]: https://github.com/moll/node-mitm/issues
+[moll]: http://themoll.com
+[monday]: https://mondayapp.com
+[twitter]: https://twitter.com/theml
