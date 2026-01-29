@@ -1,23 +1,13 @@
-*.log
+# example checkpoints
+irrad_spectroscopy/examples/.ipynb_checkpoints/
+# example output folder
+irrad_spectroscopy/examples/output/
+# pyc
 *.pyc
-# eclipse stuff
+# pycharm
+.idea/
+# eclipse
 .project
 .pydevproject
-.settings/
-# PyCharm stuff
-.idea/
-# backup files from gedit etc.
-*~
-# runtime files
-*.pid
-*.sock
-*.db
-# config files
-*.conf
-# Sphinx output
-docs/build
-# build files
-*.egg-info/
-build/
-dist/
-.eggs/
+# egg-info folder
+irrad_spectroscopy.egg-info/
