@@ -1,4 +1,0 @@
-{
-  "plugins": ["transform-class-properties"],
-  "presets": [["env", { exclude: ["transform-es2015-classes"] }], "react"]
-}
