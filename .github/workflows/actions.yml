@@ -15,5 +15,14 @@ jobs:
     - uses: actions/setup-node@v4.0.0
       with:
         cache: npm
+#     # 'sudo' was not transformed because there is no suitable equivalent in GitHub Actions
     - run: npm install
     - run: npm test
+    strategy:
+      matrix:
+        node_js:
+        - '6'
+        - '7'
+        - '8'
+        - '9'
+        - '10'

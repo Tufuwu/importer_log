@@ -1,3 +1,12 @@
-bullshit.js
+# ignore those pesky files that Mac generates
 .DS_Store
-node_modules
+
+# ignore streamline temp files
+tmp--*
+
+npm-debug.log
+
+# ignore the node inclusion directory
+node_modules/
+
+package-lock.json
