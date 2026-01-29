@@ -3,6 +3,8 @@ on:
   push:
     branches:
     - "**/*"
+    - main
+    - "/releases\\/.+/"
   pull_request:
 #   # This item has no matching transformer
 #   maximum_number_of_builds: 0
@@ -14,6 +16,22 @@ jobs:
       uses: actions/checkout@v4.1.0
     - uses: actions/setup-python@v5.0.0
       with:
-        python-version: '3.9'
-    - run: pip install -r requirements.txt
-    - run: make cfn-lint
+        python-version: "${{ matrix.python }}"
+    - run: export TZ=Asia/Seoul
+    - run: python --version
+    - run: pip install -U pip
+    - run: pip install codecov
+    - run: pip install -e .[dev]
+    - run: coverage run --omit="*/test*" -m unittest discover ./tests/ *test.py
+    - run: codecov
+      if: "${{ success() }}"
+#     # This item has no matching transformer
+#     - email:
+#         on_success: never
+#         on_failure: change
+    strategy:
+      matrix:
+        python:
+        - 3.8
+        - 3.9
+        - 3.1
