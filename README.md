@@ -1,99 +1,157 @@
-# Bambam
+# PDDL Parser [![Actions Status](https://github.com/pucrs-automated-planning/pddl-parser/workflows/build/badge.svg)](https://github.com/pucrs-automated-planning/pddl-parser/actions) [![DOI](https://zenodo.org/badge/DOI/10.5281/zenodo.4391071.svg)](https://doi.org/10.5281/zenodo.4391071) [![License: GPL v3](https://img.shields.io/badge/License-GPLv3-blue.svg)](https://www.gnu.org/licenses/gpl-3.0)
+**Classical Planning in Python**
 
-[![Build Status](https://travis-ci.com/porridge/bambam.svg?branch=master)](https://travis-ci.com/porridge/bambam)
-[![Translation Status](https://hosted.weblate.org/widgets/bambam/-/app-and-manpage/svg-badge.svg)](https://hosted.weblate.org/engage/bambam/)
+## Source
+- [action.py](action.py) with an Action class
+- [PDDL.py](PDDL.py) with a PDDL parser
+- [planner.py](planner.py) with a planner
+- [examples](examples/) folder with PDDL domains:
+  - [Airport](examples/airport) from AIPS2000 Planning Competition
+  - [Dinner](examples/dinner) from Daniel Weld, a propositional domain
+  - [Blocks World](examples/blocksworld)
+  - [Dock Worker Robot](examples/dwr)
+  - [Travelling Salesman Problem](examples/tsp)
 
-Bambam is a simple baby keyboard (and gamepad) masher application that locks the keyboard and mouse and instead displays bright colors, pictures, and sounds.  While OSX has great programs like [AlphaBaby](http://www.kldickey.addr.com/alphababy/), the original author couldn't find anything for Linux and having wanted to learn Python for a while, Bambam was his excuse.
+## Parser execution
+```Shell
+# Parser can be used separately
+cd pddl-parser
+python -B PDDL.py examples/dinner/dinner.pddl examples/dinner/pb1.pddl
+# Output
+----------------------------
+['define',
+ ['domain', 'dinner'],
+ [':requirements', ':strips'],
+ [':predicates', ['clean'], ['dinner'], ['quiet'], ['present'], ['garbage']],
+ [':action', 'cook', ':precondition', ['clean'], ':effect', ['dinner']],
+ [':action', 'wrap', ':precondition', ['quiet'], ':effect', ['present']],
+ [':action',
+  'carry',
+  ':precondition',
+  ['garbage'],
+  ':effect',
+  ['and', ['not', ['garbage']], ['not', ['clean']]]],
+ [':action',
+  'dolly',
+  ':precondition',
+  ['garbage'],
+  ':effect',
+  ['and', ['not', ['garbage']], ['not', ['quiet']]]]]
+----------------------------
+['define',
+ ['problem', 'pb1'],
+ [':domain', 'dinner'],
+ [':init', ['garbage'], ['clean'], ['quiet']],
+ [':goal', ['and', ['dinner'], ['present'], ['not', ['garbage']]]]]
+----------------------------
+Domain name: dinner
+action: cook
+  parameters: []
+  positive_preconditions: [['clean']]
+  negative_preconditions: []
+  add_effects: [['dinner']]
+  del_effects: []
 
-![Bambam screenshot](docs/bambam.png "Bambam screenshot")
+action: wrap
+  parameters: []
+  positive_preconditions: [['quiet']]
+  negative_preconditions: []
+  add_effects: [['present']]
+  del_effects: []
 
-## Installation
+action: carry
+  parameters: []
+  positive_preconditions: [['garbage']]
+  negative_preconditions: []
+  add_effects: []
+  del_effects: [['garbage'], ['clean']]
 
-### From a distribution package
+action: dolly
+  parameters: []
+  positive_preconditions: [['garbage']]
+  negative_preconditions: []
+  add_effects: []
+  del_effects: [['garbage'], ['quiet']]
 
-First, see if your distribution has a bambam package already.
-This way takes care of dependencies, translated program messages, `.desktop` files and manual pages.
-
-For example:
-```
-sudo apt install bambam
-man bambam
-```
-
-### Manual installation
-
-Before installing this application, ensure you have the following installed:
-  * [Python](http://python.org) - version 3.x is recommended but version 2.7 should work too
-  * [Pygame](http://www.pygame.org/) - version 2.x is recommended, but version 1.9 may work too
-
-If not, you can install it manually as follows:
-  1. [Download](https://github.com/porridge/bambam/releases) the `bambam-1.2.0.zip` or `bambam-1.2.0.tar.gz` file.
-  1. Unzip bambam-1.2.0.zip or `tar zxvf bambam-1.2.0.tar.gz` to create the `bambam-1.2.0` directory.
-  1. Change into the 'bambam-1.2.0' directory
-```
-cd bambam-1.2.0
-```
-
-If you would like to take advantage of the recommended way to start the game (see the next section) do the following:
-
-```
-sed -i -e "s,/usr/games/bambam,`pwd`/bambam.py," bambam-session.desktop
-sudo mkdir -p /etc/X11/sessions
-sudo cp bambam-session.desktop /etc/X11/sessions/
-```
-
-For an alternative way to start the game from your applications menu, do the following:
-```
-sed -i -e "s,/usr/games/bambam,`pwd`/bambam.py," bambam.desktop
-mkdir -p ~/.local/share/applications
-cp bambam.desktop ~/.local/share/applications/
-```
-
-## Usage
-
-Once installed, there are two ways to run the game:
-1. **Recommended**: as a dedicated graphical session.
-
-   When logging into your system, look for a gear icon, which opens a drop-down
-   menu of available session types. Select BamBam and log in.
-
-   This way only the game is launched, and the user is logged out as soon as
-   the game quits.  Thanks to this, a child is not able to cause any damage
-   even if he or she somehow manages to quit the game.
-
-   This way is safer, but more cumbersome.
-2. Directly from a terminal, or applications menu.
-
-   Select the game from your applications menu, or to run the game from a
-   terminal window, type `bambam` if you installed from a distribution package, or
-   `./bambam.py` if you installed manually.
-
-   This way the program runs as part of a regular session. The game tries to
-   grab the keyboard and mouse pointer focus in order to prevent a child from
-   exiting the game or switching away from it. However it is not 100%
-   bulletproof, depending on the exact environment.
-
-   This way is easier, but potentially more risky. Take care when leaving your
-   child unattended with the game.
-
-## Exiting
-
-To exit, just directly type the command mentioned in the upper left-hand corner of the window. In the English locales, this is:
-```
-quit
+----------------------------
+Problem name: pb1
+Objects: {}
+State: [['garbage'], ['clean'], ['quiet']]
+Positive goals: [['dinner'], ['present']]
+Negative goals: [['garbage']]
 ```
 
-More information is in the man page. To view it, type:
+## Planner execution
+The output of the planner is more verbose with option ``-v``.
+
+```Shell
+# Planning using BFS
+cd pddl-parser
+python -B planner.py examples/dinner/dinner.pddl examples/dinner/pb1.pddl -v
+# Output
+Time: 0.00200009346008s
+plan:
+action: cook
+  parameters: []
+  positive_preconditions: [['clean']]
+  negative_preconditions: []
+  add_effects: [['dinner']]
+  del_effects: []
+
+action: wrap
+  parameters: []
+  positive_preconditions: [['quiet']]
+  negative_preconditions: []
+  add_effects: [['present']]
+  del_effects: []
+
+action: carry
+  parameters: []
+  positive_preconditions: [['garbage']]
+  negative_preconditions: []
+  add_effects: []
+  del_effects: [['garbage'], ['clean']]
 ```
-man ./bambam.6
+
+## API
+
+### Action
+```Python
+class Action:
+    def __init__(self, name, parameters, positive_preconditions, negative_preconditions, add_effects, del_effects, extensions = None)
+    def __str__(self)
+    def __eq__(self, other)
+    def groundify(self, objects, types)
+    def replace(self, group, variables, assignment)
 ```
 
-Comments or suggestions? Any feedback is appreciated, please send it to [the bambam-users forum](https://groups.google.com/forum/#!forum/bambam-users).
+### Parser
+```Python
+class PDDL_Parser:
+    def scan_tokens(self, filename)
+    def parse_domain(self, domain_filename)
+    def parse_domain_extended(self, t, group)
+    def parse_hierarchy(self, group, structure, name, redefine)
+    def parse_objects(self, group, name)
+    def parse_types(self, types)
+    def parse_predicates(self, group)
+    def parse_action(self, group)
+    def parse_action_extended(self, t, group)
+    def parse_problem(self, problem_filename)
+    def parse_problem_extended(self, t, group)
+    def split_predicates(self, group, positive, negative, name, part)
+```
 
-Translations for this game are done on [Weblate](https://hosted.weblate.org/projects/bambam/). Please help translating for your mother tongue!
+### Planner
+```Python
+class PDDL_Planner:
+    def solve(self, domain, problem)
+    def applicable(self, state, positive, negative)
+    def apply(self, state, positive, negative)
+```
 
-## History
-
-This project was moved from [its code.google.com location](https://code.google.com/p/bambam/) in April 2015, since that site was about to be shut down.
-
-Note that changes (as of 2010-08-17) from [the launchpad bambam fork](https://launchpad.net/bambam) had been merged back to this project in February 2014.
+## Notes
+New Parser features should be added through inheritance using ``super`` and ``parse_*_extended`` methods.
+The Action class must be replaced to deal with possible extensions.
+The planner is only an example, being compact for educational purposes.
+New features are outside the scope of this project, which was originally intended as a propositional PDDL parser to avoid the complexity of grounding and the ambiguity of typing descriptions.
