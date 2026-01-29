@@ -1,47 +1,45 @@
 #!/usr/bin/env python
-import os, sys
-from setuptools import setup, find_packages
+# -*- coding: utf-8 -*-
 
-if sys.argv[-1] == 'publish':
-    os.system('python setup.py sdist upload')
-    sys.exit(0)
+""" distribute- and pip-enabled setup.py """
 
-with open('README.rst', 'r') as f:
-    long_description = f.read()
+import setuptools
+import sys
 
-# Dynamically calculate the version based on swingtime.VERSION.
-version=__import__('swingtime').get_version()
+import sparkdl
 
-setup(
-    name='django-swingtime',
-    url='https://github.com/dakrauth/django-swingtime',
-    author='David A Krauth',
-    author_email='dakrauth@gmail.com',
-    description='A Django calendaring application.',
-    version=version,
-    long_description=long_description,
-    long_description_content_type='text/x-rst',
-    platforms=['any'],
-    license='MIT License',
-    python_requires='>=3.6, <4',
-    install_requires=['Django>=2.2,<4.0', 'python-dateutil==2.8.0'],
+exclude_packages = ('tests', 'tests.*')
+
+if '--with-tests' in sys.argv:
+    index = sys.argv.index('--with-tests')
+    sys.argv.pop(index)
+    exclude_packages = ()
+
+setuptools.setup(
+    name='sparkdl',
+    version=sparkdl.__version__,
+    packages=setuptools.find_packages(exclude=exclude_packages),
+    url="https://github.com/databricks/spark-deep-learning",
+    author="Weichen Xu",
+    author_email="weichen.xu@databricks.com",
+    description="Deep Learning Pipelines for Apache Spark",
+    long_description="",
     classifiers=[
-        'Development Status :: 5 - Production/Stable',
-        'Environment :: Web Environment',
-        'Framework :: Django',
-        'Framework :: Django :: 2.2',
-        'Framework :: Django :: 3.0',
-        'Framework :: Django :: 3.1',
-        'Framework :: Django :: 3.2',
-        'License :: OSI Approved :: MIT License',
-        'Programming Language :: Python',
-        'Programming Language :: Python :: 3.6',
-        'Programming Language :: Python :: 3.7',
-        'Programming Language :: Python :: 3.8',
-        'Programming Language :: Python :: 3.9',
-        'Topic :: Office/Business :: Scheduling',
+        "Intended Audience :: Education",
+        "Intended Audience :: Science/Research",
+        "Intended Audience :: Developers",
+        "Environment :: Console",
+        "License :: OSI Approved :: BSD License",
+        "Operating System :: Unix",
+        "Programming Language :: Python :: 3",
+        "Topic :: Scientific/Engineering",
+        "Topic :: Software Development",
     ],
-    packages=find_packages(),
-    package_data={'swingtime': ['locale/*/*/*.*',]},
+    platforms=["Linux"],
+    license="BSD",
+    keywords="spark deep learning horovod model distributed training",
+    install_requires=[],
+    extras_require={},
+    tests_require=["nose", "pytest"],
     zip_safe=False,
 )

@@ -15,11 +15,7 @@ jobs:
       uses: actions/checkout@v4.1.0
     - uses: actions/setup-python@v5.0.0
       with:
-        python-version: "${{ matrix.python }}"
-    - run: pip install tox-travis
-    - run: tox
-    strategy:
-      matrix:
-        python:
-        - '3.9'
-        - '3.8'
+        python-version: '3.9'
+    - run: pip install sphinx==3.2.1 pyspark==3.0.1 tensorflow-cpu==1.15.0
+    - run: pushd docs/ && PYTHONPATH=.. make clean html && popd
+    - run: pytest

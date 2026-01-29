@@ -1,16 +1,23 @@
+*.coverage
+*test_net_cached.pb
+*.class
 *.log
-*.pot
 *.pyc
-karate.db
-demo/static
-/build
-MANIFEST
-dist
-.tox/
-django_swingtime.egg-info/
-/dev
-.cache/
-.coverage
-.pytest_cache
-venv
-Dockerrun.aws.json
+python/.setup.sh
+build/*.jar
+
+docs/build
+
+# python
+*.pyc
+docs/_build/
+build/
+dist/
+*.egg-info/
+
+
+# intellij
+.idea/
+
+# MacOS
+.DS_Store
