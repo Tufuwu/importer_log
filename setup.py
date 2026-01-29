@@ -1,39 +1,42 @@
-#!/usr/bin/env python
-# -*- coding: utf-8 -*-
-
-
 from setuptools import setup, find_packages
+from codecs import open
+from os import path
 
-
-with open('README.rst', 'rb') as f:
-    readme = f.read().decode('utf-8')
-
-with open('requirements.txt') as f:
-    requires = f.readlines()
+# Get the long description from README.md
+with open('README.md', encoding='utf-8') as f:
+    long_description = f.read()
 
 setup(
-    name='greenswitch',
-    version='0.0.12',
-    description=u'Battle proven FreeSWITCH Event Socket Protocol client implementation with Gevent.',
-    long_description=readme,
-    author=u'Ítalo Rossi',
-    author_email=u'italorossib@gmail.com',
-    url=u'https://github.com/evoluxbr/greenswitch',
-    license=u'MIT',
-    packages=find_packages(exclude=('tests', 'docs')),
+    name='cleanup',
+    version='1.0.3',
+    description='A simple command line utility that organises files in a '
+                'directory into subdirectories.',
+    long_description=long_description,
+    long_description_content_type='text/markdown',
+    url='https://github.com/faheel/cleanup',
+    author='Syed Faheel Ahmad',
+    author_email='faheel@live.in',
+    license='MIT',
     classifiers=[
         'Development Status :: 5 - Production/Stable',
-        'Intended Audience :: Developers',
-        'Programming Language :: Python',
+        'Intended Audience :: End Users/Desktop',
         'License :: OSI Approved :: MIT License',
-        'Programming Language :: Python :: 2.7',
         'Programming Language :: Python :: 3',
-        'Programming Language :: Python :: 3.5',
-        'Programming Language :: Python :: 3.6',
-        'Programming Language :: Python :: 3.7',
-        'Programming Language :: Python :: 3.8',
-        'Programming Language :: Python :: 3.9',
-        'Programming Language :: Python :: 3.10',
+        'Topic :: Utilities',
     ],
-    install_requires=requires
+    keywords='cleanup file-organiser file-organisation file-management hue docopt',
+    packages=find_packages(exclude=['test']),
+    install_requires=['docopt', 'huepy'],
+    extras_require={
+        'dev': ['pylint'],
+    },
+    entry_points={
+        'console_scripts': [
+            'cleanup=cleanup.cleanup:main',
+        ],
+    },
+    project_urls={
+        'Bug Reports': 'https://github.com/faheel/cleanup/issues',
+        'Source': 'https://github.com/faheel/cleanup',
+    },
 )
