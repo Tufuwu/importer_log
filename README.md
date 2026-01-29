@@ -1,53 +1,85 @@
-# MEGAJS
+Ember CLI Dependency Checker [![Build Status](https://github.com/quaertym/ember-cli-dependency-checker/actions/workflows/ci.yml/badge.svg)](https://github.com/quaertym/ember-cli-dependency-checker/actions/workflows/ci.yml) [![Build status](https://ci.appveyor.com/api/projects/status/1tt9nvrkd7jtv1a0/branch/master?svg=true)](https://ci.appveyor.com/project/quaertym/ember-cli-dependency-checker/branch/master) [![Code Climate](https://codeclimate.com/github/quaertym/ember-cli-dependency-checker/badges/gpa.svg)](https://codeclimate.com/github/quaertym/ember-cli-dependency-checker) [![Ember Observer Score](http://emberobserver.com/badges/ember-cli-dependency-checker.svg)](http://emberobserver.com/addons/ember-cli-dependency-checker)
+============================
 
-Unofficial JavaScript SDK for MEGA
+An Ember CLI addon that checks for missing npm and bower dependencies before running ember commands.
 
-* This is based on [tonistiigi's mega library](https://github.com/tonistiigi/mega).
-* This is all unofficial, based on [developer guide](https://mega.nz/#developers) and site source.
-* Make sure you agree with MEGA's [Terms of Service](https://mega.nz/#terms) before using it.
-* Maybe an official SDK will probably be released in the future here: https://github.com/meganz/
+### Installation
 
-## Installation
-
-```shell
-npm install megajs
+```bash
+ember install ember-cli-dependency-checker
 ```
 
-```javascript
-const mega = require('megajs') // or
-import mega from 'megajs'
+### Usage
+
+Upon being included in a project (when running `ember build` for example), the dependency checker
+will confirm versions according to several signals of intent:
+
+* `bower.json` will be compared to the contents of `bower_components` (or your Ember-CLI
+  configured bower directory)
+* `package.json` will be compared to the contents of `node_modules`. This check only
+  takes the top-level of dependencies into account. Nested dependencies are not confirmed.
+* `npm-shrinkwrap.json`, if present, will be compared to the contents of `node_modules`. This
+  is done only if a `package.json` check does not find any unsatisfied dependencies. Nested
+  dependencies are confirmed.
+
+### Shrinkwrap Workflow
+
+**This workflow presumes npm v2.7.6 - v3.0.0**, though it may work well for earlier versions.
+
+When installing dependencies, it is important that `npm shrinkwrap --dev` is run and the resulting
+`npm-shrinkwrap.json` file committed. For example, to install the [Torii](https://github.com/Vestorly/torii)
+library:
+
+```
+npm install --save-dev torii
+npm shrinkwrap --dev
+git add package.json npm-shrinkwrap.json
+git commit -m "Install Torii"
 ```
 
-You can also load it in a browser using `<script src="https://unpkg.com/megajs/dist/main.node-cjs.js"></script>`, which exports the library in the `mega` global variable. You can also use `import * as mega from 'https://unpkg.com/megajs/dist/main.browser-es.js'`.
+**If the npm-shrinkwrap.json file is not committed, nested dependencies cannot be confirmed**.
+Remembering to execute `npm shrinkwrap --dev` and commit `npm-shrinkwrap.json` is akin to committing
+the `Gemfile.lock` file when using Ruby's Bundler library.
 
-**For more details, API documentation and examples check wiki: https://github.com/qgustavor/mega/wiki**
+If `ember` is run and the contents of `node_modules/` differs from the contents of `package.json`
+and `npm-shrinkwrap.json` an error will be raised. To resolve a difference in dependencies,
+you must destroy the `node_modules/` directory and re-run `npm install`. With a blank
+directory, `npm install` will respect the versions pinned in `npm-shrinkwrap.json`.
 
-The bundled files are available via [npm](https://www.npmjs.com/package/megajs) and [UNPKG](https://unpkg.com/megajs/dist/).
+In some rare cases there may be un-resolvable conflicts between installable versions of
+dependencies and those pinned. Upgrading packages after deleting the `npm-shrinkwrap.json`
+file or changing the version of a dependency requested in `package.json` may be the only
+way to resolve theses cases.
 
-**For CLI usage check MEGAJS CLI**: https://github.com/qgustavor/megajs-cli
+### Deployment with Shrinkwrap
 
-## Implementation notes
+Ember-CLI projects may be built on Travis or another dedicated build tool like Jenkins. To
+ensure that versions of dependencies (including of nested dependencies) are the same during
+builds as they are on the authoring developer's computer, it is recommended
+that you confirm dependencies before a build. Do this by running `ember version` to
+begin a dependency check, then if needed clearing the `node_modules/` and `bower_components/` folder
+and installing dependencies. For example:
 
-Only part of the file related API is implemented. For now implementing contact and chat functions seems out of scope.
+```
+([ -f node_modules/ember-cli/bin/ember ] && node_modules/ember-cli/bin/ember version) || (rm -rf node_modules/ bower_components/ && npm install && bower install)
+ember build -e production
+```
 
-Cryptography is mostly ported from browser code. In Node some parts are optimized: AES operations are done using native crypto. Sadly WebCrypto don't support streaming so in browser the old pure JavaScript implementation is used. The RSA operations aren't optimized as currently there isn't any need to improve that.
+### Caveats
 
-This module works in the browser: the "main.browser-umd.js" is a build using the UMD format where Node specific modules, like crypto and request modules, were replaced with browser equivalents. If you want to use tree shaking then use the "main.browser-es.js" bundle. This module wasn't tested in other environments.
+Due to the limited information available in configuration files and packages, git
+dependencies may fall out of sync. Using shrinkwrap will confirm that they are correct
+upon installation, but they cannot be confirmed at runtime until improvements are
+made to the `npm-shrinkwrap.json` file.
 
-## Fork objectives
+Pinning solely to versioned releases should be preferred.
 
-This package started as a fork, with the following objectives:
+### Tests
 
-* Make the original package work in browsers again: even following [the instructions from the original library](https://github.com/tonistiigi/mega#browser-support) it stopped working because some dependencies used `__proto__`, which is non-standard and isn't supported in many browsers. Also the updated versions of those libraries broke backyards compatibility;
-* Reduce dependencies and replace big dependencies with smaller ones, like crypto libraries, which usually are huge;
-* Rewrite code using the new JavaScript syntax, allowing to use [Rollup](http://rollupjs.org/), which can generate smaller bundles;
-* Make tests work again after the changes above;
-* Continue the original library development implementing new features and improving performance.
+To run tests:
 
-Request package was replaced with a shim based in [browser-request](https://www.npmjs.com/package/browser-request) and [xhr-stream](https://www.npmjs.com/package/xhr-stream), which additional changes in order to make it work inside Service Workers. Crypto was replaced with [secure-random](https://www.npmjs.com/package/secure-random).
+`npm test`
 
-As there were many changes there isn't any plan to merge those changes into the original library, unless the original author accept those massive changes. That's why I put "js" in the name, which is silly because both libraries use JavaScript. At least it's better than other ideas I had, like "mega2", "mega-es" and "modern-mega".
+### LICENSE
 
-## Contributing
-
-When contributing fork the project, clone it, run `npm install`, change the library as you want, run tests using `npm run test` and build the bundled versions using `npm run build`. Before creating a pull request, *please*, run tests.
+MIT

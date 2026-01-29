@@ -1,67 +1,66 @@
 {
-  "name": "megajs",
-  "version": "0.17.2",
-  "description": "Unofficial JavaScript SDK for MEGA",
-  "main": "dist/main.node-cjs.js",
-  "exports": {
-    "node": {
-      "require": "./dist/main.node-cjs.js",
-      "import": "./dist/main.node-es.js"
-    },
-    "default": {
-      "require": "./dist/main.browser-cjs.js",
-      "import": "./dist/main.browser-es.js"
-    }
-  },
-  "files": [
-    "dist"
+  "name": "ember-cli-dependency-checker",
+  "version": "3.3.0",
+  "description": "Ember CLI addon for detecting missing npm and bower dependencies before executing ember commands",
+  "keywords": [
+    "bower",
+    "check",
+    "dependency",
+    "ember",
+    "ember-addon",
+    "ember-cli",
+    "node",
+    "npm"
   ],
   "repository": {
     "type": "git",
-    "url": "https://github.com/qgustavor/mega.git"
+    "url": "https://github.com/quaertym/ember-cli-dependency-checker.git"
   },
-  "keywords": [
-    "mega",
-    "storage"
-  ],
-  "scripts": {
-    "build": "node build",
-    "test": "npm run lint && ava",
-    "lint": "standard",
-    "lint-fix": "standard --fix",
-    "dist": "npm run test && npm run build"
-  },
-  "standard": {
-    "ignore": [
-      "dist"
-    ]
-  },
-  "author": "Tõnis Tiigi <tonistiigi@gmail.com>",
-  "contributors": [
-    "Gustavo Rodrigues (https://qgustavor.tk)"
-  ],
   "license": "MIT",
+  "author": "Emre Unal",
+  "directories": {
+    "doc": "doc",
+    "test": "tests"
+  },
+  "bugs": {
+    "url": "https://github.com/quaertym/ember-cli-dependency-checker/issues"
+  },
+  "scripts": {
+    "lint:js": "eslint .",
+    "test": "node tests/runner",
+    "test:debug": "node debug tests/runner"
+  },
   "dependencies": {
-    "abort-controller": "^3.0.0",
-    "combined-stream": "^1.0.8",
-    "node-fetch": "^2.6.7",
-    "secure-random": "^1.1.2",
-    "stream-combiner": "^0.2.2",
-    "stream-skip": "^1.0.3",
-    "through": "^2.1.0"
+    "chalk": "^2.3.0",
+    "find-yarn-workspace-root": "^1.1.0",
+    "is-git-url": "^1.0.0",
+    "resolve": "^1.5.0",
+    "semver": "^5.3.0"
   },
   "devDependencies": {
-    "ava": "^4.0.1",
-    "buffer": "^6.0.3",
-    "core-js": "^3.20.3",
-    "esbuild": "^0.14.11",
-    "esbuild-plugin-alias": "^0.2.1",
-    "events": "^3.3.0",
-    "mega-mock": "^0.3.0",
-    "readable-stream": "^3.6.0",
-    "regenerator-runtime": "^0.13.9",
-    "standard": "^16.0.4",
-    "tmp": "0.0.33",
-    "util": "^0.12.4"
-  }
+    "chai": "^4.1.2",
+    "ember-cli": "~3.2.0",
+    "ember-maybe-import-regenerator": "^0.1.6",
+    "ember-source-channel-url": "^1.0.1",
+    "ember-try": "^0.2.23",
+    "eslint-plugin-chai": "0.0.1",
+    "eslint-plugin-ember": "^5.0.0",
+    "eslint-plugin-mocha": "^5.1.0",
+    "eslint-plugin-node": "^6.0.1",
+    "glob": "^7.1.1",
+    "mocha": "^5.2.0",
+    "mocha-eslint": "^4.1.0",
+    "qunit-dom": "^0.7.0",
+    "sinon": "^13.0.0"
+  },
+  "peerDependencies": {
+    "ember-cli": "~3.2.0 || ^4.0.0"
+  },
+  "engines": {
+    "node": ">= 6"
+  },
+  "ember-addon": {
+    "configPath": "tests/dummy/config"
+  },
+  "readmeFile": "README.md"
 }
