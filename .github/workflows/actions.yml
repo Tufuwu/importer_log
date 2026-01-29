@@ -16,19 +16,26 @@ jobs:
     - uses: actions/setup-python@v5.0.0
       with:
         python-version: "${{ matrix.python }}"
-    - run: pip install codecov
-    - run: pip install -r requirements.txt
-    - run: pip install -r test-requirements.txt
-    - run: flake8 stockstats.py test.py
-    - run: py.test --cov=./ test.py
-    - run: codecov
-      if: "${{ success() }}"
+#     # 'sudo' was not transformed because there is no suitable equivalent in GitHub Actions
+    - run: sed '/pypandoc/d' -i requirements.txt
+    - run: pip install -U -r requirements.txt
+    - run: "./setup.py install"
+    - run: py.test --cov=ssh_ldap_pubkey --cov-report term -vv
+    - run: pycodestyle
 #     # This item has no matching transformer
-#     - email:
-#       - jealous@163.com
+#     - pypi:
+#         provider: pypi
+#         user: jirutka
+#         password:
+#           secure: 2tzmNOMTjVcyIckYun5iZbgr9/6nrhImD4eFYOCbFFDezilGmPHwfbgp0zx55nrkdNOSB/mgsV+pYAdq8+0CRd/BcZZb9oosyS7n1vjPAP9fMNa02SsaqTWDzDpcNnGbfg7qOhKC/FyQ+H4uXp8w+pe4RfJFCUS/ywOimBEYrSI=
+#         skip_cleanup: true
+#         'on':
+#           tags: true
+#           python: 3.1
+#       if: "${{ github.event_name == 'push' && ${{ github.ref }} }}"
     strategy:
       matrix:
         python:
-        - '3.8'
-        - '3.9'
-        - '3.10'
+        - 3.8
+        - 3.9
+        - 3.1

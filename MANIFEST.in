@@ -1,3 +1,6 @@
-include *.rst
-include *.cfg
-include *.txt
+include README.md
+include CHANGELOG.adoc
+include LICENSE
+include MANIFEST.in
+include etc/ldap.conf
+include etc/openssh-lpk.schema

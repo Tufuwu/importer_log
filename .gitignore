@@ -1,23 +1,17 @@
-# Binaries
-*.pyc
-.tox/
-.env/
-venv/
-.cache/
-~/
+# Byte-compiled / optimized files
+__pycache__/
+*.py[cod]
+
+# Distribution / packaging
+env/
 build/
 dist/
+/MANIFEST
 *.egg-info/
-.eggs/
-docs/_build/doctrees/
+*.egg
 
-# IDE related
-.idea/
+# pytest
+.cache/
 
-# tests
-junit-result.xml
-htmlcov/
+# Coverage report
 .coverage
-__pycache__/
-.pytest_cache/
-README.html

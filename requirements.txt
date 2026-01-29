@@ -1,1 +1,6 @@
-pandas>=0.24.2
+pycodestyle
+pytest
+pytest-cov
+pytest-describe
+pytest-mock
+python-ldap>=3.0.0,<4
