@@ -1,8 +1,0 @@
-{
-  "sourceMap": {
-    "filename": "{file}",
-    "includeSources": true,
-    "url": "{file}.map",
-    "root": ""
-  }
-}

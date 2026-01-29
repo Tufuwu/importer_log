@@ -1,6 +1,6 @@
 test
-tmp
-tmp2
+perf
 coverage
-.vscode
-.nyc_output
+.*
+
+
