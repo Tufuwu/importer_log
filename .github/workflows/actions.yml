@@ -10,65 +10,48 @@ jobs:
   test:
     runs-on: # this agent type is not supported: [[{"dist"=>"noble"}]]
              ubuntu-latest
-    env:
-      TOXENV: py38
     steps:
     - name: checkout
       uses: actions/checkout@v4.1.0
     - uses: actions/setup-python@v5.0.0
       with:
-        python-version: 3.8
-    - run: pip install tox
-    - run: tox
-  test_2:
-    runs-on: # this agent type is not supported: [[{"dist"=>"noble"}]]
-             ubuntu-latest
-    env:
-      TOXENV: py39
-    steps:
-    - name: checkout
-      uses: actions/checkout@v4.1.0
-    - uses: actions/setup-python@v5.0.0
+        python-version: "${{ matrix.python }}"
+    - name: Set up pip cache
+      uses: actions/cache@v3.3.2
       with:
-        python-version: 3.9
-    - run: pip install tox
-    - run: tox
-  test_3:
-    runs-on: # this agent type is not supported: [[{"dist"=>"noble"}]]
-             ubuntu-latest
-    env:
-      TOXENV: py310
-    steps:
-    - name: checkout
-      uses: actions/checkout@v4.1.0
-    - uses: actions/setup-python@v5.0.0
-      with:
-        python-version: 3.1
-    - run: pip install tox coveralls
-    - run: tox
-    - run: coveralls
-      if: "${{ success() }}"
-  deploy:
-    needs:
-    - test
-    - test_2
-    - test_3
-    runs-on: # this agent type is not supported: [[{"dist"=>"noble"}]]
-             ubuntu-latest
-    steps:
-    - name: checkout
-      uses: actions/checkout@v4.1.0
-    - uses: actions/setup-python@v5.0.0
-      with:
-        python-version: 3.1
-    - run: skip
-    - run: skip
+        path: "~/.cache/pip"
+        key: "${{ runner.os }}-pip-${{ hashFiles('**/requirements.txt') }}"
+        restore-keys: "${{ runner.os }}-pip-"
+    - run: travis_retry pip install pylint pytest pytest-cov
+    - run: pylint --generate-rcfile > ~/.pylintrc
+    - run: sed -i "s/min-similarity-lines=.*/min-similarity-lines=50/g" ~/.pylintrc
+    - run: git describe --tags --long --dirty || sed -i "s/setup_requires = .*/version = '0.0.0',/g" ${{ github.workspace }}/setup.py
+    - run: travis_retry pip install -e .
+    - run: pylint content_hash/*
+    - run: pylint example.py
+    - run: pytest --cov=content_hash
+    - run: |
+        if [[ ${TRAVIS_PYTHON_VERSION:0:3} == "3.7" ]]
+        then
+          travis_retry pip install scrutinizer-ocular
+          ocular
+        fi
 #     # This item has no matching transformer
 #     - pypi:
 #         provider: pypi
-#         user: fetzerch
-#         password:
-#           secure: fVTcN76RpPTCIHyUd4Xg2COpVa/3CuFPRi8DBHqdGWjTuqU/UhXFORYL56eQUnAuhdjt8kNV757tmB6cf1uxlH0v4WAPlwiij3Zw9Wr+QBw+D71jfDLB+b/zGPlwyCuvLyZPP202UknUXvKGw2uHbOiTcW85v4ITZgBQ2/yDVUSfqJpMHU9LFGwePbaJdxbBzifSx1jdShtrc8POtm8ddi1N1h3zCt2osfTxmVGH0eQOAunCGwWT2rTawLPQnSqCg8yVLBo8iCYzkghZcByn+DGLU36s4fVFKG0xGVTUOdyT7VciIIsyjwVNGyG9ap5LxGVyQnV4jrSNrSYvnNSqKwQceRq/l/RyFC4tEaOPzEOA+GiCBy+Pyh7ZmVRuymDeVLWWIdN3UBoqM7GRNhuAxUhoNkfP6IlwSfRpbNqVbeObOKLU4Guf4VMk/YGjSLIssl4KIZ8sdnn8/MFln6p0xgjPvFF82Zms8XYjEMCzM/kXSbeHa+Cyv6Xbi9+yHauU69uclTQpMo1VSINJn2hwQYauJw0YXDDjVl1Tb2VHNATLgI37GZINm9dTHju/vMdXzQAXfOSOww5Iqmah+HMpCS7dJNp62RVGjHR2a+7j08LntEUB2HmxYCvD7YEwEIbOhv2/S/v207WECvPYyZuB9V7Ca35Ygf03LAio/reESVo=
+#         skip_cleanup: true
+#         skip_existing: true
 #         'on':
 #           tags: true
+#         user: "$PYPI_USER"
+#         password: "$PYPI_PASSWORD"
+#         distributions: sdist bdist_wheel
 #       if: "${{ github.event_name == 'push' && ${{ github.ref }} }}"
+    strategy:
+      matrix:
+        python:
+        - 3.8
+        - 3.9
+        - 3.1
+        - nightly
+#       # 'allow_failures' transformations are currently unsupported.

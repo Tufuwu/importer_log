@@ -1,26 +1,63 @@
-# kasserver - Manage domains hosted on All-Inkl.com through the KAS server API
-# Copyright (c) 2018 Christian Fetzer
-#
-# Permission is hereby granted, free of charge, to any person obtaining a copy
-# of this software and associated documentation files (the "Software"), to deal
-# in the Software without restriction, including without limitation the rights
-# to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
-# copies of the Software, and to permit persons to whom the Software is
-# furnished to do so, subject to the following conditions:
-#
-# The above copyright notice and this permission notice shall be included in
-# all copies or substantial portions of the Software.
-#
-# THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
-# IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
-# FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
-# AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
-# LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
-# OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
-# SOFTWARE.
-
-"""Manage domains hosted on All-Inkl.com through the KAS server API"""
-
 from setuptools import setup
+from pathlib import Path
+import os
 
-setup(setup_requires=["pbr"], pbr=True)
+# 安全读取 README.md，不区分大小写
+def readme():
+    root = Path(__file__).parent
+    readme_file = None
+    for name in os.listdir(root):
+        if name.lower() == "readme.md":
+            readme_file = root / name
+            break
+    if readme_file and readme_file.exists():
+        return readme_file.read_text(encoding="utf-8")
+    return ""  # 文件不存在时返回空字符串
+
+setup(
+    name='content-hash',
+    description='Python implementation of EIP 1577 content hash',
+    long_description=readme(),
+    long_description_content_type='text/markdown',
+    license='MIT',
+
+    version='1.0.0',
+
+    packages=['content_hash'],
+
+    entry_points={
+        'console_scripts': ['content-hash=content_hash.__main__:main'],
+    },
+
+    install_requires=[
+        'py-cid>=0.3.0,<0.4.0',
+        'py-multicodec>=0.2.1,<0.3.0',
+        'py-multihash>=0.2.3,<0.3.0',
+    ],
+
+    extras_require={
+        'lint': ['pylint'],
+        'test': ['pytest', 'pytest-cov'],
+    },
+
+    python_requires='>= 3.5',
+
+    author='Filip Š',
+    author_email='projects@filips.si',
+    url='https://github.com/filips123/ContentHashPy/',
+    keywords='ethereum, ethereum-name-service, ens, eip1577, web3, decentralized',
+
+    classifiers=[
+        'Development Status :: 5 - Production/Stable',
+        'Intended Audience :: Developers',
+        'License :: OSI Approved :: MIT License',
+        'Programming Language :: Python :: 3',
+        'Topic :: Internet :: Name Service (DNS)',
+        'Topic :: Scientific/Engineering :: Interface Engine/Protocol Translator',
+        'Topic :: Security :: Cryptography',
+        'Topic :: Software Development :: Libraries',
+        'Topic :: Utilities',
+    ],
+
+    include_package_data=True,
+)
