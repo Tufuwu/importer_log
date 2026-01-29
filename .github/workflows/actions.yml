@@ -8,12 +8,24 @@ on:
 #   maximum_number_of_builds: 0
 jobs:
   test:
-    runs-on: ubuntu-latest
+    runs-on: # this agent type is not supported: [[{"dist"=>"noble"}]]
+             ubuntu-latest
     steps:
     - name: checkout
       uses: actions/checkout@v4.1.0
     - uses: actions/setup-python@v5.0.0
       with:
-        python-version: '3.10'
-    - run: pip install -r requirements.txt
-    - run: python -m unittest discover
+        python-version: "${{ matrix.python }}"
+    - run: pip install .
+    - run: pip install scipy
+    - run: pytest
+    - uses: rtCamp/action-slack-notify@v2.2.1
+      env:
+        SLACK_WEBHOOK: "${{ secrets.SLACK_WEBHOOK }}"
+        SLACK_CHANNEL: bayeso:FWBoHH9TMqjKUJWkZxCaTNVE
+    strategy:
+      matrix:
+        python:
+        - '3.8'
+        - '3.9'
+        - '3.10'
