@@ -15,12 +15,6 @@ jobs:
       uses: actions/checkout@v4.1.0
     - uses: actions/setup-python@v5.0.0
       with:
-        python-version: "${{ matrix.python }}"
-#     # 'sudo' was not transformed because there is no suitable equivalent in GitHub Actions
-    - run: pip install tox-travis
-    - run: tox
-    strategy:
-      matrix:
-        python:
-        - '3.8'
-        - '3.9'
+        python-version: 3.9
+    - run: make install-deps
+    - run: make

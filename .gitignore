@@ -1,23 +1,4 @@
-# General
-__pycache__
-*.pyc
-
-# Python build
-dist
-build
-*.egg-info
-
-# IDEs
-.vscode
-.idea
-
-# Project-specific
-.env
-logs
-
-# CI
-.tox
+venv/
+__pycache__/
+*.swp
 .coverage
-
-# Finder
-.DS_Store

@@ -1,41 +1,24 @@
-
-from setuptools import (
-    setup,
-    find_packages
-)
+import setuptools
 
 with open('README.md', 'r') as fh:
     long_description = fh.read()
 
-setup(
-    name='pypco',
-    version='1.1.0',
-    description='A Python wrapper for the Planning Center Online API.',
+setuptools.setup(
+    name='soft-webauthn',
+    version='0.1.3',
+    author='Radoslav Bodó',
+    author_email='bodik@cesnet.cz',
+    description='Python webauthn software authenticator',
     long_description=long_description,
     long_description_content_type='text/markdown',
-    url='https://github.com/billdeitrick/pypco',
-    author='Bill Deitrick',
-    author_email='hello@billdeitrick.com',
-    python_requires='>=3.6.0',
-    license='MIT',
-    packages=find_packages(
-        exclude=[
-            'tests.*',
-            'tests'
-        ]
-    ),
+    url='https://github.com/bodik/soft-webauthn',
+    py_modules=['soft_webauthn'],
     install_requires=[
-        'requests'
+        'fido2>=0.8,<1.0.0',
+        'cryptography'
     ],
-    zip_safe=True,
     classifiers=[
-        'Development Status :: 5 - Production/Stable',
-        'Intended Audience :: Developers',
+        'Programming Language :: Python :: 3',
         'License :: OSI Approved :: MIT License',
-        'Operating System :: OS Independent',
-        'Programming Language :: Python :: 3.6',
-        'Programming Language :: Python :: 3.7',
-        'Programming Language :: Python :: 3.8',
-        'Topic :: Software Development :: Libraries'
-    ]
+    ],
 )
