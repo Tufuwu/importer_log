@@ -1,136 +1,127 @@
-'use strict';
-var fs = require('fs');
-var path = require('path');
-var SafeBuffer = require('safe-buffer');
+"use strict";
+var t0 = Date.now();
+if (process.env.NODE_ENV === "dev") {
+    // Load local env variables
+    require("./env");
+}
 
-Object.defineProperty(exports, 'commentRegex', {
-  get: function getCommentRegex () {
-    return /^\s*\/(?:\/|\*)[@#]\s+sourceMappingURL=data:(?:application|text)\/json;(?:charset[:=]\S+?;)?base64,(?:.*)$/mg;
-  }
+const express = require("express"),
+    bodyParser = require('body-parser'),
+    xhub = require('express-x-hub'),
+    Controller = require("./lib/controller");
+
+function logArgs() {
+    var args = arguments;
+    process.nextTick(function() {
+        console.log.apply(console, args);
+    });
+}
+
+function logResult(r, action) {
+    var err = r.error;
+    
+    // We're all good. Log outcome and exit.
+    if (!err) {
+        logArgs(`${r.id}: ${ action }`);
+        logArgs(r);
+        return;
+    }
+
+    // These are well understood error paths.
+    // They shouldn't trigger error messages.
+    // Log and exit.
+    if (err.noConfig || err.prMerged || err.raceCondition) {
+        logArgs(`${r.id}: ${ action } (${err.message})`);
+        return;
+    }
+
+    // Those are reall issues.
+    // Log in details
+    logArgs(`${r.id}: ${ action } (${err.name}: ${err.message})`);
+    if (r.errorRenderingErrorMsg) {
+        logArgs(`    Additionally, triggered the following error while attempting to render the error msg to the client:
+    errorRenderingErrorMsg.name}: ${r.errorRenderingErrorMsg.message}`);
+    }
+    if (err.data) { logArgs(err.data) };
+    if (err.stack && process.env.DISPLAY_STACK_TRACES == "yes") { logArgs(err.stack) };
+    logArgs(r);
+}
+
+const controller = new Controller();
+
+const STARTUP_QUEUE = process.env.STARTUP_QUEUE;
+if (STARTUP_QUEUE) {
+    try {
+        let queue = JSON.parse(STARTUP_QUEUE);
+        if (queue && queue.length && typeof queue[0].id == "string") {
+            logArgs(`Processing queue : ${ STARTUP_QUEUE }`);
+            function next() {
+                var r = queue.pop();
+                if (r) {
+                    logArgs(`Processing queue : ${ r.id }`);
+                    controller.handlePullRequest(r).then(r => logResult(r, "startup-queue"), logArgs).then(next);
+                } else {
+                    logArgs("Startup queue processed");
+                }
+            }
+            next();
+        } else {
+            throw new Error();
+        }
+    } catch (e) {
+        logArgs(`Malformed queue ${STARTUP_QUEUE}`);
+    }
+} else {
+    logArgs("No startup queue present");
+}
+
+var app = express();
+app.use(xhub({ algorithm: 'sha1', secret: process.env.GITHUB_SECRET, limit: '5Mb' }));
+
+app.post('/github-hook', function (req, res, next) {
+    if (process.env.NODE_ENV != 'production' || req.isXHubValid()) {
+        res.send(new Date().toISOString());
+        var payload = req.body;
+        if (payload.issue_comment) { // Depends on increased app permission
+            logArgs("comment");
+        } else if (payload.issue) { // Also depends on increased app permission
+            logArgs("issue");
+        } else if (payload.pull_request) {
+            if (payload.sender && payload.sender.login == "pr-preview[bot]") {
+                logArgs("skipping auto-generated changes");
+            } else {
+                let action = payload.action
+                switch(action) {
+                    case "opened":
+                    case "edited":
+                    case "reopened":
+                    case "synchronize":
+                        controller.queuePullRequest(payload).then(r => logResult(r, action), logArgs);
+                }
+            }
+        } else {
+            logArgs("Unknown request", JSON.stringify(payload, null, 4));
+        }
+    } else {
+        logArgs("Unverified request", req);
+    }
+    next();
 });
 
-Object.defineProperty(exports, 'mapFileCommentRegex', {
-  get: function getMapFileCommentRegex () {
-    // Matches sourceMappingURL in either // or /* comment styles.
-    return /(?:\/\/[@#][ \t]+sourceMappingURL=([^\s'"`]+?)[ \t]*$)|(?:\/\*[@#][ \t]+sourceMappingURL=([^\*]+?)[ \t]*(?:\*\/){1}[ \t]*$)/mg;
-  }
+app.post('/config', bodyParser.urlencoded({ extended: false }), function (req, res, next) {
+    let params = req.body;
+    controller[params.validate ? "getUrl" : "pullRequestUrl"](req.body)
+        .then(
+            url => res.redirect(url),
+            err => {
+                res.status(400).send({ error: err.message });
+                logArgs(`${err.name}: ${err.message}\n${err.stack}`);
+            }
+        ).then(_ => next(), _ => next());
 });
 
-
-function decodeBase64(base64) {
-  return (SafeBuffer.Buffer.from(base64, 'base64') || "").toString();
-}
-
-function stripComment(sm) {
-  return sm.split(',').pop();
-}
-
-function readFromFileMap(sm, dir) {
-  // NOTE: this will only work on the server since it attempts to read the map file
-
-  var r = exports.mapFileCommentRegex.exec(sm);
-
-  // for some odd reason //# .. captures in 1 and /* .. */ in 2
-  var filename = r[1] || r[2];
-  var filepath = path.resolve(dir, filename);
-
-  try {
-    return fs.readFileSync(filepath, 'utf8');
-  } catch (e) {
-    throw new Error('An error occurred while trying to read the map file at ' + filepath + '\n' + e);
-  }
-}
-
-function Converter (sm, opts) {
-  opts = opts || {};
-
-  if (opts.isFileComment) sm = readFromFileMap(sm, opts.commentFileDir);
-  if (opts.hasComment) sm = stripComment(sm);
-  if (opts.isEncoded) sm = decodeBase64(sm);
-  if (opts.isJSON || opts.isEncoded) sm = JSON.parse(sm);
-
-  this.sourcemap = sm;
-}
-
-Converter.prototype.toJSON = function (space) {
-  return JSON.stringify(this.sourcemap, null, space);
-};
-
-Converter.prototype.toBase64 = function () {
-  var json = this.toJSON();
-  return (SafeBuffer.Buffer.from(json, 'utf8') || "").toString('base64');
-};
-
-Converter.prototype.toComment = function (options) {
-  var base64 = this.toBase64();
-  var data = 'sourceMappingURL=data:application/json;charset=utf-8;base64,' + base64;
-  return options && options.multiline ? '/*# ' + data + ' */' : '//# ' + data;
-};
-
-// returns copy instead of original
-Converter.prototype.toObject = function () {
-  return JSON.parse(this.toJSON());
-};
-
-Converter.prototype.addProperty = function (key, value) {
-  if (this.sourcemap.hasOwnProperty(key)) throw new Error('property "' + key + '" already exists on the sourcemap, use set property instead');
-  return this.setProperty(key, value);
-};
-
-Converter.prototype.setProperty = function (key, value) {
-  this.sourcemap[key] = value;
-  return this;
-};
-
-Converter.prototype.getProperty = function (key) {
-  return this.sourcemap[key];
-};
-
-exports.fromObject = function (obj) {
-  return new Converter(obj);
-};
-
-exports.fromJSON = function (json) {
-  return new Converter(json, { isJSON: true });
-};
-
-exports.fromBase64 = function (base64) {
-  return new Converter(base64, { isEncoded: true });
-};
-
-exports.fromComment = function (comment) {
-  comment = comment
-    .replace(/^\/\*/g, '//')
-    .replace(/\*\/$/g, '');
-
-  return new Converter(comment, { isEncoded: true, hasComment: true });
-};
-
-exports.fromMapFileComment = function (comment, dir) {
-  return new Converter(comment, { commentFileDir: dir, isFileComment: true, isJSON: true });
-};
-
-// Finds last sourcemap comment in file or returns null if none was found
-exports.fromSource = function (content) {
-  var m = content.match(exports.commentRegex);
-  return m ? exports.fromComment(m.pop()) : null;
-};
-
-// Finds last sourcemap comment in file or returns null if none was found
-exports.fromMapFileSource = function (content, dir) {
-  var m = content.match(exports.mapFileCommentRegex);
-  return m ? exports.fromMapFileComment(m.pop(), dir) : null;
-};
-
-exports.removeComments = function (src) {
-  return src.replace(exports.commentRegex, '');
-};
-
-exports.removeMapFileComments = function (src) {
-  return src.replace(exports.mapFileCommentRegex, '');
-};
-
-exports.generateMapFileComment = function (file, options) {
-  var data = 'sourceMappingURL=' + file;
-  return options && options.multiline ? '/*# ' + data + ' */' : '//# ' + data;
-};
+var port = process.env.PORT || 5000;
+app.listen(port, function() {
+    console.log("Express server listening on port %d in %s mode", port, app.settings.env);
+    console.log("App started in", (Date.now() - t0) + "ms.");
+});
