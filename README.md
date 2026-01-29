@@ -1,63 +1,146 @@
-![PyTeal logo](https://github.com/algorand/pyteal/blob/master/docs/pyteal.png?raw=true)
+[![Build Status](https://travis-ci.com/andhus/scantree.svg?branch=master)](https://travis-ci.com/andhus/scantree)
+[![codecov](https://codecov.io/gh/andhus/scantree/branch/master/graph/badge.svg)](https://codecov.io/gh/andhus/scantree)
+# scantree
+Recursive directory iterator supporting:
+- flexible filtering including wildcard path matching
+- in memory representation of file-tree (for repeated access)
+- efficient access to directory entry properties (`posix.DirEntry` interface) extended with real path and path relative to the recursion root directory
+- detection and handling of cyclic symlinks
 
+## Installation
+```commandline
+pip install scantree
+```
 
-# PyTeal: Algorand Smart Contracts in Python
+## Usage
+See source code for full documentation, some generic examples below.
 
-[![Build Status](https://travis-ci.com/algorand/pyteal.svg?branch=master)](https://travis-ci.com/algorand/pyteal)
-[![PyPI version](https://badge.fury.io/py/pyteal.svg)](https://badge.fury.io/py/pyteal)
-[![Documentation Status](https://readthedocs.org/projects/pyteal/badge/?version=latest)](https://pyteal.readthedocs.io/en/latest/?badge=latest)
-[![Code style: black](https://img.shields.io/badge/code%20style-black-000000.svg)](https://github.com/psf/black)
+Get matching file paths:
+```python
+from scantree import scantree, RecursionFilter
 
-PyTeal is a Python language binding for [Algorand Smart Contracts (ASC1s)](https://developer.algorand.org/docs/features/asc1/). 
+tree = scantree('/path/to/dir', RecursionFilter(match=['*.txt']))
+print([path.relative for path in tree.filepaths()])
+print([path.real for path in tree.filepaths()])
+```
+```
+['d1/d2/file3.txt', 'd1/file2.txt', 'file1.txt']   
+['/path/to/other_dir/file3.txt', '/path/to/dir/d1/file2.txt', '/path/to/dir/file1.txt']   
+```
 
-Algorand Smart Contracts are implemented using a new language that is stack-based, 
-called [Transaction Execution Approval Language (TEAL)](https://developer.algorand.org/docs/features/asc1/teal/). 
+Access metadata of directory entries in file tree:
+```python
+d2 = tree.directories[0].directories[0]
+print(type(d2))
+print(d2.path.absolute)
+print(d2.path.real)
+print(d2.path.is_symlink())
+print(d2.files[0].relative)
+```
+```
+scantree._node.DirNode
+/path/to/dir/d1/d2
+/path/to/other_dir
+True
+d1/d2/file3.txt
+```
 
-However, TEAL is essentially an assembly language. With PyTeal, developers can express smart contract logic purely using Python. 
-PyTeal provides high level, functional programming style abstractions over TEAL and does type checking at construction time.
+Aggregate information by operating on tree:
+```python
+hello_count = tree.apply(
+    file_apply=lambda path: sum([
+        w.lower() == 'hello' for w in
+        path.as_pathlib().read_text().split()
+    ]),
+    dir_apply=lambda dir_: sum(dir_.entries),
+)
+print(hello_count)
+```
+```
+3
+```
 
-### Install 
+```python
+hello_count_tree =  tree.apply(
+    file_apply=lambda path: {
+        'name': path.name,
+        'count': sum([
+            w.lower() == 'hello'
+            for w in path.as_pathlib().read_text().split()
+        ])
+    },
+    dir_apply=lambda dir_: {
+        'name': dir_.path.name,
+        'count': sum(e['count'] for e in dir_.entries),
+        'sub_counts': [e for e in dir_.entries]
+    },
+)
+from pprint import pprint
+pprint(hello_count_tree)
+```
+```
+{'count': 3,
+ 'name': 'dir',
+ 'sub_counts': [{'count': 2, 'name': 'file1.txt'},
+                {'count': 1,
+                 'name': 'd1',
+                 'sub_counts': [{'count': 1, 'name': 'file2.txt'},
+                                {'count': 0,
+                                 'name': 'd2',
+                                 'sub_counts': [{'count': 0,
+                                                 'name': 'file3.txt'}]}]}]}
+```
 
-PyTeal requires Python version >= 3.6.
+Flexible filtering:
+```python
+without_hidden_files = scantree('.', RecursionFilter(match=['*', '!.*']))
 
-#### Recommended: Install from PyPi
+without_palindrome_linked_dirs = scantree(
+    '.',
+    lambda paths: [
+        p for p in paths if not (
+            p.is_dir() and 
+            p.is_symlink() and 
+            p.name == p.name[::-1]
+        )
+    ]
+)
+```
 
-Install the latest official release from PyPi:
+Comparison:
+```python
+tree = scandir('path/to/dir')
+# make some operations on filesystem, make sure file tree is the same:
+assert tree == scandir('path/to/dir')
 
-* `pip install pyteal`
+# tree contains absolute/real path info:
+import shutil
+shutil.copytree('path/to/dir', 'path/to/other_dir')   
+new_tree = scandir('path/to/other_dir')
+assert tree != new_tree
+assert (
+    [p.relative for p in tree.leafpaths()] == 
+    [p.relative for p in new_tree.leafpaths()]
+)
+```
 
-#### Install Latest Commit
+Inspect symlinks:
+```python
+from scantree import CyclicLinkedDir
 
-If needed, it's possible to install directly from the latest commit on master to use unreleased features:
+file_links = []
+dir_links = []
+cyclic_links = []
 
-> **WARNING:** Unreleased code is experimental and may not be backwards compatible or function properly. Use extreme caution when installing PyTeal this way.
+def file_apply(path):
+    if path.is_symlink():
+        file_links.append(path)
 
-* `pip install git+https://github.com/algorand/pyteal`
+def dir_apply(dir_node):
+    if dir_node.path.is_symlink():
+        dir_links.append(dir_node.path)
+    if isinstance(dir_node, CyclicLinkedDir):
+        cyclic_links.append((dir_node.path, dir_node.target_path))
 
-### Documentation
-
-[PyTeal Docs](https://pyteal.readthedocs.io/)
-
-### Development Setup
-
-Setup venv (one time):
- * `python3 -m venv venv`
-
-Active venv:
- * `. venv/bin/activate` (if your shell is bash/zsh)
- * `. venv/bin/activate.fish` (if your shell is fish)
-
-Pip install PyTeal in editable state
- * `pip install -e .`
-
-Install dependencies:
-* `pip install -r requirements.txt`
- 
-Type checking using mypy:
-* `mypy pyteal`
-
-Run tests:
-* `pytest`
-
-Format code:
-* `black .`
+scantree('.', file_apply=file_apply, dir_apply=dir_apply)
+```

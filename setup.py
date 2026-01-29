@@ -1,26 +1,37 @@
-#!/usr/bin/env python3
+import io
+import os
+from setuptools import setup, find_packages
 
-import setuptools
+VERSION = '0.0.1'
 
-with open("README.md", "r") as fh:
-    long_description = fh.read()
+DESCRIPTION = (
+    'Flexible recursive directory iterator: scandir meets glob("**", recursive=True)'
+)
 
-setuptools.setup(
-    name="pyteal",
-    version="0.9.1",
-    author="Algorand",
-    author_email="pypiservice@algorand.com",
-    description="Algorand Smart Contracts in Python",
+PROJECT_ROOT = os.path.abspath(os.path.dirname(__file__))
+try:
+    with io.open(os.path.join(PROJECT_ROOT, 'README.md'), encoding='utf-8') as f:
+        long_description = '\n' + f.read()
+except IOError:
+    long_description = DESCRIPTION
+
+setup(
+    name='scantree',
+    version=VERSION,
+    description=DESCRIPTION,
     long_description=long_description,
     long_description_content_type="text/markdown",
-    url="https://github.com/algorand/pyteal",
-    packages=setuptools.find_packages(),
-    install_requires=["py-algorand-sdk"],
-    classifiers=[
-        "Programming Language :: Python :: 3",
-        "License :: OSI Approved :: MIT License",
-        "Operating System :: OS Independent",
+    url='https://github.com/andhus/scantree',
+    author="Anders Huss",
+    author_email="andhus@kth.se",
+    license='MIT',
+    install_requires=[
+        'attrs>=18.0.0',
+        'pathspec>=0.5.9'
     ],
-    package_data={"pyteal": ["*.pyi"]},
-    python_requires=">=3.6",
+    packages=find_packages('src'),
+    package_dir={'': 'src'},
+    include_package_data=True,
+    entry_points={},
+    tests_require=['pytest', 'pytest-cov']
 )
