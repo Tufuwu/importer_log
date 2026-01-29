@@ -1,40 +1,39 @@
 {
-  "name": "@picnicsupermarket/localicious",
-  "version": "1.0.1",
-  "description": "A toolchain for working with localization files in a platform-agnostic way.",
-  "bin": {
-    "localicious": "bin/localicious"
+  "name": "connect-gzip-static",
+  "version": "2.1.1",
+  "description": "gzip/brotli static middleware for connect - serves compressed files if they exist, falls through to connect-static if they don't",
+  "main": "index.js",
+  "scripts": {
+    "test": "make lint test"
   },
-  "repository": "https://github.com/PicnicSupermarket/localicious",
-  "author": "Picnic Technologies",
+  "repository": {
+    "type": "git",
+    "url": "git@github.com:pirxpilot/connect-gzip-static.git"
+  },
+  "keywords": [
+    "connect",
+    "middleware",
+    "gzip",
+    "brotli",
+    "compress"
+  ],
+  "author": "Damian Krzeminski <pirxpilot@furkot.com>",
   "license": "MIT",
-  "private": false,
   "dependencies": {
-    "ajv": "^6.10.2",
-    "better-ajv-errors": "^0.6.7",
-    "commander": "^3.0.1",
-    "git-clone": "^0.1.0",
-    "handlebars": "^4.4.5",
-    "js-yaml": "^3.13.1"
+    "debug": "~2",
+    "find": "~0",
+    "parseurl": "~1",
+    "send": "~0",
+    "serve-static": "~1"
   },
   "devDependencies": {
-    "eslint": "^6.5.1",
-    "eslint-config-prettier": "^6.4.0",
-    "eslint-plugin-import": "^2.19.1",
-    "eslint-plugin-jest": "^22.19.0",
-    "eslint-plugin-prettier": "^3.1.1",
-    "jest": "^24.9.0",
-    "prettier": "^1.18.2"
+    "connect": ">=2",
+    "jshint": "~2",
+    "mocha": "~3",
+    "should": "~11"
   },
-  "scripts": {
-    "lint": "yarn eslint --fix bin/**/* src/**/*.js tests/**/*.js",
-    "lint-on-ci": "yarn eslint bin/**/* src/**/*.js tests/**/*.js",
-    "test": "jest"
-  },
-  "prettier": {
-    "printWidth": 100
-  },
-  "publishConfig": {
-    "registry": "https://registry.npmjs.org"
-  }
+  "files": [
+    "index.js",
+    "lib"
+  ]
 }
