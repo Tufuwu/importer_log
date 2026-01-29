@@ -1,3 +1,4 @@
-include requirements.txt
-include requirements-test.txt
-include README.rst CHANGES.rst
+include COPYING
+include README.md
+include setconf.1
+include setconf.py
