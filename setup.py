@@ -1,24 +1,8 @@
-from setuptools import setup, find_packages
+#!/usr/bin/env python
 
-version = __import__('shopify_webhook').__version__
+import setuptools
 
-setup(
-    name = 'django-shopify-webhook',
-    version = version,
-    description = 'A package for the creation of Shopify Apps using the Embedded App SDK.',
-    long_description = open('README.md').read(),
-    long_description_content_type='text/markdown',
-    author = 'Gavin Ballard',
-    author_email = 'gavin@discolabs.com',
-    url = 'https://github.com/discolabs/django-shopify-webhook',
-    license = 'None',
-
-    packages = find_packages(),
-
-    install_requires = [
-        'django >=1.7',
-    ],
-
-    zip_safe = True,
-    classifiers = [],
+setuptools.setup(
+    setup_requires=['pbr>2.0'],
+    pbr=True,
 )

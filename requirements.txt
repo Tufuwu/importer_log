@@ -1,2 +1,2 @@
-django >=1.11
-setuptools >=5.7
+pbr>=0.11
+testtools==2.5.0
