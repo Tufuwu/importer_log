@@ -2,25 +2,32 @@
 Usage
 =====
 
-To use Django Model Path Converter in a project with model `MyModel`::
+To use drf-tus in a project, add it to your `INSTALLED_APPS`:
 
-    from model_path_converter import register_model_converter
+.. code-block:: python
 
-    register_model_converter(MyModel)
+    INSTALLED_APPS = (
+        ...
+        "rest_framework_tus",
+        ...
+    )
 
-Assuming you have a view `detail` that expects a `MyModel` instance as
-parameter named `obj`, you can then use it to define a URL pattern::
+Add the middleware to `MIDDLEWARE`:
 
-    path('<my_model:obj>/', views.detail, name='detail'),
+.. code-block:: python
 
-Here is a full example::
+    MIDDLEWARE = (
+        ...
+        "rest_framework_tus.middleware.TusMiddleware",
+        ...
+    )
 
-    from .models import MyModel
+Add URL patterns for drf-tus:
 
-    app_name = 'my_app'
+.. code-block:: python
+
     urlpatterns = [
-        path('', views.IndexView.as_view(), name='index'),
-        path('<my_model:obj>/', views.detail, name='detail'),
+        ...
+        path(r"^", include("rest_framework_tus.urls", namespace="rest_framework_tus")),
+        ...
     ]
-
-The `register_model_converter` function takes several optional arguments.

@@ -1,59 +1,96 @@
 #!/usr/bin/env python
-# -*- coding: utf-8 -*-
+import os
+import re
+import sys
 
-"""The setup script."""
+try:
+    from setuptools import setup
+except ImportError:
+    from distutils.core import setup
 
-from setuptools import setup, find_packages
 
-with open("README.rst") as readme_file:
-    readme = readme_file.read()
+def get_version(*file_paths):
+    """Retrieves the version from rest_framework_tus/__init__.py"""
+    filename = os.path.join(os.path.dirname(__file__), *file_paths)
+    version_file = open(filename).read()
+    version_match = re.search(
+        r"^__version__ = ['\"]([^'\"]*)['\"]",
+        version_file,
+        re.M,
+    )
+    if version_match:
+        return version_match.group(1)
+    raise RuntimeError("Unable to find version string.")
 
-with open("HISTORY.rst") as history_file:
-    history = history_file.read()
 
-requirements = [
-    "django>=2",
-]
+version = get_version("rest_framework_tus", "__init__.py")
 
-setup_requirements = [
-    "pytest-runner",
-]
 
-test_requirements = [
-    "pytest",
-]
+if sys.argv[-1] == "publish":
+    try:
+        import wheel
+
+        print("Wheel version: ", wheel.__version__)
+    except ImportError:
+        print('Wheel library missing. Please run "pip install wheel"')
+        sys.exit()
+    os.system("python setup.py sdist upload")
+    os.system("python setup.py bdist_wheel upload")
+    sys.exit()
+
+if sys.argv[-1] == "tag":
+    print("Tagging the version on git:")
+    os.system(f"git tag -a {version} -m 'version {version}'")
+    os.system("git push --tags")
+    sys.exit()
+
+readme = open("README.rst").read()
+history = open("HISTORY.rst").read().replace(".. :changelog:", "")
 
 setup(
-    author="Daniel Hepper",
-    author_email="daniel@consideratecode.com",
+    name="drf-tus",
+    version=version,
+    description="A Tus (tus.io) library for Django Rest Framework",
+    long_description=f"{readme}\n\n{history}",
+    author="Dirk Moors",
+    author_email="dirkmoors@gmail.com",
+    url="https://github.com/dirkmoors/drf-tus",
+    packages=[
+        "rest_framework_tus",
+    ],
+    include_package_data=True,
+    install_requires=[
+        "python-dateutil>=2.8.2",
+        "Django>=3.2,<=4.2",
+        "djangorestframework>=3.14.0",
+        "jsonfield>=2.0.0",
+        "django-fsm==2.8.1",
+        "six>=1.11.0",
+    ],
+    license="MIT",
+    zip_safe=False,
+    keywords=[
+        "drf-tus",
+        "tus",
+        "django",
+        "rest",
+        "framework",
+        "django-rest-framework",
+    ],
     classifiers=[
-        "Development Status :: 2 - Pre-Alpha",
+        "Development Status :: 5 - Production/Stable",
+        "Framework :: Django",
+        "Framework :: Django :: 3.2",
+        "Framework :: Django :: 4.0",
+        "Framework :: Django :: 4.1",
+        "Framework :: Django :: 4.2",
         "Intended Audience :: Developers",
         "License :: OSI Approved :: MIT License",
         "Natural Language :: English",
-        "Programming Language :: Python :: 3",
-        "Programming Language :: Python :: 3 :: Only",
-        "Programming Language :: Python :: 3.4",
-        "Programming Language :: Python :: 3.5",
-        "Programming Language :: Python :: 3.6",
-        "Programming Language :: Python :: 3.7",
         "Programming Language :: Python :: 3.8",
         "Programming Language :: Python :: 3.9",
         "Programming Language :: Python :: 3.10",
-        "Framework :: Django",
+        "Programming Language :: Python :: 3.11",
+        "Topic :: Software Development :: Libraries :: Python Modules",
     ],
-    description="The Django Model Path Converter package dynamically creates custom path converters for you models.",
-    install_requires=requirements,
-    license="MIT license",
-    long_description=readme + "\n\n" + history,
-    include_package_data=True,
-    keywords="django-model-path-converter",
-    name="django-model-path-converter",
-    packages=find_packages(include=["model_path_converter"]),
-    setup_requires=setup_requirements,
-    test_suite="tests",
-    tests_require=test_requirements,
-    url="https://github.com/dhepper/django-model-path-converter",
-    version="0.1.0",
-    zip_safe=False,
 )

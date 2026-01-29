@@ -1,51 +1,86 @@
-===========================
-Django Model Path Converter
-===========================
+=============================
+drf-tus
+=============================
 
+.. image:: https://badge.fury.io/py/drf-tus.svg
+    :target: https://badge.fury.io/py/drf-tus
 
-.. image:: https://img.shields.io/pypi/v/django-model-path-converter.svg
-        :target: https://pypi.python.org/pypi/django-model-path-converter
+.. image:: https://github.com/dirkmoors/drf-tus/actions/workflows/ci.yml/badge.svg
+    :target: https://github.com/dirkmoors/drf-tus/actions
 
-.. image:: https://img.shields.io/travis/dhepper/django-model-path-converter.svg
-        :target: https://travis-ci.org/dhepper/django-model-path-converter
+A Tus (tus.io) library for Django Rest Framework
 
-.. image:: https://readthedocs.org/projects/model-path-converter/badge/?version=latest
-        :target: https://model-path-converter.readthedocs.io/en/latest/?badge=latest
-        :alt: Documentation Status
+Documentation
+-------------
 
-The Django Model Path Converter package dynamically creates custom path converters for you models.
-
-* Free software: MIT license
-* Documentation: https://django-model-path-converter.readthedocs.io.
-* Background story: https://consideratecode.com/django-model-path-converters
+The full documentation is at https://drf-tus.readthedocs.io.
 
 Quickstart
 ----------
 
-Install the latest version::
+Install drf-tus::
 
-    pip install django-model-path-converter
+    pip install drf-tus
 
-Import `register_model_converter` and your model in your `urls.py`::
+Add it to your `INSTALLED_APPS`:
 
-    from model_path_converter import register_model_converter
-    from .models import MyModel
+.. code-block:: python
 
-Register a converter for your model::
+    INSTALLED_APPS = (
+        ...
+        "rest_framework_tus",
+        ...
+    )
 
-    register_model_converter(MyModel)
+Add the middleware to `MIDDLEWARE`:
 
-Use the new converter in your path definitions::
+.. code-block:: python
 
-    path('<my_model:obj>/', views.my_view, name='my-view')
+    MIDDLEWARE = (
+        ...
+        "rest_framework_tus.middleware.TusMiddleware",
+        ...
+    )
 
-Your view `my_view` will now receive a `MyModel` instance as argument.
+Add URL patterns for drf-tus:
 
+.. code-block:: python
+
+    urlpatterns = [
+        ...
+        path(r"^", include("rest_framework_tus.urls", namespace="rest_framework_tus")),
+        ...
+    ]
+
+Features
+--------
+
+This library implements the following TUS API v1.0.0 protocols:
+
+* Core Protocol (http://tus.io/protocols/resumable-upload.html#core-protocol)
+* Creation Protocol (http://tus.io/protocols/resumable-upload.html#creation)
+* Expiration Protocol (http://tus.io/protocols/resumable-upload.html#expiration)
+* Checksum Protocol (http://tus.io/protocols/resumable-upload.html#checksum)
+* Termination Protocol (http://tus.io/protocols/resumable-upload.html#termination)
+
+Running Tests
+-------------
+
+Does the code actually work?
+
+::
+
+    source <YOURVIRTUALENV>/bin/activate
+    (myenv) $ pip install tox
+    (myenv) $ tox
 
 Credits
 -------
 
-This package was created with Cookiecutter_ and the `audreyr/cookiecutter-pypackage`_ project template.
+Tools used in rendering this package:
+
+*  Cookiecutter_
+*  `cookiecutter-djangopackage`_
 
 .. _Cookiecutter: https://github.com/audreyr/cookiecutter
-.. _`audreyr/cookiecutter-pypackage`: https://github.com/audreyr/cookiecutter-pypackage
+.. _`cookiecutter-djangopackage`: https://github.com/pydanny/cookiecutter-djangopackage

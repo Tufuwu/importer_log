@@ -5,9 +5,10 @@ Credits
 Development Lead
 ----------------
 
-* Daniel Hepper <daniel@consideratecode.com>
+* Dirk Moors <dirkmoors@gmail.com>
 
 Contributors
 ------------
 
-None yet. Why not be the first?
+* Jef Geskens <jef.geskens@gmail.com>
+* Michael Pölzl <michael.poelzl@gmail.com>
