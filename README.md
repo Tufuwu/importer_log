@@ -1,126 +1,118 @@
-# simple-pid
+# GuardDuty Multi-Account Manager
 
-[![Tests](https://github.com/m-lundberg/simple-pid/actions/workflows/run-tests.yml/badge.svg)](https://github.com/m-lundberg/simple-pid/actions?query=workflow%3Atests)
-[![PyPI](https://img.shields.io/pypi/v/simple-pid.svg)](https://pypi.org/project/simple-pid/)
-[![Read the Docs](https://img.shields.io/readthedocs/simple-pid.svg)](https://simple-pid.readthedocs.io/)
-[![License](https://img.shields.io/github/license/m-lundberg/simple-pid.svg)](https://github.com/m-lundberg/simple-pid/blob/master/LICENSE.md)
-[![Downloads](https://pepy.tech/badge/simple-pid)](https://pepy.tech/project/simple-pid)
-[![Code style: black](https://img.shields.io/badge/code%20style-black-000000.svg)](https://github.com/psf/black)
+Automate the AWS GuardDuty account invitation lifecycle for all of your 
+organizations AWS accounts in all regions as well as aggregate and normalize 
+the GuardDuty findings
 
-A simple and easy to use PID controller in Python. If you want a PID controller without external dependencies that just works, this is for you! The PID was designed to be robust with help from [Brett Beauregards guide](http://brettbeauregard.com/blog/2011/04/improving-the-beginners-pid-introduction/).
+## Architecture
 
-Usage is very simple:
+!['docs/dgram.png'](docs/dgram.png)
 
-```python
-from simple_pid import PID
-pid = PID(1, 0.1, 0.05, setpoint=1)
+> Above is an example architecture for a master account with a member account. 
+> Note: The member account has GuardDuty detectors in every region as does the 
+> master account.
 
-# Assume we have a system we want to control in controlled_system
-v = controlled_system.update(0)
+## Why This?
 
-while True:
-    # Compute new output from the PID according to the systems current value
-    control = pid(v)
-    
-    # Feed the PID output to the system and get its current value
-    v = controlled_system.update(control)
-```
+As a multi-account user of Amazon Web Services you have a few choices when
+deciding to turn on GuardDuty across your accounts.
 
-Complete API documentation can be found [here](https://simple-pid.readthedocs.io/en/latest/simple_pid.html#module-simple_pid.PID).
+Your options are:
 
-## Installation
-To install, run:
-```
-pip install simple-pid
-```
+1. Stack Sets
+2. Human invitations
+3. Something else.
 
-## Usage
-The `PID` class implements `__call__()`, which means that to compute a new output value, you simply call the object like this:
-```python
-output = pid(current_value)
-```
+Due to the nature of stack sets and the distributed governance of Mozilla it
+breaks our trust model to grant the needed permissions to run stack sets.
+Human behavior consistently generates inconsistent results.
 
-### The basics
-The PID works best when it is updated at regular intervals. To achieve this, set `sample_time` to the amount of time there should be between each update and then call the PID every time in the program loop. A new output will only be calculated when `sample_time` seconds has passed:
-```python
-pid.sample_time = 0.01  # Update every 0.01 seconds
+This is why we elected to create GuardDuty Multi-Account Manager
 
-while True:
-    output = pid(current_value)
-```
+## What is it?
 
-To set the setpoint, ie. the value that the PID is trying to achieve, simply set it like this:
-```python
-pid.setpoint = 10
-```
+GuardDuty Multi-Account Manager is a series of lambda functions designed to do
+the following:
 
-The tunings can be changed any time when the PID is running. They can either be set individually or all at once:
-```python
-pid.Ki = 1.0
-pid.tunings = (1.0, 0.2, 0.4)
-```
+* Enable GuardDuty Masters in all AWS Regions present and future.
+* Empower account owners to decide to enable GuardDuty
+* Manage the lifecycle of invitations to the member accounts
+* Aggregate all findings from all detectors in all regions, normalize the data,
+  and send to a single SQS queue
 
-To use the PID in [reverse mode](http://brettbeauregard.com/blog/2011/04/improving-the-beginners-pid-direction/), meaning that an increase in the input leads to a decrease in the output (like when cooling for example), you can set the tunings to negative values:
+## How do I deploy it?
 
-```python
-pid.tunings = (-1.0, -0.1, 0)
-```
+### Dependencies
 
-Note that all the tunings should have the same sign.
+* AWS Organizations
+  * Either run the GuardDuty Multi-Account Manager from within an AWS
+    Organizations parent account or
+  * Establish an IAM Role in the AWS Organizations parent account that can be
+    assumed by the GuardDuty Multi-Account Manager.
+    [Example IAM Role](docs/example-organizations-reader-iam-role.yml)
+* Deploy the
+  [Cloudformation Cross Account Outputs](https://github.com/mozilla/cloudformation-cross-account-outputs/)
+  service which allows CloudFormation stacks in other AWS accounts to report
+  back output. This is used to convey the
+  [GuardDuty Member Account IAM Role](cloudformation/guardduty-member-account-role.yml)
+  information. In order to deploy this service 
+  [follow the instructions in the README](https://github.com/mozilla/cloudformation-cross-account-outputs#deploy-the-infrastructure)
+  which explains how. 
+  * Make sure that in Step 1 and 2 you deploy each template in only one region. These resources shouldn't be deployed multiple times in an AWS account.
+  * Make sure that in Step 3, you deploy the `cloudformation-sns-emission-consumer.yml`
+  template in every region that you want to allow your GuardDuty members to potentially
+  deploy the GuardDuty member role in. For example, in the included 
+  [`guardduty-member-account-role.yml`](cloudformation/guardduty-member-account-role.yml),
+  it assumes that you'll have deployed `cloudformation-sns-emission-consumer.yml`
+  in both `us-west-2` and `us-east-1`
+* Customize the 
+  [`guardduty-member-account-role.yml`](cloudformation/guardduty-member-account-role.yml)
+  CloudFormation template which you'll distribute to your members. 
+  * You need to set two values in the `Mappings` section of the template
+    * `MasterAccount`:`Principal` : Set this to the 
+      [root principal](https://docs.aws.amazon.com/IAM/latest/UserGuide/reference_policies_elements_principal.html#Principal_specifying)
+      of your AWS account in which you're running the GuardDuty master. For
+      example `arn:aws:iam::123456789012:root`
+    * `SNSTopicForPublishingIAMRoleArn`:`Account` : Set this to the 
+      [AWS Account ID](https://docs.aws.amazon.com/general/latest/gr/acct-identifiers.html#FindingYourAccountIdentifiers)
+      of the AWS account that you've deployed the 
+      [Cloudformation Cross Account Outputs](https://github.com/mozilla/cloudformation-cross-account-outputs/)
+      service in. For example `123456789012`.
+  * Add any additional regions that you wish to support (which you've deployed 
+    Cloudformation Cross Account Outputs in) into the 
+    `TheRegionYouAreDeployingIn` mapping following the example of the existing
+    two regions listed there already.
+  
+### Getting Started
 
-In order to get output values in a certain range, and also to avoid [integral windup](https://en.wikipedia.org/wiki/Integral_windup) (since the integral term will never be allowed to grow outside of these limits), the output can be limited to a range:
-```python
-pid.output_limits = (0, 10)    # Output value will be between 0 and 10
-pid.output_limits = (0, None)  # Output will always be above 0, but with no upper bound
-```
+* Deploy the Cloudformation Stack from
+  [`cloudformation/guardduty-multi-account-manager-parent.yml`](https://s3-us-west-2.amazonaws.com/public.us-west-2.infosec.mozilla.org/guardduty-multi-account-manager/cf/guardduty-multi-account-manager-parent.yml) in the master
+  account. [![Launch GuardDuty Multi Account Manager](https://s3.amazonaws.com/cloudformation-examples/cloudformation-launch-stack.png)](https://console.aws.amazon.com/cloudformation/home?region=us-west-2#/stacks/new?stackName=guardduty-multi-account-manager&templateURL=https://s3-us-west-2.amazonaws.com/public.us-west-2.infosec.mozilla.org/guardduty-multi-account-manager/cf/guardduty-multi-account-manager-parent.yml)
 
-### Other features
-#### Auto mode
-To disable the PID so that no new values are computed, set auto mode to False:
-```python
-pid.auto_mode = False  # No new values will be computed when pid is called
-pid.auto_mode = True   # pid is enabled again
-```
-When disabling the PID and controlling a system manually, it might be useful to tell the PID controller where to start from when giving back control to it. This can be done by enabling auto mode like this:
-```python
-pid.set_auto_mode(True, last_output=8.0)
-```
-This will set the I-term to the value given to `last_output`, meaning that if the system that is being controlled was stable at that output value the PID will keep the system stable if started from that point, without any big bumps in the output when turning the PID back on.
+* The stack will spin up and create all Master Detectors in all regions, a
+  normalization functions, and all SNS Topics with CloudWatch events.
 
-#### Observing separate components
-When tuning the PID, it can be useful to see how each of the components contribute to the output. They can be seen like this:
-```python
-p, i, d = pid.components  # The separate terms are now in p, i, d
-```
+### Onboarding Accounts
 
-#### Proportional on measurement
-To eliminate overshoot in certain types of systems, you can calculate the [proportional term directly on the measurement](http://brettbeauregard.com/blog/2017/06/introducing-proportional-on-measurement/) instead of the error. This can be enabled like this:
-```python
-pid.proportional_on_measurement = True
-```
+1. Ensure that the the mappings are configured in the
+   [`cloudformation/guardduty-member-account-role.yml`](cloudformation/guardduty-member-account-role.yml)
+   template as described above
+2. Deploy the customized [`cloudformation/guardduty-member-account-role.yml`](cloudformation/guardduty-member-account-role.yml)
+   CloudFormation template in your member AWS accounts. This CloudFormation template should only be deployed once in a single
+   region in each member AWS account. The account will then register with the master account and go through the invitation
+   process automatically for every region.
 
-#### Error mapping
-To transform the error value to another domain before doing any computations on it, you can supply an `error_map` callback function to the PID. The callback function should take one argument which is the error from the setpoint. This can be used e.g. to get a degree value error in a yaw angle control with values between [-pi, pi):
-```python
-import math
+## AWS re:invent 2018 SEC403 Presentation
 
-def pi_clip(angle):
-    if angle > 0:
-        if angle > math.pi:
-            return angle - 2*math.pi
-    else:
-        if angle < -math.pi:
-            return angle + 2*math.pi
-    return angle
-
-pid.error_map = pi_clip
-```
-
-## Tests
-Use the following to run tests:
-```
-tox
-```
+* [Watch our presentation on GuardDuty Multi Account Manager](https://www.youtube.com/watch?v=M5yQpegaYF8&t=1889) at AWS re:Invent 2018
+* [Read the slides](https://www.slideshare.net/AmazonWebServices/five-new-security-automations-using-aws-security-services-open-source-sec403-aws-reinvent-2018/47)
 
 ## License
-Licensed under the [MIT License](https://github.com/m-lundberg/simple-pid/blob/master/LICENSE.md).
+
+guardduty-multi-account-manager is Licensed under the
+[Mozilla Public License 2.0 ( MPL2.0 )](https://www.mozilla.org/en-US/MPL/2.0/)
+
+## Contributors
+
+* [Gene Wood](https://github.com/gene1wood/)
+* [Andrew Krug](https://github.com/andrewkrug/)
