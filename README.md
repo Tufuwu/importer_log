@@ -1,117 +1,120 @@
-# karma-jsdom-launcher
+# LRUD [![Build Status](https://travis-ci.org/bbc/lrud.svg?branch=master)](https://travis-ci.org/bbc/lrud)
 
-> Launcher for [jsdom].
+A spatial navigation library for devices with input via directional controls
 
-## Installation
+## Upgrading from V2
+
+**v3 is a major rewrite, covering many new features. However, it unfortunately breaks some backwards compatibility.**
+
+We are currently in the process of writing more detailed docs for an upgrade process. However, the main things to note at the minute at;
+
+- changes in events, which ones are emitted and what they are emitted with
+- removal of `grid` in favour of `isIndexAligned` behaviour
+
+## Getting Started
 
 ```bash
-npm install karma-jsdom-launcher --save-dev
+git clone git@github.com:bbc/lrud.git lrud
+cd lrud
+npm install
 ```
 
-*NOTE:* karma and jsdom are peerDependencies of this module. If you haven't install them, run
+Lrud is written in [Typescript](https://www.typescriptlang.org/) and makes use of [mitt](https://github.com/developit/mitt).
+
+## Usage
 
 ```bash
-npm install karma-jsdom-launcher jsdom karma --save-dev
+npm install lrud
 ```
-
-to install all your dependencies.
-
-## Configuration
-```js
-// karma.conf.js
-module.exports = function(config) {
-  config.set({
-    browsers: ['jsdom'],
-  });
-};
-```
-
-You can pass list of browsers as a CLI argument too:
-```bash
-karma start --browsers jsdom
-```
-
-You can pass options directly to jsdom as shown below. See jsdom's own
-documentation for all supported options.
 
 ```js
-// karma.conf.js
-const jsdom = require("jsdom");
+const { Lrud } = require('Lrud')
 
-module.exports = function(config) {
-  config.set({
-    browsers: ['jsdom'],
+// create an instance, register some nodes and assign a default focus
+var navigation = new Lrud()
+navigation
+  .registerNode('root', { orientation: 'vertical' })
+  .registerNode('item-a', { parent: 'root', isFocusable: true })
+  .registerNode('item-b', { parent: 'root', isFocusable: true })
+  .assignFocus('item-a')
 
-    jsdomLauncher: {
-      jsdom: {
-        resources: new jsdom.ResourceLoader({
-          userAgent: "foobar",
-        })
-      }
-    }
-  });
-};
-```
-
-## FAQ
-
-### I am using Gulp and the test suite is not exiting
-
-This occurs due to lingering event handlers and it is currently an [unsolved
-issue][issue-4]. Meanwhile you have to explicitly exit the process yourself.
-This can be done by not passing a callback to Karma.Server or by invoking
-process.exit(), as shown below.
-
-```javascript
-var gulp = require('gulp');
-var Server = require('karma').Server;
-
-gulp.task('test', function () {
-  new Server({
-    configFile: __dirname + '/karma.conf.js',
-    singleRun: true
-  }).start();
+// handle a key event
+document.addEventListener('keypress', (event) => {
+  navigation.handleKeyEvent(event)
 });
+
+// Lrud will output an event when it handles a move
+navigation.on('move', (moveEvent) => {
+  myApp.doSomethingOnNodeFocus(moveEvent.enter)
+})
 ```
 
-```javascript
-var gulp = require('gulp');
-var Server = require('karma').Server;
+See [usage docs](./docs/usage.md) for details full API details.
 
-gulp.task('test', function (done) {
-  new Server({
-    configFile: __dirname + '/karma.conf.js',
-    singleRun: true
-  }, function (exitCode) {
-    done();
-    process.exit(exitCode);
-  }).start();
-});
+For more "full" examples, covering common use cases, check [the recipes](./docs/recipes.md)
+
+## Running the tests
+
+All code is written in Typescript, so we make use of a `tsconfig.json` and `jest.config.js` to ensure tests run correctly.
+
+Test files are split up fairly arbitrarily, aiming to have larger sets of tests broken into their own file. 
+
+```bash
+npm test
 ```
 
-### I am using Angular CLI and the test suite hangs indefinitely
+To run a specific test file, use `npx jest` from the project root.
 
-You might experience a [known issue][issue-27] where Karma attempts to perform
-a synchronous request, resulting in a deadlock. Disable use of source-maps in
-your tests, as shown below.
-
-```
-// angular.json
-
-{
-  ...
-        "test": {
-          "options": {
-            "sourceMap": false
-
+```bash
+npx jest src/lrud.test.js
 ```
 
-----
+You can also run all the tests with verbose output. This is useful for listing out test scenarios to ensure that behaviour is covered.
 
-For more information on Karma see the [homepage].
+```bash
+npm run test:verbose
+```
+
+You can also run all the tests with coverage output
+
+```bash
+npm run test:coverage
+```
+
+Several of the tests have associated diagrams, in order to better explain what is being tested. These can be found in `./docs/test-diagrams`.
+
+We also have a specific test file (`src/build.test.js`) in order to ensure that we haven't broken the Typescript/rollup.js build.
+
+## Versioning
+
+```bash
+npm version <patch:minor:major>
+npm publish
+```
+
+## Built with
+
+- [Typescript](https://www.typescriptlang.org/)
+- [rollup.js](https://rollupjs.org/)
+- [mitt](https://github.com/developit/mitt)
+
+## Inspiration
+
+* [BBC - TV Application Layer (TAL)](http://bbc.github.io/tal/widgets/focus-management.html)
+* [Netflix - Pass the Remote](https://medium.com/netflix-techblog/pass-the-remote-user-input-on-tv-devices-923f6920c9a8)
+* [Mozilla - Implementing TV remote control navigation](https://developer.mozilla.org/en-US/docs/Mozilla/Firefox_OS_for_TV/TV_remote_control_navigation)
+
+## Alternatives
+
+* [tal](https://github.com/bbc/tal)
+* [react-tv-navigation](https://github.com/react-tv/react-tv-navigation)
+* [react-key-navigation](https://github.com/dead/react-key-navigation)
+* [js-spatial-navigation](https://github.com/luke-chang/js-spatial-navigation)
+
+# License
 
 
-[homepage]: http://karma-runner.github.com
-[jsdom]: https://github.com/tmpvar/jsdom
-[issue-4]: https://github.com/badeball/karma-jsdom-launcher/issues/4
-[issue-27]: https://github.com/badeball/karma-jsdom-launcher/issues/27
+LRUD is part of the BBC TAL libraries, and available to everyone under the terms of the Apache 2 open source licence (Apache-2.0). Take a look at the LICENSE file in the code.
+
+Copyright (c) 2018 BBC
+

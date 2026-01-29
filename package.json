@@ -1,30 +1,65 @@
 {
-  "name": "karma-jsdom-launcher",
-  "version": "14.0.0",
-  "description": "A Karma plugin. Launcher for jsdom.",
-  "main": "index.js",
-  "author": "Jonas Amundsen <jonasba@gmail.com>",
+  "name": "lrud",
+  "version": "8.0.0",
+  "description": "Left, Right, Up, Down. A spatial navigation library for devices with input via directional controls",
+  "main": "dist/cjs/index.min.js",
+  "module": "dist/esm/index.js",
+  "types": "dist/types/index.d.ts",
+  "homepage": "https://github.com/bbc/lrud",
+  "license": "Apache-2.0",
+  "files": [
+    "dist"
+  ],
+  "keywords": [
+    "tv",
+    "navigation",
+    "tv-apps",
+    "react",
+    "react-tv",
+    "focus",
+    "focus management",
+    "spatial navigation",
+    "smart tv"
+  ],
   "repository": {
     "type": "git",
-    "url": "git://github.com/badeball/karma-jsdom-launcher.git"
+    "url": "git@github.com:bbc/lrud.git"
   },
-  "keywords": [
-    "karma-plugin",
-    "karma-launcher",
-    "jsdom"
-  ],
-  "scripts": {
-    "clean-install": "rm -rf node_modules/ && npm install && npm install --no-save karma@4 jsdom@13 && ln -s ../ node_modules/karma-jsdom-launcher",
-    "test": "mocha --timeout 10000 --slow 5000"
-  },
-  "peerDependencies": {
-    "jsdom": ">=15 <=22",
-    "karma": ">=2 <=6"
-  },
-  "license": "MIT",
   "devDependencies": {
-    "intercept-stdout": "^0.1.2",
-    "karma-mocha": "^1.3.0",
-    "mocha": "^3.1.2"
+    "@types/jest": "^26.0.22",
+    "@typescript-eslint/eslint-plugin": "^4.19.0",
+    "@typescript-eslint/parser": "^4.19.0",
+    "eslint": "^7.22.0",
+    "eslint-config-standard": "^16.0.2",
+    "eslint-plugin-import": "^2.22.1",
+    "eslint-plugin-node": "^11.1.0",
+    "eslint-plugin-promise": "^4.3.1",
+    "jest": "^26.6.3",
+    "rimraf": "^2.6.2",
+    "rollup": "^1.25.1",
+    "rollup-plugin-commonjs": "^9.1.2",
+    "rollup-plugin-node-resolve": "^4.2.4",
+    "rollup-plugin-typescript": "^1.0.1",
+    "rollup-plugin-typescript2": "^0.30.0",
+    "rollup-plugin-uglify": "^6.0.4",
+    "ts-jest": "^26.5.4",
+    "tslib": "^2.1.0",
+    "typescript": "^4.2.3"
+  },
+  "dependencies": {
+    "mitt": "^1.2.0"
+  },
+  "scripts": {
+    "preversion": "npm test",
+    "postversion": "git push && git push --tags",
+    "clean": "rimraf dist",
+    "lint": "eslint src/*.ts src/**/*.ts",
+    "test": "npm run build && jest",
+    "test:verbose": "jest --verbose",
+    "test:coverage": "jest --coverage",
+    "prepare": "npm run build",
+    "prebuild": "npm run clean",
+    "build": "rollup -c",
+    "watch": "npm run build -- -w"
   }
 }
