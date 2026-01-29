@@ -1,227 +1,229 @@
-![CI](https://github.com/kpetremann/mqtt-exporter/actions/workflows/ci.yml/badge.svg)
-[![Codacy Badge](https://api.codacy.com/project/badge/Grade/b1ca990b576342a48d771d472e64bc24)](https://www.codacy.com/app/kpetremann/mqtt-exporter?utm_source=github.com&amp;utm_medium=referral&amp;utm_content=kpetremann/mqtt-exporter&amp;utm_campaign=Badge_Grade)
-[![Maintainability](https://api.codeclimate.com/v1/badges/635c98a1b4701d1ab4cf/maintainability)](https://codeclimate.com/github/kpetremann/mqtt-exporter/maintainability)
+[![Build Status](https://github.com/laowantong/paroxython/actions/workflows/build.yml/badge.svg)](https://github.com/laowantong/paroxython/actions/workflows/build.yml)
+[![codecov](https://img.shields.io/codecov/c/github/laowantong/paroxython/master)](https://codecov.io/gh/laowantong/paroxython)
+[![Checked with mypy](https://img.shields.io/badge/typing-mypy-brightgreen)](http://mypy-lang.org/)
+[![Codacy Badge](https://api.codacy.com/project/badge/Grade/73432ed4c5294326ba6279bbbb0fe2e6)](https://www.codacy.com/manual/laowantong/paroxython)
+[![Updates](https://pyup.io/repos/github/laowantong/paroxython/shield.svg)](https://pyup.io/repos/github/laowantong/paroxython/)
+![PyPI - Python Version](https://img.shields.io/pypi/pyversions/paroxython)
+[![GitHub Release](https://img.shields.io/github/release/laowantong/paroxython.svg?style=flat)]()
+![GitHub code size in bytes](https://img.shields.io/github/languages/code-size/laowantong/paroxython)
+[![paroxython SLOC](https://img.shields.io/badge/main%20program-~1850%20SLOC-blue)](https://github.com/laowantong/paroxython/blob/master/paroxython)
+[![tests SLOC](https://img.shields.io/badge/tests-~2550%20SLOC-blue)](https://github.com/laowantong/paroxython/blob/master/tests)
+[![helpers SLOC](https://img.shields.io/badge/helpers-~900%20SLOC-blue)](https://github.com/laowantong/paroxython/blob/master/helpers)
+[![spec features](https://img.shields.io/badge/spec-173%20features-blue)](https://github.com/laowantong/paroxython/blob/master/paroxython/resources/spec.md)
+[![taxonomy mappings](https://img.shields.io/badge/taxonomy-282%20mappings-blue)](https://github.com/laowantong/paroxython/blob/master/paroxython/resources/taxonomy.tsv)
+![GitHub commit activity](https://img.shields.io/github/commit-activity/y/laowantong/paroxython.svg?style=flat)
+[![Downloads](https://pepy.tech/badge/paroxython/week)](https://pepy.tech/project/paroxython/week)
 [![Code style: black](https://img.shields.io/badge/code%20style-black-000000.svg)](https://github.com/psf/black)
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
+[![Band-aid](https://badgen.net/badge/not%C2%A0%C2%A0%F0%9F%85%B3%F0%9F%85%B4%F0%9F%85%B0%F0%9F%85%B3/yet/F3D9C5?labelColor=F3D9C5)](https://youtu.be/QcbR1J_4ICg?t=54)
 
-[![Build and publish docker images](https://github.com/kpetremann/mqtt-exporter/actions/workflows/release.yml/badge.svg)](https://hub.docker.com/r/kpetrem/mqtt-exporter)
+<p align="center">
+  <a href="https://laowantong.github.io/paroxython/index.html">
+  <img src="docs/resources/logo.png">
+  </a>
+</p>
 
-# MQTT-exporter
+## Introduction
 
-## Description
+Paroxython is a set of command line tools which **tag** and **filter** by algorithmic features your collection of Python programming exercises.
 
-Simple and generic Prometheus exporter for MQTT.
-Tested with Mosquitto MQTT and Xiaomi sensors.
+### Audience
 
-It exposes metrics from MQTT message out of the box (you just need to specify the target if not on localhost).
+You are a teacher, in charge of an introductory programming course in an educational institution. Over the years, you have accumulated many—far too many—programs and code snippets that may be of interest to your students.
 
-MQTT-exporter expects a topic and a flat JSON payload, the value must be numeric values.
+Or, as a seasoned developer, you would like to share your knowledge by helping a loved one learn how to code. A cursory search for pedagogical material yields an overwhelming amount of websites and repositories stuffed with Python programs of various levels (e.g.,
+[1](https://github.com/TheAlgorithms/Python),
+[2](http://rosettacode.org/wiki/Category:Python),
+[3](https://www.programming-idioms.org/about#about-block-language-coverage),
+[4](https://github.com/codebasics/py),
+[5](https://github.com/keon/algorithms),
+[6](https://github.com/OmkarPathak/Python-Programs),
+and a lot more from [Awesome Python in Education](https://github.com/quobit/awesome-python-in-education)).
 
-It also provides message counters for each MQTT topic (since PR #5):
-```
-mqtt_message_total{instance="mqtt-exporter:9000", job="mqtt-exporter", topic="zigbee2mqtt_0x00157d00032b1234"} 10
-```
+In any case, the Python source codes you have gathered are typically
+**numerous** (hundreds or even thousands),
+**reasonably sized** (anything below 100 lines of code),
+and **educational** in nature (e.g., snippets, examples, quizzes, exercise solutions, classic algorithms).
+The programming concepts you plan to teach remain relatively **low level** (e.g. assignments, nested loops, accumulation patterns, tail recursive functions, etc.).
 
-### Tested devices
+If all that sounds familiar, keep reading me.
 
-Note: This exporter aims to be as generic as possible. If the sensor you use is using the following format, it will work:
-```
-topic '<prefix>/<name>', payload '{"temperature":26.24,"humidity":45.37}'
-```
+### Main goals
 
-Also, the Shelly format is supported:
-```
-topic '<prefix>/<name>/sensor/temperature' '20.00'
-```
+Paroxython aims to help you select, from your collection, the one program that best suits your needs. For instance, it will gladly answer the following questions:
 
-The exporter is tested with:
-  * Aqara/Xiaomi sensors (WSDCGQ11LM and VOCKQJK11LM)
-  * SONOFF sensors (SNZB-02)
-  * Shelly sensors (H&T wifi)
-  * Shelly power sensors (3EM - only with `KEEP_FULL_TOPIC` enabled)
+> - How can this concept be illustrated?
+> - What problems use the same algorithmic and data structures as this one?
+> - What homework assignment should I give my students so they can practice the content of the last lesson?
 
-### Metrics conversion example
-```
-topic 'zigbee2mqtt/0x00157d00032b1234', payload '{"temperature":26.24,"humidity":45.37}'
-```
-will be converted as:
-```
-mqtt_temperature{topic="zigbee2mqtt_0x00157d00032b1234"} 25.24
-mqtt_humidity{topic="zigbee2mqtt_0x00157d00032b1234"} 45.37
-```
+Moreover, since Paroxython knows what your class knows, it can recommend the right program at the right time:
 
-### Zigbee2MQTT device availability support
+> - What would make a good review exercise?
+> - Which exercises can I give on this exam?
+> - What is the current learning cost of this example?
 
-**Important notice: legacy availability payload is not supported and must disabled** - see [Device availability advanced](https://www.zigbee2mqtt.io/guide/configuration/device-availability.html#availability-payload)
+In the long run, Paroxython may guide you and somehow make you rethink your course outline:
 
-When exposing device availability, Zigbee2MQTT add /availability suffix in the topic. So we end up with inconsistent metrics:
+> - What are the prerequisites for the concept of assignment?
+> - Do I have enough material to introduce subroutines before I even talk about conditionals and loops?
+> - Among the loops, which must come first: the most powerful (`while`), or the most useful (`for`)?
+> - How to logically structure this bunch of usual iterative patterns?
+> - What are the _basics_, exactly?
 
-```
-mqtt_state{topic="zigbee2mqtt_garage_availability"} 1.0
-mqtt_temperature{topic="zigbee2mqtt_garage"} 1.0
-```
+All issues on which the author changed his mind since he started to work on this project!
 
-To avoid having different topic for the same device, the exporter has a normalization feature disabled by default.
-It can be enabled by setting ZIGBEE2MQTT_AVAILABILITY varenv to "True".
+In an ideal world, Paroxython could even put an end to the deadliest religious wars, with rational, data-driven arguments:
 
-It will remove the suffix from the topic, and change the metric name accordingly:
+> - Father, is it a sin to exit early?
+> - Should a real byte use a mask?
 
-```
-mqtt_zigbee_availability{topic="zigbee2mqtt_garage"} 1.0
-mqtt_temperature{topic="zigbee2mqtt_garage"} 1.0
-```
+### How it works
 
-Note: the metric name mqtt_state  is not kept to reduce collision risks as it is too common.
+<p align="center">
+  <a href="https://laowantong.github.io/paroxython/developer_manual/index.html">
+  <img src="docs/resources/waterfall.png">
+  </a>
+</p>
 
-### Zwavejs2Mqtt
+Paroxython starts from a given folder of **programs**. Its contents is parsed, and all features that meet the provided **specifications** are labelled and associated with their spans (e.g., `"assignment_lhs_identifier:a": 4, 6, 18` or `"loop_with_late_exit:while": 3-7, 20-29`).
 
-This exporter also supports Zwavejs2Mqtt metrics, preferably using "named topics" (see [official documentation](https://zwave-js.github.io/zwavejs2mqtt/#/usage/setup?id=gateway)).
+These **labels** constitute only scattered knowledge. The next step is to map them onto a **taxonomy** designed with basic hierarchical constraints in mind (e.g., the fact that the introduction of the concept of early exit must come after that of loop, which itself requires that of control flow, is expressed by the _taxon_ `"flow/loop/exit/early"`).
 
-To setup this, you need to specify the topic prefix used by Zwavejs2Mqtt in `ZWAVE_TOPIC_PREFIX` the environment variable (default being "zwave/").
+<p align="center">
+  <a href="https://laowantong.github.io/paroxython/user_manual/index.html#taxonomy">
+  <img src="docs/resources/tree.png" alt="A taxonomy.">
+  </a>
+  <br>
+  <em>Extract of the taxonomy generated from <a href="https://github.com/TheAlgorithms/Python">The Algorithms - Python</a>.<br>Click to jump to its full dynamic version in the user manual.</em>
+</p>
 
-### Configuration
+Everything is then persisted in a tag **database**, which can later be filtered through a **pipeline** of commands, for instance:
 
-Parameters are passed using environment variables.
+- _include_ only the programs which feature a recursive function;
+- _exclude_ this or that program you want to set aside for the exam;
+- “_impart_” all programs studied so far, _i.e_, consider that all the notions they implement are acquired.
 
-The list of parameters are:
-  * `KEEP_FULL_TOPIC`: Keep entire topic instead of the first two elements only. Usecase: Shelly 3EM (default: False)
-  * `LOG_LEVEL`: Logging level (default: INFO)
-  * `LOG_MQTT_MESSAGE`: Log MQTT original message, only if LOG_LEVEL is set to DEBUG (default: False)
-  * `MQTT_IGNORED_TOPICS`: Comma-separated lists of topics to ignore. Accepts wildcards. (default: None)
-  * `MQTT_ADDRESS`: IP or hostname of MQTT broker (default: 127.0.0.1)
-  * `MQTT_PORT`: TCP port of MQTT broker (default: 1883)
-  * `MQTT_TOPIC`: Topic path to subscribe to (default: #)
-  * `MQTT_KEEPALIVE`: Keep alive interval to maintain connection with MQTT broker (default: 60)
-  * `MQTT_USERNAME`: Username which should be used to authenticate against the MQTT broker (default: None)
-  * `MQTT_PASSWORD`: Password which should be used to authenticate against the MQTT broker (default: None)
-  * `MQTT_V5_PROTOCOL`: Force to use MQTT protocol v5 instead of 3.1.1
-  * `MQTT_CLIENT_ID`: Set client ID manually for MQTT connection
-  * `MQTT_EXPOSE_CLIENT_ID`: Expose the client ID as a label in Prometheus metrics
-  * `PROMETHEUS_PORT`: HTTP server PORT to expose Prometheus metrics (default: 9000)
-  * `PROMETHEUS_PREFIX`: Prefix added to the metric name, example: mqtt_temperature (default: mqtt_)
-  * `TOPIC_LABEL`: Define the Prometheus label for the topic, example temperature{topic="device1"} (default: topic)
-  * `ZIGBEE2MQTT_AVAILABILITY`: Normalize sensor name for device availability metric added by Zigbee2MQTT (default: False)
-  * `ZWAVE_TOPIC_PREFIX`: MQTT topic used for Zwavejs2Mqtt messages (default: zwave/)
+The result is a list of program **recommendations** ordered by increasing learning cost.
 
-### Deployment
+### Example
 
-#### Using Docker
+Suppose that the `programs` directory contains [these simple programs](https://wiki.python.org/moin/SimplePrograms).
 
-With an interactive shell:
+First, build [this tag database](https://github.com/laowantong/paroxython/blob/master/examples/simple/programs_db.json):
 
 ```shell
-docker run -it -p 9000:9000 -e "MQTT_ADDRESS=192.168.0.1" kpetrem/mqtt-exporter
+> paroxython collect programs
+Labelling 21 programs.
+Mapping taxonomy on 21 programs.
+Writing programs_db.json.
 ```
 
-If you need the container to start on system boot (e.g. on your server/Raspberry Pi):
+Then, filter it through [this pipeline](https://github.com/laowantong/paroxython/blob/master/examples/simple/programs_pipe.py):
 
 ```shell
-docker run -d -p 9000:9000 --restart unless-stopped --name mqtt-exporter  -e "MQTT_ADDRESS=192.168.0.1" kpetrem/mqtt-exporter
+> paroxython recommend programs
+Processing 5 commands on 21 programs.
+  19 programs remaining after operation 1 (impart).
+  18 programs remaining after operation 2 (exclude).
+  12 programs remaining after operation 3 (exclude).
+  10 programs remaining after operation 4 (include).
+  10 programs remaining after operation 5 (hide).
+Dumped: programs_recommendations.md.
 ```
 
-#### Using Docker Compose
+Et voilà, [your recommendation report](https://github.com/laowantong/paroxython/blob/master/examples/simple/programs_recommendations.md)!
 
-```yaml
-version: "3"
-services:
-  mqtt-exporter:
-    image: kpetrem/mqtt-exporter
-    ports:
-      - 9000:9000
-    environment:
-      - MQTT_ADDRESS=192.168.0.1
-    restart: unless-stopped
-```
 
-#### Using Python
+## Installation and test-drive
+
+### Command line
+
+Much to no one's surprise:
 
 ```
-pip install -r requirements/base.txt
-MQTT_ADDRESS=192.168.0.1 python exporter.py
+python -m pip install paroxython
 ```
 
-#### Get the metrics on Prometheus
-
-See below an example of Prometheus configuration to scrape the metrics:
+The following command should print a help message and exit:
 
 ```
-scrape_configs:
-  - job_name: mqtt-exporter
-    static_configs:
-      - targets: ["mqtt-exporter:9000"]
+paroxython --help
 ```
 
-#### Nicer metrics
+### IPython magic command
 
-If you want nicer metrics, you can configure mqtt-exporter in your `docker-compose.yml` as followed:
-```
-version: "3"
-services:
-  mqtt-exporter:
-    image: kpetrem/mqtt-exporter
-    ports:
-      - 9000:9000
-    environment:
-      - MQTT_ADDRESS=192.168.0.1
-      - PROMETHEUS_PREFIX=sensor_
-      - TOPIC_LABEL=sensor
-    restart: unless-stopped
+If you use Jupyter notebook/lab, you've also just installed a so-called magic command. Load it like this:
+
+```python
+%load_ext paroxython
 ```
 
-Result:
-```
-sensor_temperature{sensor="zigbee2mqtt_bedroom"} 22.3
-```
+This should print `"paroxython 0.7.0 loaded."`. Run it on a cell of Python code:
 
-And then remove `zigbee2mqtt_` prefix from `sensor` label via Prometheus configuration:
-
-```
-scrape_configs:
-  - job_name: mqtt-exporter
-    static_configs:
-      - targets: ["mqtt-exporter:9000"]
-    metric_relabel_configs:
-      - source_labels: [sensor]
-        regex: 'zigbee2mqtt_(.*)'
-        replacement: '$1'
-        target_label: sensor
+```python
+%%paroxython                          # Lines
+def fibonacci(n):                     # 2
+    result = []                       # 3
+    (a, b) = (0, 1)                   # 4
+    while a < n:                      # 5
+        result.append(a)              # 6
+        (a, b) = (b, a + b)           # 7
+    return result                     # 8
 ```
 
-Result:
-```
-sensor_temperature{sensor=bedroom"} 22.3
-```
+| Taxon | Lines |
+|:--|:--|
+| `call/subroutine/method/sequence/list/append` | 6 |
+| `condition/inequality` | 5 |
+| `def/subroutine/function/impure` | 2-8 |
+| `def/subroutine/parameter/arg` | 2 |
+| `flow/loop/exit/late` | 5-7 |
+| `flow/loop/while` | 5-7 |
+| `meta/count/program/sloc/8` | 2-8 |
+| `meta/count/subroutine/sloc/7` | 2-8 |
+| `meta/count/variety/3` | 2-8 |
+| `meta/program` | 2-8 |
+| `operator/arithmetic/addition` | 7 |
+| `style/procedural` | 2-8 |
+| `type/number/integer/literal` | 4 |
+| `type/number/integer/literal/zero` | 4 |
+| `type/sequence/list` | 6 |
+| `type/sequence/list/literal/empty` | 3 |
+| `type/sequence/tuple/literal` | 4, 4, 7, 7 |
+| `var/assignment/explicit/parallel` | 4 |
+| `var/assignment/explicit/parallel/slide` | 7 |
+| `var/assignment/explicit/single` | 3 |
+| `var/assignment/implicit/parameter` | 2 |
+| `var/scope/local` | 2-8, 2-8, 2-8, 2-8 |
 
-## Docker-compose full stack example
+As you can see, in this program, Paroxython identifies among others:
 
-This docker-compose aims to share a typical monitoring stack.
+- the use of the [procedural paradigm](https://en.wikipedia.org/wiki/Procedural_programming) (`style/procedural`);
+- an im[pure function](https://en.wikipedia.org/wiki/Pure_function) (`def/subroutine/function/impure`);
+- a `while` loop (`flow/loop/while`) with a late exit (`flow/loop/exit/late`);
+- a little bit of voodoo on lists (`type/sequence/list/literal/empty` and `call/subroutine/method/sequence/list/append`);
+- a simple [tuple assignment](https://en.wikibooks.org/wiki/Python_Programming/Tuples#Packing_and_Unpacking) (`var/assignment/explicit/parallel`). Note that we distinguish between explicit (with `=`) and implicit (parameters and iteration variables) assignments;
+- a “sliding” tuple assignment (`var/assignment/explicit/parallel/slide`). If the denomination is unique to us, the pattern itself occurs in a number of programs: implementations of [C-finite sequences](https://en.wikipedia.org/wiki/Constant-recursive_sequence) with C greater than 1, [Greatest Common Divisor](https://en.wikipedia.org/wiki/Greatest_common_divisor), [Quicksort](https://en.wikipedia.org/wiki/Quicksort), etc.
+- four local variables (`var/scope/local`);
+- an estimation of the variety of concepts involved (`meta/count/variety/***`), depending on the number of lines, features and distinct features.
 
-If you need persistent metrics, I would advise using Thanos or Cortex. Of course there are other suitable persistent storage solution for Prometheus.
+The magic command `%%paroxython` (corresponding to the subcommand [`tag`](https://laowantong.github.io/paroxython/cli_tag.html)) only scratches the surface of the system. As shown before, to estimate the learning cost of the features and get actionable recommendations, you will need first to construct the tag database with [`collect`](https://laowantong.github.io/paroxython/cli_collect.html), and then call [`recommend`](https://laowantong.github.io/paroxython/cli_recommend.html) on a pipeline of yours.
 
-[docker-compose.yaml](https://github.com/kpetremann/mqtt-exporter/blob/master/doc/example/docker-compose.yml)
+# Read them
 
-You can also add other cool software such as Home-Assistant.
+Although this is still a work-in-progress, Paroxython should already be fairly well [documented](https://laowantong.github.io/paroxython/index.html):
 
-## Contribute
+- [User manual](https://laowantong.github.io/paroxython/user_manual/index.html):
+  - [write a command pipeline to get recommendations](https://laowantong.github.io/paroxython/user_manual/index.html#pipeline-tutorial),
+  - [prepare your program collections for better results](https://laowantong.github.io/paroxython/user_manual/index#preparing-your-program-collection),
+  - [understand and modify the taxonomic classification](https://laowantong.github.io/paroxython/user_manual/index#taxonomy),
+  - and more.
+- [Developer manual](https://laowantong.github.io/paroxython/developer_manual/index.html):
+  - [get a rough idea of the program structure and operations](https://laowantong.github.io/paroxython/developer_manual/index.html#bird-view),
+  - [use the provided helpers to contribute to the code](helper-programs),
+  - and more.
+- [Module reference](https://laowantong.github.io/paroxython/#header-submodules).
+- [Feature specifications](https://github.com/laowantong/paroxython/blob/master/paroxython/resources/spec.md): a document mixing prose, tests, regular expressions and SQL queries to describe which algorithmic features are recognized and how.
+- [User types](https://github.com/laowantong/paroxython/blob/master/paroxython/user_types.py): all objects of interest are precisely typed and checked by [mypy](http://mypy-lang.org).
 
-### Dev environment
-
-You can install invoke package on your system and then use it to install environement, run an autoformat or just run the exporter:
-
-  * `invoke install`: to install virtualenv under .venv/ and install all dev requirements
-  * `invoke reformat`: reformat using black and isort
-  * `invoke start`: start the app
-
-### Coding style
-
-Please ensure you have run the following before pushing a commit:
-  * `black` and `isort` (or `invoke reformat`)
-  * `pylama` to run all linters
-
-Follow usual best practices:
-  * document your code (inline and docstrings)
-  * constant are in upper case
-  * use comprehensible variable name
-  * one function = one purpose
-  * function name should define perfectly its purpose
-  * please add/adapt unit and functional tests
+Finally, a [battery of examples](https://github.com/laowantong/paroxython/tree/master/examples) and [comprehensive test coverage](https://github.com/laowantong/paroxython/tree/master/tests) should help answer any remaining question.
