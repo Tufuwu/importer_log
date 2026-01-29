@@ -1,72 +1,104 @@
-# cesium-webpack-example
+# Codemeta Generator
 
-A minimal recommended setup for an applications using [Cesium](https://cesium.com) with [Webpack](https://webpack.js.org/concepts/).
+This repository contains a (client-side) web application to generate
+CodeMeta documents (aka. `codemeta.json`).
 
-[![Build Status](https://travis-ci.org/CesiumGS/cesium-webpack-example.svg?branch=using-custom-loader)](https://travis-ci.org/CesiumGS/cesium-webpack-example)
+The [CodeMeta initiative](https://github.com/codemeta/codemeta) is a Free and Open Source academic collaboration
+creating a minimal metadata schema for research software and code.
 
-## Running this application
+The academic community recommands on adding a codemeta.json file in
+the root directory of your repository.
 
-````sh
-npm install
-npm start
-````
+With this linked data metadata file, you can easily declare the authorship,
+include contextual information and link to other research outputs (publications,
+data, etc.).
 
-Navigate to `localhost:8080`.
+Also, the `codemeta.json` file in your source code is indexed in the
+Software Heritage (SWH) archive, which will improve findability in searches.
 
-### Available scripts
+### References
 
-* `npm start` - Runs a webpack build with `webpack.config.js` and starts a development server
-* `npm run build` - Runs a webpack build with `webpack.config.js`
+- [SWH guidelines](https://www.softwareheritage.org/save-and-reference-research-software/) for research software.
 
-## Requiring Cesium in your application
+- [SWH blog post](https://www.softwareheritage.org/2019/05/28/mining-software-metadata-for-80-m-projects-and-even-more/) about metadata indexation.
+- [Dan S. Katz's blog post](https://danielskatzblog.wordpress.com/2017/09/25/software-heritage-and-repository-metadata-a-software-citation-solution/) about including
+ metadata in your repository.
+- FORCE11's Software Citation Implementation WG [repository](https://github.com/force11/force11-sciwg)
+- RDA & FORCE11's joint Software Source Code Identification WG
+   [repository](https://github.com/force11/force11-rda-scidwg)
 
-We recommend [importing named exports](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Statements/import) from the Cesium ES module, via the `import` keyword. This allows webpack to [tree shake](https://webpack.js.org/guides/tree-shaking/) your application automatically.
+## Specifications
 
-### Import named modules from Cesium
+### Use case
 
-````js
-import { Color } from 'cesium';
-var c = Color.fromRandom();
-````
+1. create a complete codemeta.json file from scratch
+2. aggregate existing information and add complementary information to
+a codemeta.json file
 
-### Import Cesium static asset files
+### Functionalities
 
-````js
-import "cesium/Build/Cesium/Widgets/widgets.css";
-````
+- helpers while completing the form, for example a reference list of spdx
+  licenses
+- a validation mechanism after submission
+- the possibility to use all the codeMeta terms and schema.org terms
+- accessible from multiple platforms (web browsers or OS)
+- (extra) the possibility to correct the output after validation as part
+  of the creation process
 
-## Removing pragmas
+This tool was initially prepared for the [FORCE19 Hackathon](https://github.com/force11/force11-rda-scidwg/tree/master/hackathon/FORCE2019).
 
-To remove pragmas such as a traditional Cesium release build, use the [`strip-pragma-loader`](https://www.npmjs.com/package/strip-pragma-loader).
 
-Install the plugin with npm,
+## Code contributions.
 
-````sh
-npm install strip-pragma-loader --save-dev
-````
+This section only applies to developers who want to contribute to the Codemeta Generator.
+If you only want to use it, you can use
+[the hosted version](https://codemeta.github.io/codemeta-generator/) instead.
 
-and include the loader in `module.rules` with `debug` set to `false`.
+### Code guidelines
 
-````js
-rules: [{
-	test: /\.js$/,
-	enforce: 'pre',
-	include: path.resolve(__dirname, cesiumSource),
-	use: [{
-		loader: 'strip-pragma-loader',
-		options: {
-		    pragmas: {
-				debug: false
-			}
-		}
-	}]
-}]
-````
+This application is designed to work on popular modern browsers (Firefox,
+Chromium/Google Chrome, Edge, Safari). Check [Caniuse](https://caniuse.com/)
+for availability of features for these browsers.
 
-## Contributions
+To keep the architecture simple, we serve javascript files directly to
+browsers, without a compiler or transpiler; and do not use third-party
+dependencies for now.
 
-Pull requests are appreciated. Please use the same [Contributor License Agreement (CLA)](https://github.com/CesiumGS/cesium/blob/master/CONTRIBUTING.md) used for [Cesium](https://cesium.com/).
+### Running local changes
 
----
+To run Codemeta Generator, you just need an HTTP server serving the
+files (nginx, apache2, etc.).
 
-Developed by the Cesium team.
+The simplest way is probably to use Python's HTTP server:
+
+```
+git clone https://github.com/codemeta/codemeta-generator
+cd codemeta-generator
+python3 -m http.server
+```
+
+then open [http://localhost:8000/](http://localhost:8000/) in your web browser.
+
+### Automatic testing
+
+In addition to manual testing, we have automated tests to check for bugs
+quickly, using [Cypress](https://www.cypress.io/).
+
+To run them, first install Cypress:
+
+```
+sudo apt install npm  # or the equivalent on your system
+npm install cypress
+$(npm bin)/cypress install
+```
+
+Then, run the tests:
+
+```
+$(npm bin)/cypress run
+```
+
+
+## Contributed by
+
+![Image description](https://annex.softwareheritage.org/public/logo/software-heritage-logo-title-motto.svg)
