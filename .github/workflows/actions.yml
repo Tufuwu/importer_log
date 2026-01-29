@@ -4,17 +4,22 @@ on:
     branches:
     - "**/*"
   pull_request:
-concurrency:
 #   # This item has no matching transformer
 #   maximum_number_of_builds: 0
 jobs:
-  test:
-    runs-on: ubuntu-latest
+  release:
+    runs-on: # this agent type is not supported: [noble]
+             ubuntu-latest
     steps:
     - name: checkout
       uses: actions/checkout@v4.1.0
     - uses: actions/setup-node@v4.0.0
       with:
         cache: npm
+        node-version: 16
     - run: npm install
-    - run: npm run lint
+    - run: npm run build
+    - run: npm run serve &
+    - run: npm test
+    - run: npm run semantic-release
+      if: "${{ github.event_name == 'push' && github.ref == 'refs/heads/main' }}"
