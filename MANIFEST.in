@@ -1,2 +1,2 @@
-include README.rst LICENSE CHANGELOG.md
-recursive-exclude * *.pyc
+include LICENSE
+recursive-include tests *.py *.txt

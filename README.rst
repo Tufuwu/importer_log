@@ -1,163 +1,508 @@
-RPLCD
-#####
+.. raw:: html
 
-.. image:: https://img.shields.io/github/actions/workflow/status/dbgn/RPLCD/ci.yml?branch=master
-    :target: https://github.com/dbrgn/RPLCD/actions/workflows/ci.yml
-    :alt: Build Status
-.. image:: https://img.shields.io/pypi/v/RPLCD.svg
-    :target: https://pypi.python.org/pypi/RPLCD/
-    :alt: PyPI Version
-.. image:: https://img.shields.io/pypi/wheel/RPLCD.svg
-    :target: https://pypi.python.org/pypi/RPLCD/
-    :alt: PyPI Wheel
-.. image:: https://img.shields.io/pypi/pyversions/RPLCD.svg
-    :target: https://pypi.python.org/pypi/RPLCD/
-    :alt: PyPI Python Versions
-.. image:: https://img.shields.io/badge/dependencies-0-blue.svg
-    :target: https://pypi.python.org/pypi/RPLCD/
-    :alt: Dependencies
-.. image:: https://img.shields.io/pypi/l/RPLCD.svg
-    :target: https://pypi.python.org/pypi/RPLCD/
-    :alt: License
+    <p align="center">
+        <a href="#readme">
+            <img alt="Loguru logo" src="https://raw.githubusercontent.com/Delgan/loguru/master/docs/_static/img/logo.png">
+            <!-- Logo credits: Sambeet from Pixaday -->
+            <!-- Logo fonts: Comfortaa + Raleway -->
+        </a>
+    </p>
+    <p align="center">
+        <a href="https://pypi.python.org/pypi/loguru"><img alt="Pypi version" src="https://img.shields.io/pypi/v/loguru.svg"></a>
+        <a href="https://pypi.python.org/pypi/loguru"><img alt="Python versions" src="https://img.shields.io/badge/python-3.5%2B%20%7C%20PyPy-blue.svg"></a>
+        <a href="https://loguru.readthedocs.io/en/stable/index.html"><img alt="Documentation" src="https://img.shields.io/readthedocs/loguru.svg"></a>
+        <a href="https://github.com/Delgan/loguru/actions/workflows/tests.yml?query=branch:master"><img alt="Build status" src="https://img.shields.io/github/workflow/status/Delgan/loguru/Tests/master"></a>
+        <a href="https://codecov.io/gh/delgan/loguru/branch/master"><img alt="Coverage" src="https://img.shields.io/codecov/c/github/delgan/loguru/master.svg"></a>
+        <a href="https://app.codacy.com/gh/Delgan/loguru/dashboard"><img alt="Code quality" src="https://img.shields.io/codacy/grade/be7337df3c0d40d1929eb7f79b1671a6.svg"></a>
+        <a href="https://github.com/Delgan/loguru/blob/master/LICENSE"><img alt="License" src="https://img.shields.io/github/license/delgan/loguru.svg"></a>
+    </p>
+    <p align="center">
+        <a href="#readme">
+            <img alt="Loguru logo" src="https://raw.githubusercontent.com/Delgan/loguru/master/docs/_static/img/demo.gif">
+        </a>
+    </p>
 
-A Python 3 Raspberry PI Character LCD library for the Hitachi HD44780
-controller. It supports both GPIO (parallel) mode as well as boards with an I²C
-port expander (e.g. the PCF8574 or the MCP23008).
+=========
 
-This library is inspired by Adafruit Industries' CharLCD_ library as well as by
-Arduino's LiquidCrystal_ library.
+**Loguru** is a library which aims to bring enjoyable logging in Python.
 
-For GPIO mode, no external dependencies (except the ``RPi.GPIO`` library, which
-comes preinstalled on Raspbian) are needed to use this library. If you want to
-control LCDs via I²C, then you also need the ``python-smbus`` or ``smbus2`` library. If you
-want to control the LCD with ``pigpio``, you have to install the pigpio_ library.
+Did you ever feel lazy about configuring a logger and used ``print()`` instead?... I did, yet logging is fundamental to every application and eases the process of debugging. Using **Loguru** you have no excuse not to use logging from the start, this is as simple as ``from loguru import logger``.
 
-If you're trying to get started with RPLCD, you should probably `read the docs
-<#documentation>`__ :)
-
-.. image:: https://raw.github.com/dbrgn/RPLCD/master/photo-i2c.jpg
-    :alt: Photo of 20x4 LCD in action
+Also, this library is intended to make Python logging less painful by adding a bunch of useful functionalities that solve caveats of the standard loggers. Using logs in your application should be an automatism, **Loguru** tries to make it both pleasant and powerful.
 
 
-Setup
-=====
+.. end-of-readme-intro
 
-You can install RPLCD directly from `PyPI
-<https://pypi.python.org/pypi/RPLCD/>`_ using pip::
+Installation
+------------
 
-    $ sudo pip install RPLCD
+::
 
-If you want to use I²C, you also need either the smbus or `smbus2 <https://pypi.org/project/smbus2/>`_ library::
-
-    $ sudo apt install python-smbus
-    or
-    $ sudo pip install smbus2
-
-RPLCD will first try to use smbus if available and if not, fall back to smbus2.
-
-You can also install the library manually without pip. Either just copy the
-scripts to your working directory and import them, or download the repository
-and run ``python setup.py install`` to install it into your Python package
-directory.
+    pip install loguru
 
 
 Features
-========
-
-Implemented
------------
-
-- Simple to use API
-- Support for both 4 bit and 8 bit modes
-- Support for both parallel (GPIO) and I²C connection
-- Support for custom characters
-- Support for backlight control circuits
-- Built-in support for `A00`, `A02` (standard HD44780)
-  or `ST0B` (see ST7066_, page 11) character tables
-- Caching: Only write characters if they changed
-- No external dependencies (except `RPi.GPIO`, and `python-smbus` or `smbus2` if you need
-  I²C support)
-
-Wishlist
 --------
 
-These things may get implemented in the future, depending on my free time and
-motivation:
+* `Ready to use out of the box without boilerplate`_
+* `No Handler, no Formatter, no Filter: one function to rule them all`_
+* `Easier file logging with rotation / retention / compression`_
+* `Modern string formatting using braces style`_
+* `Exceptions catching within threads or main`_
+* `Pretty logging with colors`_
+* `Asynchronous, Thread-safe, Multiprocess-safe`_
+* `Fully descriptive exceptions`_
+* `Structured logging as needed`_
+* `Lazy evaluation of expensive functions`_
+* `Customizable levels`_
+* `Better datetime handling`_
+* `Suitable for scripts and libraries`_
+* `Entirely compatible with standard logging`_
+* `Personalizable defaults through environment variables`_
+* `Convenient parser`_
+* `Exhaustive notifier`_
+* |strike| `10x faster than built-in logging`_ |/strike|
 
-- MicroPython port
+Take the tour
+-------------
 
-Supported I²C Port Expanders
-----------------------------
+.. highlight:: python3
 
-- PCF8574 (used by a lot of I²C LCD adapters on Ali Express)
-- MCP23008 (used in Adafruit I²C LCD backpack)
-- MCP23017
+.. |logger| replace:: ``logger``
+.. _logger: https://loguru.readthedocs.io/en/stable/api/logger.html#loguru._logger.Logger
+
+.. |add| replace:: ``add()``
+.. _add: https://loguru.readthedocs.io/en/stable/api/logger.html#loguru._logger.Logger.add
+
+.. |remove| replace:: ``remove()``
+.. _remove: https://loguru.readthedocs.io/en/stable/api/logger.html#loguru._logger.Logger.remove
+
+.. |complete| replace:: ``complete()``
+.. _complete: https://loguru.readthedocs.io/en/stable/api/logger.html#loguru._logger.Logger.complete
+
+.. |catch| replace:: ``catch()``
+.. _catch: https://loguru.readthedocs.io/en/stable/api/logger.html#loguru._logger.Logger.catch
+
+.. |bind| replace:: ``bind()``
+.. _bind: https://loguru.readthedocs.io/en/stable/api/logger.html#loguru._logger.Logger.bind
+
+.. |contextualize| replace:: ``contextualize()``
+.. _contextualize: https://loguru.readthedocs.io/en/stable/api/logger.html#loguru._logger.Logger.contextualize
+
+.. |patch| replace:: ``patch()``
+.. _patch: https://loguru.readthedocs.io/en/stable/api/logger.html#loguru._logger.Logger.patch
+
+.. |opt| replace:: ``opt()``
+.. _opt: https://loguru.readthedocs.io/en/stable/api/logger.html#loguru._logger.Logger.opt
+
+.. |trace| replace:: ``trace()``
+.. _trace: https://loguru.readthedocs.io/en/stable/api/logger.html#loguru._logger.Logger.trace
+
+.. |success| replace:: ``success()``
+.. _success: https://loguru.readthedocs.io/en/stable/api/logger.html#loguru._logger.Logger.success
+
+.. |level| replace:: ``level()``
+.. _level: https://loguru.readthedocs.io/en/stable/api/logger.html#loguru._logger.Logger.level
+
+.. |configure| replace:: ``configure()``
+.. _configure: https://loguru.readthedocs.io/en/stable/api/logger.html#loguru._logger.Logger.configure
+
+.. |disable| replace:: ``disable()``
+.. _disable: https://loguru.readthedocs.io/en/stable/api/logger.html#loguru._logger.Logger.disable
+
+.. |enable| replace:: ``enable()``
+.. _enable: https://loguru.readthedocs.io/en/stable/api/logger.html#loguru._logger.Logger.enable
+
+.. |parse| replace:: ``parse()``
+.. _parse: https://loguru.readthedocs.io/en/stable/api/logger.html#loguru._logger.Logger.parse
+
+.. _sinks: https://loguru.readthedocs.io/en/stable/api/logger.html#sink
+.. _record dict: https://loguru.readthedocs.io/en/stable/api/logger.html#record
+.. _log messages: https://loguru.readthedocs.io/en/stable/api/logger.html#message
+.. _easily configurable: https://loguru.readthedocs.io/en/stable/api/logger.html#file
+.. _markup tags: https://loguru.readthedocs.io/en/stable/api/logger.html#color
+.. _fixes it: https://loguru.readthedocs.io/en/stable/api/logger.html#time
+.. _No problem: https://loguru.readthedocs.io/en/stable/api/logger.html#env
+.. _logging levels: https://loguru.readthedocs.io/en/stable/api/logger.html#levels
+
+.. |better_exceptions| replace:: ``better_exceptions``
+.. _better_exceptions: https://github.com/Qix-/better-exceptions
+
+.. |notifiers| replace:: ``notifiers``
+.. _notifiers: https://github.com/notifiers/notifiers
+
+
+Ready to use out of the box without boilerplate
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+The main concept of `Loguru` is that **there is one and only one** |logger|_.
+
+For convenience, it is pre-configured and outputs to ``stderr`` to begin with (but that's entirely configurable).
+
+::
+
+    from loguru import logger
+
+    logger.debug("That's it, beautiful and simple logging!")
+
+The |logger|_ is just an interface which dispatches log messages to configured handlers. Simple, right?
+
+
+No Handler, no Formatter, no Filter: one function to rule them all
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+How to add a handler? How to set up logs formatting? How to filter messages? How to set level?
+
+One answer: the |add|_ function.
+
+::
+
+    logger.add(sys.stderr, format="{time} {level} {message}", filter="my_module", level="INFO")
+
+This function should be used to register sinks_ which are responsible for managing `log messages`_ contextualized with a `record dict`_. A sink can take many forms: a simple function, a string path, a file-like object, a coroutine function or a built-in Handler.
+
+Note that you may also |remove|_ a previously added handler by using the identifier returned while adding it. This is particularly useful if you want to supersede the default ``stderr`` handler: just call ``logger.remove()`` to make a fresh start.
+
+
+Easier file logging with rotation / retention / compression
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+If you want to send logged messages to a file, you just have to use a string path as the sink. It can be automatically timed too for convenience::
+
+    logger.add("file_{time}.log")
+
+It is also `easily configurable`_ if you need rotating logger, if you want to remove older logs, or if you wish to compress your files at closure.
+
+::
+
+    logger.add("file_1.log", rotation="500 MB")    # Automatically rotate too big file
+    logger.add("file_2.log", rotation="12:00")     # New file is created each day at noon
+    logger.add("file_3.log", rotation="1 week")    # Once the file is too old, it's rotated
+
+    logger.add("file_X.log", retention="10 days")  # Cleanup after some time
+
+    logger.add("file_Y.log", compression="zip")    # Save some loved space
+
+
+Modern string formatting using braces style
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+`Loguru` favors the much more elegant and powerful ``{}`` formatting over ``%``, logging functions are actually equivalent to ``str.format()``.
+
+::
+
+    logger.info("If you're using Python {}, prefer {feature} of course!", 3.6, feature="f-strings")
+
+
+Exceptions catching within threads or main
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+Have you ever seen your program crashing unexpectedly without seeing anything in the log file? Did you ever notice that exceptions occurring in threads were not logged? This can be solved using the |catch|_ decorator / context manager which ensures that any error is correctly propagated to the |logger|_.
+
+::
+
+    @logger.catch
+    def my_function(x, y, z):
+        # An error? It's caught anyway!
+        return 1 / (x + y + z)
+
+
+Pretty logging with colors
+^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+`Loguru` automatically adds colors to your logs if your terminal is compatible. You can define your favorite style by using `markup tags`_ in the sink format.
+
+::
+
+    logger.add(sys.stdout, colorize=True, format="<green>{time}</green> <level>{message}</level>")
+
+
+Asynchronous, Thread-safe, Multiprocess-safe
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+All sinks added to the |logger|_ are thread-safe by default. They are not multiprocess-safe, but you can ``enqueue`` the messages to ensure logs integrity. This same argument can also be used if you want async logging.
+
+::
+
+    logger.add("somefile.log", enqueue=True)
+
+Coroutine functions used as sinks are also supported and should be awaited with |complete|_.
+
+
+Fully descriptive exceptions
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+Logging exceptions that occur in your code is important to track bugs, but it's quite useless if you don't know why it failed. `Loguru` helps you identify problems by allowing the entire stack trace to be displayed, including values of variables (thanks |better_exceptions|_ for this!).
+
+The code::
+
+    logger.add("out.log", backtrace=True, diagnose=True)  # Caution, may leak sensitive data in prod
+
+    def func(a, b):
+        return a / b
+
+    def nested(c):
+        try:
+            func(5, c)
+        except ZeroDivisionError:
+            logger.exception("What?!")
+
+    nested(0)
+
+Would result in:
+
+.. code-block:: none
+
+    2018-07-17 01:38:43.975 | ERROR    | __main__:nested:10 - What?!
+    Traceback (most recent call last):
+
+      File "test.py", line 12, in <module>
+        nested(0)
+        └ <function nested at 0x7f5c755322f0>
+
+    > File "test.py", line 8, in nested
+        func(5, c)
+        │       └ 0
+        └ <function func at 0x7f5c79fc2e18>
+
+      File "test.py", line 4, in func
+        return a / b
+               │   └ 0
+               └ 5
+
+    ZeroDivisionError: division by zero
+
+
+Structured logging as needed
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+Want your logs to be serialized for easier parsing or to pass them around? Using the ``serialize`` argument, each log message will be converted to a JSON string before being sent to the configured sink.
+
+::
+
+    logger.add(custom_sink_function, serialize=True)
+
+Using |bind|_ you can contextualize your logger messages by modifying the `extra` record attribute.
+
+::
+
+    logger.add("file.log", format="{extra[ip]} {extra[user]} {message}")
+    context_logger = logger.bind(ip="192.168.0.1", user="someone")
+    context_logger.info("Contextualize your logger easily")
+    context_logger.bind(user="someone_else").info("Inline binding of extra attribute")
+    context_logger.info("Use kwargs to add context during formatting: {user}", user="anybody")
+
+It is possible to modify a context-local state temporarily with |contextualize|_:
+
+::
+
+    with logger.contextualize(task=task_id):
+        do_something()
+        logger.info("End of task")
+
+You can also have more fine-grained control over your logs by combining |bind|_ and ``filter``:
+
+::
+
+    logger.add("special.log", filter=lambda record: "special" in record["extra"])
+    logger.debug("This message is not logged to the file")
+    logger.bind(special=True).info("This message, though, is logged to the file!")
+
+Finally, the |patch|_ method allows dynamic values to be attached to the record dict of each new message:
+
+::
+
+    logger.add(sys.stderr, format="{extra[utc]} {message}")
+    logger = logger.patch(lambda record: record["extra"].update(utc=datetime.utcnow()))
+
+
+Lazy evaluation of expensive functions
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+Sometime you would like to log verbose information without performance penalty in production, you can use the |opt|_ method to achieve this.
+
+::
+
+    logger.opt(lazy=True).debug("If sink level <= DEBUG: {x}", x=lambda: expensive_function(2**64))
+
+    # By the way, "opt()" serves many usages
+    logger.opt(exception=True).info("Error stacktrace added to the log message (tuple accepted too)")
+    logger.opt(colors=True).info("Per message <blue>colors</blue>")
+    logger.opt(record=True).info("Display values from the record (eg. {record[thread]})")
+    logger.opt(raw=True).info("Bypass sink formatting\n")
+    logger.opt(depth=1).info("Use parent stack context (useful within wrapped functions)")
+    logger.opt(capture=False).info("Keyword arguments not added to {dest} dict", dest="extra")
+
+
+Customizable levels
+^^^^^^^^^^^^^^^^^^^
+
+`Loguru` comes with all standard `logging levels`_ to which |trace|_ and |success|_ are added. Do you need more? Then, just create it by using the |level|_ function.
+
+::
+
+    new_level = logger.level("SNAKY", no=38, color="<yellow>", icon="🐍")
+
+    logger.log("SNAKY", "Here we go!")
+
+
+Better datetime handling
+^^^^^^^^^^^^^^^^^^^^^^^^
+
+The standard logging is bloated with arguments like ``datefmt`` or ``msecs``, ``%(asctime)s`` and ``%(created)s``, naive datetimes without timezone information, not intuitive formatting, etc. `Loguru` `fixes it`_:
+
+::
+
+    logger.add("file.log", format="{time:YYYY-MM-DD at HH:mm:ss} | {level} | {message}")
+
+
+Suitable for scripts and libraries
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+Using the logger in your scripts is easy, and you can |configure|_ it at start. To use `Loguru` from inside a library, remember to never call |add|_ but use |disable|_ instead so logging functions become no-op. If a developer wishes to see your library's logs, he can |enable|_ it again.
+
+::
+
+    # For scripts
+    config = {
+        "handlers": [
+            {"sink": sys.stdout, "format": "{time} - {message}"},
+            {"sink": "file.log", "serialize": True},
+        ],
+        "extra": {"user": "someone"}
+    }
+    logger.configure(**config)
+
+    # For libraries
+    logger.disable("my_library")
+    logger.info("No matter added sinks, this message is not displayed")
+    logger.enable("my_library")
+    logger.info("This message however is propagated to the sinks")
+
+
+Entirely compatible with standard logging
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+Wish to use built-in logging ``Handler`` as a `Loguru` sink?
+
+::
+
+    handler = logging.handlers.SysLogHandler(address=('localhost', 514))
+    logger.add(handler)
+
+Need to propagate `Loguru` messages to standard `logging`?
+
+::
+
+    class PropagateHandler(logging.Handler):
+        def emit(self, record):
+            logging.getLogger(record.name).handle(record)
+
+    logger.add(PropagateHandler(), format="{message}")
+
+Want to intercept standard `logging` messages toward your `Loguru` sinks?
+
+::
+
+    class InterceptHandler(logging.Handler):
+        def emit(self, record):
+            # Get corresponding Loguru level if it exists
+            try:
+                level = logger.level(record.levelname).name
+            except ValueError:
+                level = record.levelno
+
+            # Find caller from where originated the logged message
+            frame, depth = logging.currentframe(), 2
+            while frame.f_code.co_filename == logging.__file__:
+                frame = frame.f_back
+                depth += 1
+
+            logger.opt(depth=depth, exception=record.exc_info).log(level, record.getMessage())
+
+    logging.basicConfig(handlers=[InterceptHandler()], level=0)
+
+
+Personalizable defaults through environment variables
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+Don't like the default logger formatting? Would prefer another ``DEBUG`` color? `No problem`_::
+
+    # Linux / OSX
+    export LOGURU_FORMAT="{time} | <lvl>{message}</lvl>"
+
+    # Windows
+    setx LOGURU_DEBUG_COLOR "<green>"
+
+
+Convenient parser
+^^^^^^^^^^^^^^^^^
+
+It is often useful to extract specific information from generated logs, this is why `Loguru` provides a |parse|_ method which helps to deal with logs and regexes.
+
+::
+
+    pattern = r"(?P<time>.*) - (?P<level>[0-9]+) - (?P<message>.*)"  # Regex with named groups
+    caster_dict = dict(time=dateutil.parser.parse, level=int)        # Transform matching groups
+
+    for groups in logger.parse("file.log", pattern, cast=caster_dict):
+        print("Parsed:", groups)
+        # {"level": 30, "message": "Log example", "time": datetime(2018, 12, 09, 11, 23, 55)}
+
+
+Exhaustive notifier
+^^^^^^^^^^^^^^^^^^^
+
+`Loguru` can easily be combined with the great |notifiers|_ library (must be installed separately) to receive an e-mail when your program fail unexpectedly or to send many other kind of notifications.
+
+::
+
+    import notifiers
+
+    params = {
+        "username": "you@gmail.com",
+        "password": "abc123",
+        "to": "dest@gmail.com"
+    }
+
+    # Send a single notification
+    notifier = notifiers.get_notifier("gmail")
+    notifier.notify(message="The application is running!", **params)
+
+    # Be alerted on each error message
+    from notifiers.logging import NotificationHandler
+
+    handler = NotificationHandler("gmail", defaults=params)
+    logger.add(handler, level="ERROR")
+
+
+|strike|
+
+10x faster than built-in logging
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+|/strike|
+
+Although logging impact on performances is in most cases negligible, a zero-cost logger would allow to use it anywhere without much concern. In an upcoming release, Loguru's critical functions will be implemented in C for maximum speed.
+
+
+.. |strike| raw:: html
+
+   <strike>
+
+.. |/strike| raw:: html
+
+   </strike>
+
+.. end-of-readme-usage
 
 
 Documentation
-=============
+-------------
 
-- Stable (released on PyPI): http://rplcd.readthedocs.io/en/stable/
-- Latest (current master): http://rplcd.readthedocs.io/en/latest/
-
-Testing
-=======
-
-Interactive Test Script
------------------------
-
-To test your LCD, please run the ``rplcd-tests`` script with the ``testsuite``
-target.
-
-Unit Tests
-----------
-
-There are also unit tests. First, install dependencies:
-
-    pip install -U -r requirements-dev.txt
-
-Then run the tests:
-
-    py.test -v
-
-
-Coding Guidelines
-=================
-
-`PEP8 <http://www.python.org/dev/peps/pep-0008/>`__ via `flake8
-<https://pypi.python.org/pypi/flake8>`_ with ``max-line-width`` set to 99 and
-``E126-E128,C901`` ignored::
-
-    flake8 --max-line-length=99 --ignore=E126,E127,E128,C901 RPLCD/lcd.py
-
-
-About HD44780
-=============
-
-The HD44780 LCD controller is a controller chip for driving alphanumeric LCD displays. Though it's
-not manufactured anymore there are a lot of compatible chips / clones of it e.g. the ST7066 or the
-KS0066. Displays sold with 'HD44780' in its name today typically are built with one of those 
-clones, though they all look the same from the outside most of the time (like in the image at the 
-start of this README). 
-
-
-Resources
-=========
-
-- TC2004A-01 Data Sheet: http://www.adafruit.com/datasheets/TC2004A-01.pdf
-- HD44780U Data Sheet: http://www.adafruit.com/datasheets/HD44780.pdf
-- ST7066 Data Sheet: https://www.sparkfun.com/datasheets/LCD/st7066.pdf
-
-
-License
-=======
-
-This code is licensed under the MIT license, see the `LICENSE file
-<https://github.com/dbrgn/RPLCD/blob/master/LICENSE>`_ or `tldrlegal
-<http://www.tldrlegal.com/license/mit-license>`_ for more information. 
-
-
-.. _charlcd: https://github.com/adafruit/Adafruit-Raspberry-Pi-Python-Code/tree/master/Adafruit_CharLCD
-.. _liquidcrystal: http://arduino.cc/en/Reference/LiquidCrystal
-.. _pigpio: http://abyz.me.uk/rpi/pigpio/
-.. _st7066: https://www.sparkfun.com/datasheets/LCD/st7066.pdf
+* `API Reference <https://loguru.readthedocs.io/en/stable/api/logger.html>`_
+* `Help & Guides <https://loguru.readthedocs.io/en/stable/resources.html>`_
+* `Type hints <https://loguru.readthedocs.io/en/stable/api/type_hints.html>`_
+* `Contributing <https://loguru.readthedocs.io/en/stable/project/contributing.html>`_
+* `License <https://loguru.readthedocs.io/en/stable/project/license.html>`_
+* `Changelog <https://loguru.readthedocs.io/en/stable/project/changelog.html>`_
