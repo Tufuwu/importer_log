@@ -8,98 +8,12 @@ on:
 #   maximum_number_of_builds: 0
 jobs:
   test:
-    runs-on: # this agent type is not supported: [[{"dist"=>"noble"}]]
-             ubuntu-latest
-    steps:
-    - name: checkout
-      uses: actions/checkout@v4.1.0
-    - run: if [[ $TRAVIS_PYTHON_VERSION == 3.8 ]]; then pip install -U importlib_metadata; fi
-    - run: pip install tox tox-venv tox-travis
-    - run: tox
-    strategy:
-      matrix: {}
-#       # 'allow_failures' transformations are currently unsupported.
-  test_2:
-    runs-on: # this agent type is not supported: [[{"dist"=>"noble"}]]
-             ubuntu-latest
-    env:
-      DJANGO: '2.2'
+    runs-on: ubuntu-latest
     steps:
     - name: checkout
       uses: actions/checkout@v4.1.0
     - uses: actions/setup-python@v5.0.0
       with:
-        python-version: '3.8'
-    - run: if [[ $TRAVIS_PYTHON_VERSION == 3.8 ]]; then pip install -U importlib_metadata; fi
-    - run: pip install tox tox-venv tox-travis
-    - run: tox
-  test_3:
-    runs-on: # this agent type is not supported: [[{"dist"=>"noble"}]]
-             ubuntu-latest
-    env:
-      DJANGO: '3.0'
-    steps:
-    - name: checkout
-      uses: actions/checkout@v4.1.0
-    - uses: actions/setup-python@v5.0.0
-      with:
-        python-version: '3.8'
-    - run: if [[ $TRAVIS_PYTHON_VERSION == 3.8 ]]; then pip install -U importlib_metadata; fi
-    - run: pip install tox tox-venv tox-travis
-    - run: tox
-  test_4:
-    runs-on: # this agent type is not supported: [[{"dist"=>"noble"}]]
-             ubuntu-latest
-    env:
-      DJANGO: '3.1'
-    steps:
-    - name: checkout
-      uses: actions/checkout@v4.1.0
-    - uses: actions/setup-python@v5.0.0
-      with:
-        python-version: '3.8'
-    - run: if [[ $TRAVIS_PYTHON_VERSION == 3.8 ]]; then pip install -U importlib_metadata; fi
-    - run: pip install tox tox-venv tox-travis
-    - run: tox
-  test_5:
-    runs-on: # this agent type is not supported: [[{"dist"=>"noble"}]]
-             ubuntu-latest
-    env:
-      DJANGO: '3.2'
-    steps:
-    - name: checkout
-      uses: actions/checkout@v4.1.0
-    - uses: actions/setup-python@v5.0.0
-      with:
-        python-version: '3.8'
-    - run: if [[ $TRAVIS_PYTHON_VERSION == 3.8 ]]; then pip install -U importlib_metadata; fi
-    - run: pip install tox tox-venv tox-travis
-    - run: tox
-  test_6:
-    runs-on: # this agent type is not supported: [[{"dist"=>"noble"}]]
-             ubuntu-latest
-    env:
-      DJANGO: '4.0'
-    steps:
-    - name: checkout
-      uses: actions/checkout@v4.1.0
-    - uses: actions/setup-python@v5.0.0
-      with:
-        python-version: '3.8'
-    - run: if [[ $TRAVIS_PYTHON_VERSION == 3.8 ]]; then pip install -U importlib_metadata; fi
-    - run: pip install tox tox-venv tox-travis
-    - run: tox
-  test_7:
-    runs-on: # this agent type is not supported: [[{"dist"=>"noble"}]]
-             ubuntu-latest
-    env:
-      DJANGO: master
-    steps:
-    - name: checkout
-      uses: actions/checkout@v4.1.0
-    - uses: actions/setup-python@v5.0.0
-      with:
-        python-version: '3.8'
-    - run: if [[ $TRAVIS_PYTHON_VERSION == 3.8 ]]; then pip install -U importlib_metadata; fi
-    - run: pip install tox tox-venv tox-travis
-    - run: tox
+        python-version: 3.8
+    - run: pip install flask && pip install nose && pip install mock
+    - run: python setup.py test

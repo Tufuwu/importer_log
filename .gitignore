@@ -1,51 +1,41 @@
-# Byte-compiled / optimized / DLL files
-__pycache__/
 *.py[cod]
 
 # C extensions
 *.so
 
-# Distribution / packaging
-.Python
-env/
-build/
-develop-eggs/
-dist/
-downloads/
-eggs/
-lib/
-lib64/
-parts/
-sdist/
-var/
-*.egg-info/
-.installed.cfg
+# Packages
 *.egg
+*.egg-info
+dist
+bin/*
+build/*
+eggs
+parts
+bin
+var
+sdist
+develop-eggs
+.installed.cfg
+lib
+lib64
 
-# Django stuff:
-*.log
+# Installer logs
+pip-log.txt
 
-# Ignore local database file
-demo_app/db.sqlite3
-
-# Ignore vagrant build files
-.vagrant/
-
-# PyBuilder
-target/
-
-# Testing Tools
+# Unit test / coverage reports
 .coverage
-.tox/
+.tox
+nosetests.xml
 
-# pyenv
-.python-version
+# Translations
+*.mo
 
-# Temp Files
-.*.sw*
+# Mr Developer
+.mr.developer.cfg
+.project
+.pydevproject
 
-# Other Files
+virtualenv
+venv
 .DS_Store
-.idea
-todo.txt
-notes/
+

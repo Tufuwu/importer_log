@@ -1,43 +1,43 @@
-import setuptools
+import os
 
-with open("README.md", "r") as readme:
-    long_description = readme.read()
+from setuptools import setup
 
-setuptools.setup(
-    name="django-uniauth",
-    version="1.4.1",
-    author="Lance Goodridge",
-    author_email="ldgoodridge95@gmail.com",
-    keywords=["django", "auth", "authentication", "cas", "sso", "single sign-on"],
-    description="A Django app for managing CAS and custom user authentication.",
-    include_package_data=True,
+this_directory = os.path.dirname(__file__)
+module_path = os.path.join(this_directory, 'flask_seasurf.py')
+version_line = [line for line in open(module_path)
+                if line.startswith('__version_info__')][0]
+with open(os.path.join(this_directory, 'README.markdown')) as f:
+    long_description = f.read()
+
+__version__ = '.'.join(eval(version_line.split('__version_info__ = ')[-1]))
+
+setup(
+    name='Flask-SeaSurf',
+    version=__version__,
+    url='https://github.com/maxcountryman/flask-seasurf/',
+    license='BSD',
+    author='Max Countryman',
+    author_email='maxc@me.com',
+    description='An updated CSRF extension for Flask.',
     long_description=long_description,
-    long_description_content_type="text/markdown",
-    url="https://github.com/lgoodridge/django-uniauth",
-    license='LGPLv3',
-    python_requires=">=2.7, !=3.0.*, !=3.1.*, !=3.2.*, !=3.3.*, !=3.4.*",
-    install_requires=[
-        "Django>=1.11",
-        "python-cas>=1.4.0",
-        "djangorestframework-simplejwt>=4.1.0",
-    ],
-    extras_require = {
-        ":python_version<='3.2'": ["mock"],
-    },
-    packages=setuptools.find_packages(exclude=["demo-app",]),
+    long_description_content_type='text/markdown',
+    py_modules=['flask_seasurf'],
+    test_suite='test_seasurf',
+    zip_safe=False,
+    platforms='any',
+    install_requires=['Flask'],
     classifiers=[
-        "Development Status :: 5 - Production/Stable",
-        "Framework :: Django",
-        "Framework :: Django :: 1.11",
-        "Framework :: Django :: 2",
-        "Framework :: Django :: 3",
-        "Framework :: Django :: 4",
-        "Intended Audience :: Developers",
-        "License :: OSI Approved :: GNU Lesser General Public License v3 (LGPLv3)",
-        "Natural Language :: English",
-        "Operating System :: OS Independent",
-        "Programming Language :: Python",
-        "Programming Language :: Python :: 2",
-        "Programming Language :: Python :: 3",
+        'Development Status :: 4 - Beta',
+        'Environment :: Web Environment',
+        'Intended Audience :: Developers',
+        'License :: OSI Approved :: BSD License',
+        'Operating System :: OS Independent',
+        'Programming Language :: Python',
+        'Programming Language :: Python :: 3',
+        'Programming Language :: Python :: 3.7',
+        'Programming Language :: Python :: 3.8',
+        'Programming Language :: Python :: 3.9',
+        'Topic :: Internet :: WWW/HTTP :: Dynamic Content',
+        'Topic :: Software Development :: Libraries :: Python Modules'
     ]
 )
