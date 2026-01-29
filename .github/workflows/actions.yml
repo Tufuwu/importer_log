@@ -3,7 +3,7 @@ on:
   push:
     branches:
     - "**/*"
-    - "!/^v\\d+\\.\\d+\\.\\d+$/"
+    - main
   pull_request:
 #   # This item has no matching transformer
 #   maximum_number_of_builds: 0
@@ -13,31 +13,27 @@ jobs:
     steps:
     - name: checkout
       uses: actions/checkout@v4.1.0
-    - name: Get yarn cache directory path
-      id: yarn-cache-dir-path
-      run: echo 'dir=$(yarn cache dir)' >> $GITHUB_OUTPUT
-    - name: Set up yarn cache
-      uses: actions/cache@v3.3.2
-      with:
-        path: "${{ steps.yarn-cache-dir-path.outputs.dir }}"
-        key: "${{ runner.os }}-yarn-${{ hashFiles('**/yarn.lock') }}"
-        restore-keys: "${{ runner.os }}-yarn-"
-    - name: Set up cache
-      uses: actions/cache@v3.3.2
-      with:
-        path: "~/.npm"
-        key: "${{ runner.os }}-path"
     - uses: actions/setup-node@v4.0.0
       with:
         cache: npm
-        node-version: '16'
+    - name: Set up npm cache
+      uses: actions/cache@v3.3.2
+      with:
+        path: "~/.npm"
+        key: "${{ runner.os }}-node-${{ hashFiles('**/package-lock.json') }}"
+        restore-keys: "${{ runner.os }}-node-"
+#     # 'sudo' was not transformed because there is no suitable equivalent in GitHub Actions
     - run: npm install
-    - run: npm run test
-    - run: npm run build
-    - run: npx semantic-release
+    - run: npm run validate
+    - run: npm run test:report
+      if: "${{ success() }}"
+    - run: npm run release
       if: "${{ success() }}"
 #     # This item has no matching transformer
 #     - email: false
     strategy:
-      matrix: {}
-#       # 'allow_failures' transformations are currently unsupported.
+      matrix:
+        node_js:
+        - 16
+        - 18
+        - 20

@@ -1,11 +1,9 @@
-import patchFs from './patchFs';
-import patchRequire from './patchRequire';
-import { unixify } from './correctPath';
-import * as util from './util/lists';
+import objToString from './objToString';
+import createParser from './createParser';
+import * as parsers from './parsers';
 
-export {
-    util,
-    unixify,
-    patchFs,
-    patchRequire,
-};
+export default objToString;
+export { parsers, createParser };
+module.exports = objToString;
+module.exports.createParser = createParser;
+module.exports.parsers = { ...parsers };
