@@ -8,13 +8,20 @@ on:
 #   maximum_number_of_builds: 0
 jobs:
   test:
-    runs-on: ubuntu-latest
+    runs-on: # this agent type is not supported: [[{"dist"=>"jammy"}]]
+             ubuntu-latest
     steps:
     - name: checkout
       uses: actions/checkout@v4.1.0
     - uses: actions/setup-node@v4.0.0
       with:
         cache: npm
-        node-version: 14
     - run: npm install
     - run: npm test
+    strategy:
+      matrix:
+        node_js:
+        - '12'
+        - '14'
+        - '16'
+        - '18'
