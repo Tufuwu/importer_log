@@ -1,6 +1,4 @@
-node_modules/
-coverage/
-dist/
-
-.ds_store
-desktop.ini
+.DS_Store
+node_modules
+.nyc_output
+package-lock.json
