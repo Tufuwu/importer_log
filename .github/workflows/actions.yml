@@ -15,6 +15,18 @@ jobs:
     - uses: actions/setup-node@v4.0.0
       with:
         cache: npm
-#     # 'sudo' was not transformed because there is no suitable equivalent in GitHub Actions
     - run: npm install
     - run: npm test
+    - uses: rectalogic/notify-irc@v1
+      with:
+        server: chat.freenode.net
+        port: 6697
+        channel: ua-parser
+        nickname: Default nickname
+        message: Default message
+    strategy:
+      matrix:
+        node_js:
+        - 12
+        - 14
+        - node
