@@ -15,10 +15,12 @@ jobs:
     - uses: actions/setup-node@v4.0.0
       with:
         cache: npm
-        node-version: '16'
-#     # 'sudo' was not transformed because there is no suitable equivalent in GitHub Actions
-    - run: git --version
     - run: npm install
     - run: npm test
     strategy:
-      matrix: {}
+      matrix:
+        node_js:
+        - '8'
+        - '10'
+        - '12'
+        - '14'

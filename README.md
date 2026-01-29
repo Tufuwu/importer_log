@@ -1,412 +1,259 @@
-<table><thead>
-  <tr>
-    <th>Linux</th>
-    <th>OS X</th>
-    <th>Windows</th>
-    <th>Coverage</th>
-    <th>Downloads</th>
-  </tr>
-</thead><tbody><tr>
-  <td colspan="2" align="center">
-    <a href="https://github.com/kaelzhang/node-ignore/actions/workflows/nodejs.yml">
-    <img
-      src="https://github.com/kaelzhang/node-ignore/actions/workflows/nodejs.yml/badge.svg"
-      alt="Build Status" /></a>
-  </td>
-  <td align="center">
-    <a href="https://ci.appveyor.com/project/kaelzhang/node-ignore">
-    <img
-      src="https://ci.appveyor.com/api/projects/status/github/kaelzhang/node-ignore?branch=master&svg=true"
-      alt="Windows Build Status" /></a>
-  </td>
-  <td align="center">
-    <a href="https://codecov.io/gh/kaelzhang/node-ignore">
-    <img
-      src="https://codecov.io/gh/kaelzhang/node-ignore/branch/master/graph/badge.svg"
-      alt="Coverage Status" /></a>
-  </td>
-  <td align="center">
-    <a href="https://www.npmjs.org/package/ignore">
-    <img
-      src="http://img.shields.io/npm/dm/ignore.svg"
-      alt="npm module downloads per month" /></a>
-  </td>
-</tr></tbody></table>
+# dotenv-flow-webpack
 
-# ignore
+<img src="https://raw.githubusercontent.com/kerimdzhanov/dotenv-flow-webpack/master/dotenv-flow-webpack@2x.png" alt="dotenv-flow-webpack" width="220" height="250" align="right" />
 
-`ignore` is a manager, filter and parser which implemented in pure JavaScript according to the [.gitignore spec 2.22.1](http://git-scm.com/docs/gitignore).
+A secure webpack plugin that gives the ability to access environment variables via `process.env.*` defined in your `.env`, `.env.development`, `.env.test`, `.env.production`, etc,. files within your web applications built with webpack.
 
-`ignore` is used by eslint, gitbook and [many others](https://www.npmjs.com/browse/depended/ignore).
+Storing configuration in _environment variables_ separate from code and grouping them by environments like _development_, _test_ and _production_ is based on [The Twelve-Factor App](https://12factor.net/config) methodology.
 
-Pay **ATTENTION** that [`minimatch`](https://www.npmjs.org/package/minimatch) (which used by `fstream-ignore`) does not follow the gitignore spec.
+> backed by [dotenv-flow](https://github.com/kerimdzhanov/dotenv-flow), inspired by [dotenv-webpack](https://github.com/mrsteele/dotenv-webpack)
 
-To filter filenames according to a .gitignore file, I recommend this npm package, `ignore`.
+[![Build Status](https://github.com/kerimdzhanov/dotenv-flow-webpack/actions/workflows/ci.yml/badge.svg?branch=master&event=push)](https://github.com/kerimdzhanov/dotenv-flow-webpack/actions/workflows/ci.yml)
+[![npm version](https://badge.fury.io/js/dotenv-flow-webpack.svg)](https://badge.fury.io/js/dotenv-flow-webpack)
+[![Known Vulnerabilities](https://snyk.io/test/github/kerimdzhanov/dotenv-flow-webpack/badge.svg?targetFile=package.json)](https://snyk.io/test/github/kerimdzhanov/dotenv-flow-webpack?targetFile=package.json)
 
-To parse an `.npmignore` file, you should use `minimatch`, because an `.npmignore` file is parsed by npm using `minimatch` and it does not work in the .gitignore way.
+## Installation
 
-### Tested on
-
-`ignore` is fully tested, and has more than **five hundreds** of unit tests.
-
-- Linux + Node: `0.8` - `7.x`
-- Windows + Node: `0.10` - `7.x`, node < `0.10` is not tested due to the lack of support of appveyor.
-
-Actually, `ignore` does not rely on any versions of node specially.
-
-Since `4.0.0`, ignore will no longer support `node < 6` by default, to use in node < 6, `require('ignore/legacy')`. For details, see [CHANGELOG](https://github.com/kaelzhang/node-ignore/blob/master/CHANGELOG.md).
-
-## Table Of Main Contents
-
-- [Usage](#usage)
-- [`Pathname` Conventions](#pathname-conventions)
-- See Also:
-  - [`glob-gitignore`](https://www.npmjs.com/package/glob-gitignore) matches files using patterns and filters them according to gitignore rules.
-- [Upgrade Guide](#upgrade-guide)
-
-## Install
+Using NPM:
 
 ```sh
-npm i ignore
+$ npm install dotenv-flow-webpack --save-dev
 ```
 
-## Usage
+Using Yarn:
 
-```js
-import ignore from 'ignore'
-const ig = ignore().add(['.abc/*', '!.abc/d/'])
+```sh
+$ yarn add dotenv-flow-webpack --dev
 ```
 
-### Filter the given paths
 
-```js
-const paths = [
-  '.abc/a.js',    // filtered out
-  '.abc/d/e.js'   // included
-]
+## Description
 
-ig.filter(paths)        // ['.abc/d/e.js']
-ig.ignores('.abc/a.js') // true
+Technically, the plugin wraps the [`dotenv-flow` API](https://github.com/kerimdzhanov/dotenv-flow#api-reference) providing the ability to configure it in your `webpack.config.js` file(s).
+
+Note that plugin uses a **secure** strategy of replacing of the `process.env.*` code entries upon the build process, thus **it exposes only environment variables that are used in your code**.
+
+
+## Usage example
+
+Let's suppose you have the following files in your project:
+
+```sh
+# .env
+
+DATABASE_HOST=127.0.0.1
+DATABASE_PORT=27017
+DATABASE_USER=default
+DATABASE_PASS=
+DATABASE_NAME=my_app
+
+SERVICE_URL=/api/v1
 ```
 
-### As the filter function
+```sh
+# .env.development
 
-```js
-paths.filter(ig.createFilter()); // ['.abc/d/e.js']
+DATABASE_NAME=my_app_dev
+
+SERVICE_URL=http://localhost:3000/api/v1
 ```
 
-### Win32 paths will be handled
+```sh
+# .env.test
 
-```js
-ig.filter(['.abc\\a.js', '.abc\\d\\e.js'])
-// if the code above runs on windows, the result will be
-// ['.abc\\d\\e.js']
+SERVICE_URL=https://localhost:3001/api/v1
 ```
 
-## Why another ignore?
+```sh
+# .env.production
 
-- `ignore` is a standalone module, and is much simpler so that it could easy work with other programs, unlike [isaacs](https://npmjs.org/~isaacs)'s [fstream-ignore](https://npmjs.org/package/fstream-ignore) which must work with the modules of the fstream family.
+DATABASE_HOST=10.0.0.32
+DATABASE_PORT=27017
+DATABASE_USER=devops
+DATABASE_PASS=1qa2ws3ed4rf5tg6yh
+DATABASE_NAME=application_storage
 
-- `ignore` only contains utility methods to filter paths according to the specified ignore rules, so
-  - `ignore` never try to find out ignore rules by traversing directories or fetching from git configurations.
-  - `ignore` don't cares about sub-modules of git projects.
-
-- Exactly according to [gitignore man page](http://git-scm.com/docs/gitignore), fixes some known matching issues of fstream-ignore, such as:
-  - '`/*.js`' should only match '`a.js`', but not '`abc/a.js`'.
-  - '`**/foo`' should match '`foo`' anywhere.
-  - Prevent re-including a file if a parent directory of that file is excluded.
-  - Handle trailing whitespaces:
-    - `'a '`(one space) should not match `'a  '`(two spaces).
-    - `'a \ '` matches `'a  '`
-  - All test cases are verified with the result of `git check-ignore`.
-
-# Methods
-
-## .add(pattern: string | Ignore): this
-## .add(patterns: Array<string | Ignore>): this
-
-- **pattern** `String | Ignore` An ignore pattern string, or the `Ignore` instance
-- **patterns** `Array<String | Ignore>` Array of ignore patterns.
-
-Adds a rule or several rules to the current manager.
-
-Returns `this`
-
-Notice that a line starting with `'#'`(hash) is treated as a comment. Put a backslash (`'\'`) in front of the first hash for patterns that begin with a hash, if you want to ignore a file with a hash at the beginning of the filename.
-
-```js
-ignore().add('#abc').ignores('#abc')    // false
-ignore().add('\\#abc').ignores('#abc')   // true
+SERVICE_URL=https://myapp.com/api/v1
 ```
 
-`pattern` could either be a line of ignore pattern or a string of multiple ignore patterns, which means we could just `ignore().add()` the content of a ignore file:
-
 ```js
-ignore()
-.add(fs.readFileSync(filenameOfGitignore).toString())
-.filter(filenames)
+// webpack.config.js
+
+const DotenvFlow = require('dotenv-flow-webpack');
+
+module.exports = {
+  // ...
+  plugins: [
+    new DotenvFlow()
+  ],
+  // ...
+};
 ```
 
-`pattern` could also be an `ignore` instance, so that we could easily inherit the rules of another `Ignore` instance.
-
-## <strike>.addIgnoreFile(path)</strike>
-
-REMOVED in `3.x` for now.
-
-To upgrade `ignore@2.x` up to `3.x`, use
-
 ```js
-import fs from 'fs'
+// file1.js
 
-if (fs.existsSync(filename)) {
-  ignore().add(fs.readFileSync(filename).toString())
+if (process.env.NODE_ENV !== 'production') {
+  console.log(`Running in the "${process.env.NODE_ENV}" mode.`);
 }
+else {
+  console.log('We are in production!');
+}
+
+const USERS_ENDPOINT = process.env.SERVICE_URL + '/users';
+
+console.log('USERS_ENDPOINT:', USERS_ENDPOINT);
 ```
 
-instead.
-
-## .filter(paths: Array&lt;Pathname&gt;): Array&lt;Pathname&gt;
-
-```ts
-type Pathname = string
-```
-
-Filters the given array of pathnames, and returns the filtered array.
-
-- **paths** `Array.<Pathname>` The array of `pathname`s to be filtered.
-
-### `Pathname` Conventions:
-
-#### 1. `Pathname` should be a `path.relative()`d pathname
-
-`Pathname` should be a string that have been `path.join()`ed, or the return value of `path.relative()` to the current directory,
+Thus, when you build your app with `NODE_ENV=development`, the resulting bundle will include something like this:
 
 ```js
-// WRONG, an error will be thrown
-ig.ignores('./abc')
+// file1.js
 
-// WRONG, for it will never happen, and an error will be thrown
-// If the gitignore rule locates at the root directory,
-// `'/abc'` should be changed to `'abc'`.
-// ```
-// path.relative('/', '/abc')  -> 'abc'
-// ```
-ig.ignores('/abc')
+if (true) {
+  console.log("Running in the ".concat("development", " mode."));
+} else {}
 
-// WRONG, that it is an absolute path on Windows, an error will be thrown
-ig.ignores('C:\\abc')
+const USERS_ENDPOINT = "http://localhost:3000/api/v1" + '/users';
 
-// Right
-ig.ignores('abc')
-
-// Right
-ig.ignores(path.join('./abc'))  // path.join('./abc') -> 'abc'
+console.log('USERS_ENDPOINT:', USERS_ENDPOINT);
 ```
 
-In other words, each `Pathname` here should be a relative path to the directory of the gitignore rules.
-
-Suppose the dir structure is:
-
-```
-/path/to/your/repo
-    |-- a
-    |   |-- a.js
-    |
-    |-- .b
-    |
-    |-- .c
-         |-- .DS_store
-```
-
-Then the `paths` might be like this:
+Or if you build your app with `NODE_ENV=production`, then the output will look like:
 
 ```js
-[
-  'a/a.js'
-  '.b',
-  '.c/.DS_store'
-]
+// file1.js
+
+if (false) {} else {
+  console.log('We are in production!');
+}
+
+const USERS_ENDPOINT = "https://myapp.com/api/v1" + '/users';
+
+console.log('USERS_ENDPOINT:', USERS_ENDPOINT);
 ```
 
-#### 2. filenames and dirnames
-
-`node-ignore` does NO `fs.stat` during path matching, so for the example below:
+And after all the optimization procedures it will be compressed till:
 
 ```js
-// First, we add a ignore pattern to ignore a directory
-ig.add('config/')
-
-// `ig` does NOT know if 'config', in the real world,
-//   is a normal file, directory or something.
-
-ig.ignores('config')
-// `ig` treats `config` as a file, so it returns `false`
-
-ig.ignores('config/')
-// returns `true`
+console.log("We are in production!");
+console.log("USERS_ENDPOINT:", "https://myapp.com/api/v1/users");
 ```
 
-Specially for people who develop some library based on `node-ignore`, it is important to understand that.
+Make a note that values of `DATABASE_(HOST/PORT/USER/PASSWORD/NAME)` will **not** be present in the resulting bundle while they are not referenced anywhere in the code.
 
-Usually, you could use [`glob`](http://npmjs.org/package/glob) with `option.mark = true` to fetch the structure of the current directory:
+
+## Configuration
+
+As a wrapper of [dotenv-flow](https://github.com/kerimdzhanov/dotenv-flow), **dotenv-flow-webpack** has the same configuration options extending them with its own described below.
+
+##### `options.node_env`
+###### Type: `string`
+###### Default: `process.env.NODE_ENV`
+
+By default, the plugin refers the `NODE_ENV` environment variable to detect the environment to use.
+With the `node_env` option you can force the module to use your custom environment value independent of `process.env.NODE_ENV`.
 
 ```js
-import glob from 'glob'
+module.exports = (env, argv) => {
+  // ...
+  config.plugins.push(new DotenvFlow({
+    node_env: env.production ? 'production' : 'development'
+  }));
+  // ...
+};
+```
 
-glob('**', {
-  // Adds a / character to directory matches.
-  mark: true
-}, (err, files) => {
-  if (err) {
-    return console.error(err)
-  }
+##### `options.default_node_env`
+###### Type: `string`
+###### Default: _undefined_
 
-  let filtered = ignore().add(patterns).filter(files)
-  console.log(filtered)
+If the `NODE_ENV` environment variable is not set, the module doesn't load/parse any `NODE_ENV`-specific files at all.
+Therefore, you may want to use `"development"` as the default environment.
+
+```js
+new DotenvFlow({
+  default_node_env: 'development'
 })
 ```
 
-## .ignores(pathname: Pathname): boolean
+##### `options.path`
+###### Type: `string`
+###### Default: `process.cwd()` _(current working directory)_
 
-> new in 3.2.0
-
-Returns `Boolean` whether `pathname` should be ignored.
-
-```js
-ig.ignores('.abc/a.js')    // true
-```
-
-## .createFilter()
-
-Creates a filter function which could filter an array of paths with `Array.prototype.filter`.
-
-Returns `function(path)` the filter function.
-
-## .test(pathname: Pathname) since 5.0.0
-
-Returns `TestResult`
-
-```ts
-interface TestResult {
-  ignored: boolean
-  // true if the `pathname` is finally unignored by some negative pattern
-  unignored: boolean
-}
-```
-
-- `{ignored: true, unignored: false}`: the `pathname` is ignored
-- `{ignored: false, unignored: true}`: the `pathname` is unignored
-- `{ignored: false, unignored: false}`: the `pathname` is never matched by any ignore rules.
-
-## static `ignore.isPathValid(pathname): boolean` since 5.0.0
-
-Check whether the `pathname` is an valid `path.relative()`d path according to the [convention](#1-pathname-should-be-a-pathrelatived-pathname).
-
-This method is **NOT** used to check if an ignore pattern is valid.
+With the `path` initialization option you can specify a path to `.env*` files directory.
 
 ```js
-ignore.isPathValid('./foo')  // false
-```
-
-## ignore(options)
-
-### `options.ignorecase` since 4.0.0
-
-Similar as the `core.ignorecase` option of [git-config](https://git-scm.com/docs/git-config), `node-ignore` will be case insensitive if `options.ignorecase` is set to `true` (the default value), otherwise case sensitive.
-
-```js
-const ig = ignore({
-  ignorecase: false
+new DotenvFlow({
+  path: '/path/to/env-files-dir'
 })
-
-ig.add('*.png')
-
-ig.ignores('*.PNG')  // false
 ```
 
-### `options.ignoreCase?: boolean` since 5.2.0
+If the option is not provided, the current working directory will be used.
 
-Which is alternative to `options.ignoreCase`
+##### `options.encoding`
+###### Type: `string`
+###### Default: `'utf8'`
 
-### `options.allowRelativePaths?: boolean` since 5.2.0
-
-This option brings backward compatibility with projects which based on `ignore@4.x`. If `options.allowRelativePaths` is `true`, `ignore` will not check whether the given path to be tested is [`path.relative()`d](#pathname-conventions).
-
-However, passing a relative path, such as `'./foo'` or `'../foo'`, to test if it is ignored or not is not a good practise, which might lead to unexpected behavior
+You can specify the encoding of your files containing environment variables.
 
 ```js
-ignore({
-  allowRelativePaths: true
-}).ignores('../foo/bar.js') // And it will not throw
+new DotenvFlow({
+  encoding: 'base64'
+})
 ```
 
-****
+##### `options.system_vars`
+###### Type: `boolean`
+###### Default: `false`
 
-# Upgrade Guide
-
-## Upgrade 4.x -> 5.x
-
-Since `5.0.0`, if an invalid `Pathname` passed into `ig.ignores()`, an error will be thrown, unless `options.allowRelative = true` is passed to the `Ignore` factory.
-
-While `ignore < 5.0.0` did not make sure what the return value was, as well as
-
-```ts
-.ignores(pathname: Pathname): boolean
-
-.filter(pathnames: Array<Pathname>): Array<Pathname>
-
-.createFilter(): (pathname: Pathname) => boolean
-
-.test(pathname: Pathname): {ignored: boolean, unignored: boolean}
-```
-
-See the convention [here](#1-pathname-should-be-a-pathrelatived-pathname) for details.
-
-If there are invalid pathnames, the conversion and filtration should be done by users.
+If `true`, all the predefined `process.env.*` variables will also be loaded.
+In accordance to the dotenv-flow's specification, all the predefined system environment variables will have higher priority over the `.env*` files defined.
 
 ```js
-import {isPathValid} from 'ignore' // introduced in 5.0.0
-
-const paths = [
-  // invalid
-  //////////////////
-  '',
-  false,
-  '../foo',
-  '.',
-  //////////////////
-
-  // valid
-  'foo'
-]
-.filter(isValidPath)
-
-ig.filter(paths)
+new DotenvFlow({
+  system_vars: true
+})
 ```
 
-## Upgrade 3.x -> 4.x
+##### `options.silent`
+###### Type: `boolean`
+###### Default: `false`
 
-Since `4.0.0`, `ignore` will no longer support node < 6, to use `ignore` in node < 6:
+Set to `true` to suppress all errors and warnings.
 
-```js
-var ignore = require('ignore/legacy')
+
+## Additional information
+
+Please refer the [dotenv-flow documentation](https://github.com/kerimdzhanov/dotenv-flow#readme) to learn more about the `.env*` files concept.
+
+Here is the list of related sections:
+
+ * [`NODE_ENV`-specific `.env*` files](https://github.com/kerimdzhanov/dotenv-flow#node_env-specific-env-files)
+ * [Files under version control](https://github.com/kerimdzhanov/dotenv-flow#files-under-version-control)
+ * [Variables overwriting/priority](https://github.com/kerimdzhanov/dotenv-flow#variables-overwritingpriority)
+
+
+## Contributing
+
+Feel free to dive in! [Open an issue](https://github.com/kerimdzhanov/dotenv-flow-webpack/issues/new) or submit PRs.
+
+
+## Running tests
+
+Using NPM:
+
+```sh
+$ npm test
 ```
 
-## Upgrade 2.x -> 3.x
+Using Yarn:
 
-- All `options` of 2.x are unnecessary and removed, so just remove them.
-- `ignore()` instance is no longer an [`EventEmitter`](nodejs.org/api/events.html), and all events are unnecessary and removed.
-- `.addIgnoreFile()` is removed, see the [.addIgnoreFile](#addignorefilepath) section for details.
+```sh
+$ yarn test
+```
 
-****
 
-# Collaborators
+## License
 
-- [@whitecolor](https://github.com/whitecolor) *Alex*
-- [@SamyPesse](https://github.com/SamyPesse) *Samy Pessé*
-- [@azproduction](https://github.com/azproduction) *Mikhail Davydov*
-- [@TrySound](https://github.com/TrySound) *Bogdan Chadkin*
-- [@JanMattner](https://github.com/JanMattner) *Jan Mattner*
-- [@ntwb](https://github.com/ntwb) *Stephen Edgar*
-- [@kasperisager](https://github.com/kasperisager) *Kasper Isager*
-- [@sandersn](https://github.com/sandersn) *Nathan Shively-Sanders*
+Licensed under [MIT](LICENSE) © 2019-2020 Dan Kerimdzhanov
