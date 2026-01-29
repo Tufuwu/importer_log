@@ -7,85 +7,74 @@ on:
 #   # This item has no matching transformer
 #   maximum_number_of_builds: 0
 jobs:
-  lint:
-    runs-on: # this agent type is not supported: [noble]
-             ubuntu-latest
+  test:
+    runs-on: ubuntu-latest
     steps:
     - name: checkout
       uses: actions/checkout@v4.1.0
     - uses: actions/setup-python@v5.0.0
       with:
-        python-version: "${{ matrix.python }}"
-    - run: pip install -r requirements.txt
-    - run: pip install --upgrade pip
-    - run: pip install poetry
-    - run: poetry install
-    - run: poetry run tox -e py38,py39,py310
-    strategy:
-      matrix:
-        python:
-        - '3.8'
-        - '3.9'
-        - '3.10'
-  lint_2:
-    runs-on: # this agent type is not supported: [noble]
-             ubuntu-latest
+        python-version: 3.8
+    - run: pip install tox-travis
+    - run: tox
+  test_2:
+    runs-on: ubuntu-latest
     steps:
     - name: checkout
       uses: actions/checkout@v4.1.0
     - uses: actions/setup-python@v5.0.0
       with:
-        python-version: '3.8'
-    - run: pip install -r requirements.txt
-    - run: pip install --upgrade pip
-    - run: pip install poetry
-    - run: poetry install
-    - run: poetry run tox -e black
-    - run: poetry run tox -e flake8
-    - run: poetry run tox -e yamllint
-  deploy_github:
-    needs:
-    - lint
-    - lint_2
-    runs-on: # this agent type is not supported: [noble]
-             ubuntu-latest
-    if: ${{ github.ref }}
+        python-version: 3.9
+    - run: pip install tox-travis
+    - run: tox
+  test_3:
+    runs-on: ubuntu-latest
     steps:
     - name: checkout
       uses: actions/checkout@v4.1.0
     - uses: actions/setup-python@v5.0.0
       with:
-        python-version: '3.8'
-    - run: pip install -r requirements.txt
-    - run: pip install --upgrade pip
-    - run: pip install poetry
-    - run: poetry version ${{ github.ref }}
-    - run: poetry build
-    - uses: softprops/action-gh-release@v0.1.15
-      env:
-        GITHUB_TOKEN: "${{ secrets.GITHUB_TOKEN }}"
-        GITHUB_REPOSITORY: "${{ github.repository }}"
-      with:
-        files: dist/*
-      if: "${{ github.event_name == 'push' }}"
-  deploy_pypi:
-    needs:
-    - lint
-    - lint_2
-    - deploy_github
-    runs-on: # this agent type is not supported: [noble]
-             ubuntu-latest
-    if: ${{ github.ref }}
+        python-version: 3.1
+#     # 'sudo' was not transformed because there is no suitable equivalent in GitHub Actions
+    - run: pip install tox-travis
+    - run: tox
+  test_4:
+    runs-on: ubuntu-latest
     steps:
     - name: checkout
       uses: actions/checkout@v4.1.0
     - uses: actions/setup-python@v5.0.0
       with:
-        python-version: '3.8'
-    - run: pip install -r requirements.txt
-    - run: pip install --upgrade pip
-    - run: pip install poetry
-    - run: echo Deploying the release to PyPI
-    - run: poetry version ${{ github.ref }}
-    - run: poetry publish --build -u __token__ -p $PYPI_TOKEN
-      if: "${{ github.event_name == 'push' }}"
+        python-version: pypy3.6
+    - run: pip install tox-travis
+    - run: tox
+  test_5:
+    runs-on: ubuntu-latest
+    steps:
+    - name: checkout
+      uses: actions/checkout@v4.1.0
+    - uses: actions/setup-python@v5.0.0
+      with:
+        python-version: pypy3.7
+    - run: pip install tox-travis
+    - run: tox
+  test_6:
+    runs-on: ubuntu-latest
+    steps:
+    - name: checkout
+      uses: actions/checkout@v4.1.0
+    - uses: actions/setup-python@v5.0.0
+      with:
+        python-version: pypy3.8
+    - run: pip install tox-travis
+    - run: tox
+  test_7:
+    runs-on: ubuntu-latest
+    steps:
+    - name: checkout
+      uses: actions/checkout@v4.1.0
+    - uses: actions/setup-python@v5.0.0
+      with:
+        python-version: pypy3.9
+    - run: pip install tox-travis
+    - run: tox
