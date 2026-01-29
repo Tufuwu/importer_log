@@ -1,56 +1,67 @@
-import os
+#! /usr/bin/env python
+# coding=utf-8
 
-from setuptools import find_packages, setup
+try:
+    from setuptools import setup
+except ImportError:
+    from distutils.core import setup
 
 
-def read(fname):
-    with open(os.path.join(os.path.dirname(__file__), fname)) as f:
-        return f.read()
+with open('README.rst') as readme_file:
+    readme = readme_file.read()
 
+with open('CHANGELOG.rst') as history_file:
+    history = history_file.read().replace('.. :changelog:', '')
+
+requirements = [
+]
+
+test_requirements = [
+    # TODO: put package test requirements here
+]
 
 setup(
-    name='airavata-django-portal',
-    version='0.1',
-    url='https://github.com/apache/airavata-django-portal',
-    author='Apache Software Foundation',
-    author_email='dev@airavata.apache.org',
-    description=('The Airavata Django Portal is a web interface to the '
-                 'Apache Airavata API implemented using the Django web '
-                 'framework.'),
-    long_description=read('README.md'),
-    license='Apache License 2.0',
-    packages=find_packages(),
-    install_requires=[
-            'Django',
-            'djangorestframework',
-            'requests',
-            'requests-oauthlib',
-            'thrift',
-            'thrift_connector',
-            'wagtail',
-            'wagtailfontawesome',
-            'jupyter',
-            'papermill',
-            "airavata-django-portal-sdk",
+    name='python-nvd3',
+    version='0.14.2',
+    description="Python NVD3 - Chart Library for d3.js",
+    long_description=readme + '\n\n' + history,
+    keywords='plot, graph, nvd3, d3',
+    author='Belaid Arezqui',
+    author_email='areski@gmail.com',
+    url='http://github.com/areski/python-nvd3',
+    license="MIT",
+    py_modules=['nvd3'],
+    namespace_packages=[],
+    test_suite='tests',
+    packages=[
+        'nvd3',
     ],
-    extras_require={
-        'dev': [
-            'flake8',
-            'flake8-isort'
+    include_package_data=True,
+    zip_safe=False,
+    install_requires=[
+        'python-slugify>=1.2.5',
+        'Jinja2>=2.8'
+        # -*- Extra requirements: -*-
+    ],
+    entry_points={
+        'console_scripts': [
+            'nvd3 = nvd3.NVD3Chart:_main',
         ],
-        'mysql': [
-            'mysqlclient'
-        ]
     },
     classifiers=[
-        'Development Status :: 4 - Beta',
-        'Environment :: Web Environment',
-        'Framework :: Django',
+        'Development Status :: 5 - Production/Stable',
+        'Environment :: Console',
         'Intended Audience :: Developers',
-        'License :: OSI Approved :: Apache Software License',
-        'Natural Language :: English',
-        'Programming Language :: Python :: 3.6',
-        'Topic :: Internet :: WWW/HTTP',
-        'Topic :: Internet :: WWW/HTTP :: WSGI :: Application'
-    ]
+        'License :: OSI Approved :: MIT License',
+        'Operating System :: OS Independent',
+        'Programming Language :: Python',
+        'Programming Language :: Python :: 2',
+        'Programming Language :: Python :: 2.7',
+        'Programming Language :: Python :: 3',
+        'Programming Language :: Python :: 3.3',
+        'Programming Language :: Python :: 3.4',
+        'Programming Language :: Python :: 3.5',
+        'Topic :: Multimedia :: Graphics :: Presentation',
+        'Topic :: Software Development :: Libraries :: Python Modules',
+    ],
 )
