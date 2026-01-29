@@ -1,8 +1,0 @@
-.babelrc
-.editorconfig
-.eslintignore
-.eslintrc
-.github
-coverage/
-examples/
-test/

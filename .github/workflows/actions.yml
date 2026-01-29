@@ -15,13 +15,7 @@ jobs:
     - uses: actions/setup-node@v4.0.0
       with:
         cache: npm
+        node-version: '14'
+    - run: yarn
     - run: npm install
-    - run: npm test
-    - run: npm run coveralls
-      if: "${{ success() }}"
-    strategy:
-      matrix:
-        node_js:
-        - 12
-        - 14
-        - 16
+    - run: yarn ci
