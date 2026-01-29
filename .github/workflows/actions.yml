@@ -15,18 +15,6 @@ jobs:
     - uses: actions/setup-node@v4.0.0
       with:
         cache: npm
-#     # 'sudo' was not transformed because there is no suitable equivalent in GitHub Actions
-    - run: travis_retry npm install -g npm@2.14.5
-    - run: travis_retry npm install
+        node-version: 14
     - run: npm install
-    - run: DEBUG=* npm test
-#     # This item has no matching transformer
-#     - email:
-#       - charlie.robbins@gmail.com
-#       - erik.trom.github@gmail.com
-    strategy:
-      matrix:
-        node_js:
-        - '0.12'
-        - '4.2'
-        - '5.0'
+    - run: npm test
