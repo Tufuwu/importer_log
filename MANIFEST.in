@@ -1,2 +1,6 @@
-include requirements.txt
+include AUTHORS.rst
+include CONTRIBUTING.rst
+include HISTORY.rst
 include LICENSE
+include README.rst
+recursive-include django_smoke_tests *.html *.png *.gif *js *.css *jpg *jpeg *svg *py
