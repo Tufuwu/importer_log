@@ -1,129 +1,135 @@
-![React JSX Highcharts](https://user-images.githubusercontent.com/2003804/40681848-2d0f5ce2-6382-11e8-8ce9-cd49c409ad2e.png)
+# winston-daily-rotate-file
 
-[![Build Status](https://travis-ci.com/whawker/react-jsx-highcharts.svg?branch=master)](https://travis-ci.com/whawker/react-jsx-highcharts)
+[![NPM version][npm-image]][npm-url]
 
-[Highcharts](https://github.com/highcharts/highcharts) built with **proper React components**. More that just a simple wrapper - utilises the power of React props to create dynamic charts!
+[![NPM](https://nodei.co/npm/winston-daily-rotate-file.png)](https://nodei.co/npm/winston-daily-rotate-file/)
 
-React JSX Highcharts offers separate packages for each Highcharts product.
+A transport for [winston](https://github.com/winstonjs/winston) which logs to a rotating file. Logs can be rotated based on a date, size limit, and old logs can be removed based on count or elapsed days.
 
-##### [Highcharts](/packages/react-jsx-highcharts)
+Starting with version 2.0.0, the transport has been refactored to leverage the the [file-stream-rotator](https://github.com/rogerc/file-stream-rotator/) module. _Some of the options in the 1.x versions of the transport have changed._ Please review the options below to identify any changes needed.
 
-##### [Highstock](/packages/react-jsx-highstock)
+## Compatibility
+Please note that if you are using `winston@2`, you will need to use `winston-daily-rotate-file@3`. `winston-daily-rotate-file@4` removed support for `winston@2`.
 
-##### [Highmaps](/packages/react-jsx-highmaps)
-
-## Why React JSX Highcharts?
-
-Unlike other React Highcharts wrapper libraries, **React JSX Highcharts** is designed to be dynamic - it is optimised for _interactive_ charts that need to adapt to business logic in your React application.
-
-Other Highcharts wrappers completely destroy and recreate the chart when the configuration options change, which is _very_ wasteful and inefficient.
-
-React JSX Highcharts uses a different approach. By providing React components for each Highcharts component, we can observe exactly which prop has changed and call the optimal Highcharts method behind the scenes. For example, if the `data` prop were to change on a `<Series />` component, React JSX Highcharts can follow Highcharts best practices and use the `setData` method rather than the more expensive `update`.
-
-React JSX Highcharts also enables you to write your _own_ Highcharts components, via its exposed hooks.
-
-## Installation
-
-```sh
-# Install the appropriate React JSX package
-npm install --save react-jsx-highcharts
-#               or react-jsx-highstock
-#               or react-jsx-highmaps
-
-# And the peer dependencies
-npm install --save react react-dom prop-types highcharts@^9.0.0
+## Install
+```
+npm install winston-daily-rotate-file
 ```
 
-## Licensing
+## Options
+The DailyRotateFile transport can rotate files by minute, hour, day, month, year or weekday. In addition to the options accepted by the logger, `winston-daily-rotate-file` also accepts the following options:
 
-React JSX Highcharts is free to use, however **Highcharts** itself requires a license for **commercial** use. [Highcharts license FAQs](https://shop.highsoft.com/faq).
+* **frequency:** A string representing the frequency of rotation. This is useful if you want to have timed rotations, as opposed to rotations that happen at specific moments in time. Valid values are '#m' or '#h' (e.g., '5m' or '3h'). Leaving this null relies on `datePattern` for the rotation times. (default: null)
+* **datePattern:** A string representing the [moment.js date format](http://momentjs.com/docs/#/displaying/format/) to be used for rotating. The meta characters used in this string will dictate the frequency of the file rotation. For example, if your datePattern is simply 'HH' you will end up with 24 log files that are picked up and appended to every day. (default: 'YYYY-MM-DD')
+* **zippedArchive:** A boolean to define whether or not to gzip archived log files. (default: 'false')
+* **filename:** Filename to be used to log to. This filename can include the `%DATE%` placeholder which will include the formatted datePattern at that point in the filename. (default: 'winston.log.%DATE%')
+* **dirname:** The directory name to save log files to. (default: '.')
+* **stream:** Write directly to a custom stream and bypass the rotation capabilities. (default: null)
+* **maxSize:** Maximum size of the file after which it will rotate. This can be a number of bytes, or units of kb, mb, and gb. If using the units, add 'k', 'm', or 'g' as the suffix. The units need to directly follow the number. (default: null)
+* **maxFiles:** Maximum number of logs to keep. If not set, no logs will be removed. This can be a number of files or number of days. If using days, add 'd' as the suffix. It uses auditFile to keep track of the log files in a json format. It won't delete any file not contained in it. It can be a number of files or number of days (default: null)
+* **options:** An object resembling https://nodejs.org/api/fs.html#fs_fs_createwritestream_path_options indicating additional options that should be passed to the file stream. (default: `{ flags: 'a' }`)
+* **auditFile**: A string representing the name of the audit file. This can be used to override the default filename which is generated by computing a hash of the options object. (default: '.<optionsHash>.json')
+* **utc**: Use UTC time for date in filename. (default: false)
+* **extension**: File extension to be appended to the filename. (default: '')
+* **createSymlink**: Create a tailable symlink to the current active log file. (default: false)
+* **symlinkName**: The name of the tailable symlink. (default: 'current.log')
 
-## [Documentation](https://github.com/whawker/react-jsx-highcharts/wiki)
+## Usage
+``` js
+  var winston = require('winston');
+  require('winston-daily-rotate-file');
 
-## [Examples](https://codesandbox.io/s/github/whawker/react-jsx-highcharts-examples)
+  var transport = new winston.transports.DailyRotateFile({
+    filename: 'application-%DATE%.log',
+    datePattern: 'YYYY-MM-DD-HH',
+    zippedArchive: true,
+    maxSize: '20m',
+    maxFiles: '14d'
+  });
 
-## Getting started
+  transport.on('rotate', function(oldFilename, newFilename) {
+    // do something fun
+  });
 
-The intention of this library is to provide a very thin abstraction of Highcharts using React components. This has been achieved by passing Highcharts configuration options as component props.
+  var logger = winston.createLogger({
+    transports: [
+      transport
+    ]
+  });
 
-In the vast majority of cases, the name of the configuration option, and the name of the component prop are the same.
+  logger.info('Hello World!');
 
-#### Example
-
-`<Tooltip />` component
-
-```jsx
-<Tooltip padding={10} hideDelay={250} shape="square" split />
 ```
 
-This corresponds to the Highcharts' [`tooltip`](http://api.highcharts.com/highcharts/tooltip) configuration of
+### ES6
 
-```js
-tooltip: {
-  enabled: true, // This is assumed when component is mounted
-  padding: 10,
-  hideDelay: 250,
-  shape: 'square',
-  split: true
-}
+``` js
+import  *  as  winston  from  'winston';
+import  'winston-daily-rotate-file';
+
+
+const transport = new winston.transports.DailyRotateFile({
+  filename: 'application-%DATE%.log',
+  datePattern: 'YYYY-MM-DD-HH',
+  zippedArchive: true,
+  maxSize: '20m',
+  maxFiles: '14d'
+});
+
+transport.on('rotate', function(oldFilename, newFilename) {
+  // do something fun
+});
+
+const logger = winston.createLogger({
+  transports: [
+    transport
+  ]
+});
+
+logger.info('Hello World!');
 ```
 
-We aim to pass all configuration options using the same name, so we use [Highcharts' documentation](http://api.highcharts.com/highcharts) to figure out how to achieve the same with React JSX Highcharts.
+### Typescript
 
-### Note:
+``` typescript
 
-There are **two** exceptions to the above;
+import  *  as  winston  from  'winston';
+import  DailyRotateFile from 'winston-daily-rotate-file';
 
-#### Exception 1
+const transport: DailyRotateFile = new DailyRotateFile({
+    filename: 'application-%DATE%.log',
+    datePattern: 'YYYY-MM-DD-HH',
+    zippedArchive: true,
+    maxSize: '20m',
+    maxFiles: '14d'
+  });
 
-Where Highcharts **events** are concerned - instead of passing `events` as an object, we use the React convention _onEventName_.
+transport.on('rotate', function(oldFilename, newFilename) {
+      // do something fun
+    });
 
-#### Example
+const logger = winston.createLogger({
+transports: [
+  transport
+]});
 
-```jsx
-<SplineSeries
-  id="my-series"
-  data={myData}
-  onHide={this.handleHide}
-  onShow={this.handleShow}
-/>
+logger.info('Hello World!');
+
 ```
 
-This would correspond to the Highcharts configuration
 
-```js
-series: [
-  {
-    type: 'spline',
-    id: 'my-series',
-    data: myData,
-    events: { hide: this.handleHide, show: this.handleShow }
-  }
-];
-```
+This transport emits the following custom events:
 
-#### Exception 2
+* **new**: fired when a new log file is created. This event will pass one parameter to the callback (*newFilename*).
+* **rotate**: fired when the log file is rotated. This event will pass two parameters to the callback (*oldFilename*, *newFilename*).
+* **archive**: fired when the log file is archived. This event will pass one parameter to the callback (*zipFilename*).
+* **logRemoved**: fired when a log file is removed from the file system. This event will pass one parameter to the callback (*removedFilename*).
 
-`text` configuration options are passed as a React child
+## LICENSE
+MIT
 
-#### Example
+##### AUTHOR: [Charlie Robbins](https://github.com/indexzero)
+##### MAINTAINER: [Matt Berther](https://github.com/mattberther)
 
-```jsx
-<Title>Some Text Here</Title>
-```
-
-This would correspond to the Highcharts configuration
-
-```js
-title: {
-  text: 'Some Text Here';
-}
-```
-
-## Acknowledgements
-
-Thanks to [Recharts](https://github.com/recharts/recharts) for the inspiration of building charts with separate components.
-
-Thanks to Highcharts themselves, obviously.
-
-Thanks to @anajavi for all the help and support in maintaining this project.
+[npm-image]: https://badge.fury.io/js/winston-daily-rotate-file.svg
+[npm-url]: https://npmjs.org/package/winston-daily-rotate-file

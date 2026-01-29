@@ -15,10 +15,18 @@ jobs:
     - uses: actions/setup-node@v4.0.0
       with:
         cache: npm
-        node-version: '16'
+#     # 'sudo' was not transformed because there is no suitable equivalent in GitHub Actions
+    - run: travis_retry npm install $WINSTON_VER
     - run: npm install
-    - run: npm run build:prod
-    - run: npm run test:coverage
-    - run: npm run lint
-    - run: bash <(curl -s https://codecov.io/bash) || echo "Codecov did not collect coverage reports"
-      if: "${{ success() }}"
+    - run: npm test
+    strategy:
+      matrix:
+        WINSTON_VER:
+        - winston@3
+        node_js:
+        - '12'
+        - '14'
+        - '16'
+        - '17'
+    env:
+      WINSTON_VER: "${{ matrix.WINSTON_VER }}"
