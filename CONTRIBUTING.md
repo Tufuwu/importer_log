@@ -1,54 +1,47 @@
-# Contributing
+# Contributions
 
-To contribute code or documentation, please submit a [pull request](https://github.com/ibm/qpylib/pulls).
+Thanks for your interest in the project, you're ![Awesome](https://cdn.rawgit.com/sindresorhus/awesome/d7305f38d29fed78fa85652e3a63e154dd8e8829/media/badge.svg)!!
 
-## Proposing new features
+Any kind of help is very welcome (Code, Bug reports, Content, Data, Documentation, Design, Examples, Ideas, Feedback, etc.),  Issues and/or Pull Requests are welcome for any level of improvement, from a small typo to new features, help us make SDialog better :+1:
 
-If you would like to implement a new feature, please [raise an issue](https://github.com/ibm/qpylib/issues)
-before sending a pull request so that the feature can be discussed.
+Remember that you can use the "Edit" button ('pencil' icon) up the top to [edit any file of this repo directly on GitHub](https://help.github.com/en/github/managing-files-in-a-repository/editing-files-in-your-repository).
 
-## Fixing bugs
+In case you're planning to create a **new Pull Request**, for committing to this repo, we follow the Chris Beams' "seven rules of a great Git commit message" from ["How to Write a Git Commit Message"](https://chris.beams.io/posts/git-commit/), so make sure your commits follow them as well.
 
-To fix a bug, please [raise an issue](https://github.ibm.com/ibm/qpylib/issues) before sending a
-pull request so that the bug can be tracked.
+## Manually Build Documentation
 
-## Merge approval
+Generate the HTML version of it:
+```bash
+cd docs
+python -m sphinx -T -b html -d _build/doctrees -D language=en . ../docs_html
+```
 
-Any change requires approval before it can be merged.
-A list of maintainers can be found on the [MAINTAINERS](MAINTAINERS.md) page.
+In case we need to re-generate the API Reference:
+```bash
+cd docs/api
+sphinx-apidoc -f --ext-autodoc -o . ../../src/sdialog
+```
 
-## Legal
+Link to our ReadTheDocs [here](https://app.readthedocs.org/projects/sdialog/builds/28462329/).
 
-Each source file must include a license header for the Apache Software License 2.0.
-Using the SPDX format is the simplest approach. See existing source files for an example.
+## PyPI
 
-## Development
+```bash
+python -m build
+python -m twine upload dist/*
+```
 
-On your local machine you can lint, test and build in mostly
-the same way that the CI does. There are three scripts you can use:
+## Tests
 
-* `lint.sh`
-* `test.sh`
-* `build.sh`
+Make sure your changes passes the style and unit tests, run the following commands in the root directory:
 
-The `requirements.txt` file contains the Python packages needed to run these scripts.
+```bash
+flake8 --ignore=E501,W503
+pytest
+```
 
-### Code style
-
-Pull requests will be accepted only if `lint.sh` produces no warnings or errors.
-
-`lint.sh` uses pylint to analyse the project's Python source code **and** unit tests.
-
-### Test
-
-Pull requests will be accepted only if `test.sh` reports no test failures **and**
-full test coverage.
-
-`test.sh` uses pytest and pytest-cov to execute the unit tests.
-
-### Build
-
-The output of `build.sh` is a `tar.gz` file and a `.whl` file.
-
-You can take either file and use `pip install` to install qpylib as a package
-into your Python 3 environment.
+Or if you want to check the code coverture:
+```bash
+pytest -v --cov-report=html --cov=src/sdialog
+```
+And check the content of the newlly created `htmlcov` folder (open `index.html`).
