@@ -1,65 +1,115 @@
-# metalsmith-gzip 
+# Porch
 
-A [Metalsmith](http://metalsmith.io) plugin that creates gzipped copies of the site's content. This is useful for website hosting on Amazon S3, where on the fly compression in the server is impossible.
+Process **promise-based** tasks in **series** and **parallel**, controlling
+**concurrency** and **throttling**.
+
+[![Node.js CI](https://github.com/lupomontero/porch/actions/workflows/node.js.yml/badge.svg)](https://github.com/lupomontero/porch/actions/workflows/node.js.yml)
+[![Coverage Status](https://coveralls.io/repos/lupomontero/porch/badge.svg?branch=main)](https://coveralls.io/r/lupomontero/porch?branch=main)
 
 ## Installation
 
-```
-$ npm install metalsmith-gzip
-```
-
-## Usage
-
-```javascript
-var Metalsmith = require('metalsmith');
-var compress = require('metalsmith-gzip');
-
-var metalsmith = new Metalsmith(__dirname)
-  .use(compress());
-
+```sh
+npm install porch
 ```
 
-`metalsmith-gzip` will gzip a file if the extension matches this regular expression:
+## Usage / API
 
-```javascript
-/\.[html|css|js|json|xml|svg|txt]/
+### `Promise porch(tasks, concurrency, interval, failFast)`
+
+#### Arguments
+
+* `tasks` (`Array`): An array of `tasks`, where each _task_ is a function that
+  expects no arguments and will return a `Promise`.
+* `concurrency` (`Number`): Default: `1`. Maximum number of tasks to run
+  concurrently (in parallel).
+* `interval` (`Number`): Default: `0`. Interval between each _batch_ of
+  concurrent _tasks_.
+* `failFast` (`Boolean`): Default: `true`. Whether to bail out when one of the
+  promises fails. If set to `false` errors will be included in the results
+  passed to `then()` instead of being passed independently via the `catch()`
+  method.
+
+#### Return value
+
+A `Promise` that will resolve to an array with the results for each _task_.
+Results will be in the same order as in the input _tasks_ array.
+
+#### Examples
+
+##### Series
+
+Process each task after the other, sequentially. Each task will wait for the
+previous one to complete. Concurrency set to `1` (one task at a time).
+
+```js
+const porch = require('porch');
+const tasks = users.map(user => () => auth.deleteUser(user.localId);
+
+porch(tasks)
+  .then(console.log)
+  .catch(console.error);
 ```
 
-The choice of files to compress is loosely based on the [HTML5 Boilerplate server configuration](https://github.com/h5bp/server-configs-apache).
+##### Batches
 
-### Customization
+Process _tasks_ in _batches_ based on a given _concurrency_. In this example
+_tasks_ will be processed in batches of 5 _tasks_ each. Each batch waits for the
+previous one to complete and then performs its tasks in parallel.
 
-Pass an options object to customize metalsmith-gzip behaviour. These are the available options keys:
-
-`src` is a [multimatch](https://github.com/sindresorhus/multimatch) pattern which specifies which types of files to compress.
-
-```javascript
-var metalsmith = new Metalsmith(__dirname)
-  .use(compress({src: ['**/*.js', '**/*.css']})); // only compresses JavaScript and CSS
-
+```js
+porch(tasks, 5)
+  .then(console.log)
+  .catch(console.error);
 ```
 
-`gzip` is the same configuration object accepted by `zlib.createGzip` (http://nodejs.org/api/zlib.html#zlib_options). For example, you can set the compression level:
+##### Throttled
 
-```javascript
-var metalsmith = new Metalsmith(__dirname)
-  .use(compress({
-    src: ['**/*.js', '**/*.css'],
-    gzip: {level: 6}
-}));
+Same as example above but adding a 1000ms delay between batches.
+
+```js
+porch(tasks, 5, 1000)
+  .then(console.log)
+  .catch(console.error);
 ```
 
-Add `overwrite: true` to replace files with the compressed version instead of creating a copy with the '.gz' extension:
+##### failFast=false (don't bail out on errors)
 
-```javascript
-var metalsmith = new Metalsmith(__dirname)
-  .use(compress({overwrite: true});
+Same as above, but in this case if a promise fails, processing will continue
+instead of stopping the whole thing. When `failFast` is set to `false`, errors
+will appear as the value/result for the relevant element in the results array
+(failed tasks/promises won't end up in the `catch()` method).
+
+```js
+porch(tasks, 5, 1000, false)
+  .then(console.log)
 ```
 
-### Deployment
+### `stream.Readable porch.createStream(tasks, concurrency, interval, failFast)`
 
-You need to create a script to upload the gzipped versions of the files to your preferred hosting provider yourself. Take care to serve the files with the correct Content-Encoding.
+#### Arguments
 
-## Acknowledgements
+Same as [`porch()`](#arguments).
 
-This plugin was inspired by the [Middleman gzip extension](http://middlemanapp.com/advanced/file-size-optimization/).
+#### Return value
+
+A readable stream (`stream.Readable`) instead of a `Promise`. Each result will
+be emitted as a data event and the stream will operate in `objectMode`.
+
+#### Examples
+
+##### Handling each event independently... (old school)
+
+```js
+porch.createStream(tasks, 5, 1000, false)
+  .on('error', err => console.error('error', err))
+  .on('data', data => console.log('data', data))
+  .on('end', _ => console.log('ended!'));
+```
+
+##### Piping to a writable stream
+
+```js
+// This example assumes that tasks will resolve to string values so that the
+// resulting stream can be directly piped to stdout.
+porch.createStream(tasks, 5, 1000, false).pipe(process.stdout);
+```
