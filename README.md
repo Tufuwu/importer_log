@@ -1,63 +1,72 @@
-# io-ts-from-json-schema
+# postcss-prefixer
+[![License: MIT](https://img.shields.io/badge/License-MIT-green.svg)](https://opensource.org/licenses/MIT)
 
-Iotsfjs is a static code generation utility used for converting [json schema](https://json-schema.org/) files into static [TypeScript](https://www.typescriptlang.org/) types and [io-ts](https://github.com/gcanti/io-ts) runtime validators.
+[PostCSS]: https://github.com/postcss/postcss
+[PostCSS Usage]: https://github.com/postcss/postcss#usage
 
-## Basic Use
+A [PostCSS] plugin to prefix css selectors.
 
-```Shell
-npm install -g io-ts-from-json-schema typescript
-iotsfjs --inputFile schema.json --outputDir output
-```
+````css
+/* source css file */
 
-## Usage Example
+#selector { /* content */ }
 
-```Shell
-# Create a Project
-mkdir example && cd example
-npm init -f && npm install --peer fp-ts io-ts io-ts-types
+.selector { /* content */ }
 
-# Create a Schema File
-npm install --peer maas-schemas-ts
-mkdir -p ./schemas/examples && echo '{
-  "$id": "http://example.com/iotsfjs/examples/user.json",
-  "description": "Example user schema with an external dependency",
-  "type": "object",
-  "definitions": {
-    "name": {
-      "description": "Human-readable name of the user",
-      "type": "string"
-    }
-  },
-  "properties": {
-    "name": {
-      "$ref": "#/definitions/name"
-    },
-    "phone": {
-      "$ref": "http://maasglobal.com/core/components/common.json#/definitions/phone"
-    }
-  },
-  "required": ["name", "phone"],
-  "additionalProperties": false,
-  "examples": [
-    {
-      "name": "Joe User",
-      "phone": "+358407654321"
-    }
+.selector:hover { /* content */ }
+
+.selector__element { /* content */ }
+````
+
+````css
+/* output css file prefixed with "prfx__" */
+
+#prfx__selector { /* content */ }
+
+.prfx__selector { /* content */ }
+
+.prfx__selector:hover { /* content */ }
+
+.prfx__selector__element { /* content */ }
+````
+
+## Usage
+
+`npm i -D postcss postcss-prefixer` or `yarn add -D postcss postcss-prefixer`
+
+create a `postcss.config.js` with:
+```js
+module.exports = {
+  plugins: [
+    require('postcss-prefixer')({ /* options */ })
   ]
-}' > ./schemas/examples/user.json
-
-# Generate TypeScript Code
-npm install --dev io-ts-from-json-schema typescript
-./node_modules/.bin/iotsfjs --inputFile 'schemas/**/*.json' --outputDir src --base http://example.com/iotsfjs/ --import http://maasglobal.com/^maas-schemas-ts/lib/
-
-# Generate Tests
-npm install --dev jest @types/jest doctest-ts ts-jest io-ts-validator maas-schemas-ts fp-ts io-ts io-ts-types
-./node_modules/.bin/ts-jest config:init
-./node_modules/.bin/doctest-ts --jest `find src -name '*.ts'`
-
-# Run Tests
-./node_modules/.bin/jest --testPathPattern --testMatch **/*.doctest.ts --roots src/
-
-# Compile TypeScript Code
-./node_modules/.bin/tsc -d --rootDir src src/examples/user.ts --outDir lib/
+}
 ```
+
+> Refer to [PostCSS Usage] on how to use it with your preferred build tool.
+
+#### Example
+```js
+const postcss = require('postcss');
+const prefixer = require('postcss-prefixer');
+
+const input = fs.readFileSync('path/to/file.css',  'utf-8');
+
+const output = postcss([
+  prefixer({
+        prefix: 'prefix-',
+        ignore: [ /selector-/, '.ignore', '#ignore' ]
+    })
+]).process(input);
+```
+
+#### Options
+| Name           | Description                                |
+|------------------|--------------------------------------------|
+|`prefix` (string) | prefix value to be used                    |
+|`ignore` (array)  | list of selectors to ignore, accepts regex |
+
+
+## Credits
+
+ Plugin based on [postcss-class-prefix](https://github.com/thompsongl/postcss-class-prefix) create by [thompsongl](https://github.com/thompsongl).
