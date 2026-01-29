@@ -15,5 +15,8 @@ jobs:
     - uses: actions/setup-node@v4.0.0
       with:
         cache: npm
-    - run: npm install
-    - run: npm run lint
+    - run: npm install -g codecov
+    - run: npm install boolbase nth-check htmlparser2
+    - run: npm install tape tap-spec istanbul
+    - run: npm run coverage
+    - run: codecov

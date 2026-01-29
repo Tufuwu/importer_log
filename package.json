@@ -1,46 +1,88 @@
 {
-	"name": "shortcutspreview",
-	"version": "1.4.0",
-	"description": "A multiplatform bot for showing the details of Shortcuts when linked by their iCloud URL.",
-	"main": "./src/index.js",
-	"scripts": {
-		"test": "echo \"Error: no test specified\" && exit 1",
-		"lint": "eslint \"./**/*.js\" --ignore-path .gitignore"
-	},
-	"repository": {
-		"type": "git",
-		"url": "git+https://github.com/haykam821/ShortcutsPreview.git"
-	},
-	"author": "haykam821",
-	"license": "MIT",
-	"bugs": {
-		"url": "https://github.com/haykam821/ShortcutsPreview/issues"
-	},
-	"homepage": "https://github.com/haykam821/ShortcutsPreview#readme",
-	"dependencies": {
-		"debug": "^4.1.0",
-		"discord.js": "^11.4.2",
-		"markdown-escape": "^1.0.2",
-		"merge-deep": "^3.0.2",
-		"require-all": "^3.0.0",
-		"semver": "^7.3.5",
-		"shortcuts.js": "^3.0.1",
-		"snoostorm": "0.0.5",
-		"snoowrap": "^1.15.2",
-		"telegraf": "^3.38.0"
-	},
-	"devDependencies": {
-		"eslint": "^8.6.0",
-		"eslint-config-haykam": "^1.14.0"
-	},
-	"keywords": [
-		"shortcuts",
-		"apple",
-		"bot",
-		"discord",
-		"reddit"
-	],
-	"eslintConfig": {
-		"extends": "eslint-config-haykam"
-	}
+  "name": "mark-js",
+  "version": "1.0.0",
+  "description": "Mark, an unified notation for all",
+  "main": "mark.js",
+  "directories": {
+    "lib": "lib",
+    "dist": "dist",
+    "bin": "bin",
+    "dev": "dev",
+    "test": "test"
+  },
+  "bin": {
+    "mark": "./bin/mark-bin.js",
+    "mark-convert": "./bin/mark-convert.js"
+  },
+  "scripts": {
+    "test": "(clear || cls) && tape test/mark-dom.js test/mark-model.js test/mark-query.js test/parse-error.js test/parse-json.js test/parse-mark.js test/stringify-mark.js | tap-spec",
+    "test-dev": "(clear || cls) && tape dev/test/*.js | tap-spec",
+    "coverage": "istanbul cover -v --config .istanbul.yml node_modules/tape/bin/tape test/mark-dom.js test/mark-model.js test/mark-query.js test/parse-error.js test/parse-json.js test/parse-mark.js test/stringify-mark.js",
+    "karma": "(clear || cls) && karma start",
+    "build": "npm run build-core && npm run build-mark && cp-cli README.md docs/index.md",
+    "build-core": "browserify -x ./lib/mark.update.js -x ./lib/mark.convert.js -x ./lib/mark.selector.js -x htmlparser2 mark.js | uglifyjs > dist/mark.core.js",
+    "build-mark": "browserify -x htmlparser2 mark.js | uglifyjs > dist/mark.js",
+    "build-find": "browserify --full-paths -x debug ./dev/mark.find.js | discify --open",
+    "list-core": "browserify --full-paths -x ./lib/mark.mutate.js -x ./lib/mark.convert.js -x ./lib/mark.selector.js -x htmlparser2 mark.js | discify --open",
+    "list-convert": "browserify --full-paths -x htmlparser2 ./lib/mark.convert.js | discify --open",
+    "list-selector": "browserify --full-paths ./lib/mark.selector.js | discify --open",
+    "list-mark": "browserify --full-paths -x htmlparser2 mark.js | discify --open",
+    "benchmark": "node test/perf/benchmark.js",
+    "gen-grammar-diagram": "cp-cli dev/viewer.html node_modules/grammkit/template/viewer.html && grammkit docs/mark.bnf -o docs/mark-grammar.html"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git://github.com/henry-luo/mark.git"
+  },
+  "keywords": [
+    "mark",
+    "markup",
+    "notation",
+    "json",
+    "parser",
+    "html",
+    "xml",
+    "schema",
+    "config",
+    "data-oriented"
+  ],
+  "author": "Henry Luo",
+  "license": "MIT",
+  "dependencies": {
+    "commander": "~2.13.0",
+    "css-select": "^6.0.0",
+    "helmsman": "^2.0.1",
+    "htmlparser2": "~3.9.2"
+  },
+  "devDependencies": {
+    "babel-core": "^6.26.0",
+    "babel-plugin-transform-remove-strict-mode": "0.0.2",
+    "babel-plugin-transform-runtime": "^6.23.0",
+    "babel-preset-es2015": "^6.24.1",
+    "babelify": "^8.0.0",
+    "benchmark": "^2.1.4",
+    "cp-cli": "^1.1.0",
+    "cssauron": "^1.4.0",
+    "disc": "^1.3.3",
+    "grammkit": "^0.5.2",
+    "istanbul": "^0.4.5",
+    "jasmine-core": "^3.99.0",
+    "karma": "^5.2.3",
+    "karma-browserify": "^7.0.0",
+    "karma-chrome-launcher": "^2.2.0",
+    "karma-edge-launcher": "^0.4.2",
+    "karma-firefox-launcher": "^1.1.0",
+    "karma-ie-launcher": "^1.0.0",
+    "karma-jasmine": "^4.0.2",
+    "karma-safari-launcher": "^1.0.0",
+    "karma-tap": "^4.2.0",
+    "karma-tap-pretty-reporter": "^4.2.0",
+    "karma-tape": "^0.0.1",
+    "minicat": "^1.0.0",
+    "mkdirp": "^0.5.1",
+    "npm-run-all": "^4.1.2",
+    "tap-spec": "^4.1.1",
+    "tape": "^4.7.0",
+    "uglify-es": "^3.3.4"
+  }
 }
