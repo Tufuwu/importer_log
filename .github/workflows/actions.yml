@@ -3,35 +3,89 @@ on:
   push:
     branches:
     - "**/*"
-    - main
-    - "/releases\\/.+/"
   pull_request:
 #   # This item has no matching transformer
 #   maximum_number_of_builds: 0
 jobs:
-  test:
-    runs-on: ubuntu-latest
+  lint:
+    runs-on: # this agent type is not supported: [noble]
+             ubuntu-latest
     steps:
     - name: checkout
       uses: actions/checkout@v4.1.0
     - uses: actions/setup-python@v5.0.0
       with:
         python-version: "${{ matrix.python }}"
-    - run: export TZ=Asia/Seoul
-    - run: python --version
-    - run: pip install -U pip
-    - run: pip install codecov
-    - run: pip install -e .[dev]
-    - run: coverage run --omit="*/test*" -m unittest discover ./tests/ *test.py
-    - run: codecov
-      if: "${{ success() }}"
-#     # This item has no matching transformer
-#     - email:
-#         on_success: never
-#         on_failure: change
+    - run: pip install -r requirements.txt
+    - run: pip install --upgrade pip
+    - run: pip install poetry
+    - run: poetry install
+    - run: poetry run tox -e py38,py39,py310
     strategy:
       matrix:
         python:
-        - 3.8
-        - 3.9
-        - 3.1
+        - '3.8'
+        - '3.9'
+        - '3.10'
+  lint_2:
+    runs-on: # this agent type is not supported: [noble]
+             ubuntu-latest
+    steps:
+    - name: checkout
+      uses: actions/checkout@v4.1.0
+    - uses: actions/setup-python@v5.0.0
+      with:
+        python-version: '3.8'
+    - run: pip install -r requirements.txt
+    - run: pip install --upgrade pip
+    - run: pip install poetry
+    - run: poetry install
+    - run: poetry run tox -e black
+    - run: poetry run tox -e flake8
+    - run: poetry run tox -e yamllint
+  deploy_github:
+    needs:
+    - lint
+    - lint_2
+    runs-on: # this agent type is not supported: [noble]
+             ubuntu-latest
+    if: ${{ github.ref }}
+    steps:
+    - name: checkout
+      uses: actions/checkout@v4.1.0
+    - uses: actions/setup-python@v5.0.0
+      with:
+        python-version: '3.8'
+    - run: pip install -r requirements.txt
+    - run: pip install --upgrade pip
+    - run: pip install poetry
+    - run: poetry version ${{ github.ref }}
+    - run: poetry build
+    - uses: softprops/action-gh-release@v0.1.15
+      env:
+        GITHUB_TOKEN: "${{ secrets.GITHUB_TOKEN }}"
+        GITHUB_REPOSITORY: "${{ github.repository }}"
+      with:
+        files: dist/*
+      if: "${{ github.event_name == 'push' }}"
+  deploy_pypi:
+    needs:
+    - lint
+    - lint_2
+    - deploy_github
+    runs-on: # this agent type is not supported: [noble]
+             ubuntu-latest
+    if: ${{ github.ref }}
+    steps:
+    - name: checkout
+      uses: actions/checkout@v4.1.0
+    - uses: actions/setup-python@v5.0.0
+      with:
+        python-version: '3.8'
+    - run: pip install -r requirements.txt
+    - run: pip install --upgrade pip
+    - run: pip install poetry
+    - run: echo Deploying the release to PyPI
+    - run: poetry version ${{ github.ref }}
+    - run: poetry publish --build -u __token__ -p $PYPI_TOKEN
+      if: "${{ github.event_name == 'push' }}"
