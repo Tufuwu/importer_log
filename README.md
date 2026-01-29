@@ -1,110 +1,109 @@
-# definitelytyped.github.io [![Build Status](https://travis-ci.org/DefinitelyTyped/definitelytyped.github.io.svg?branch=source)](https://travis-ci.org/DefinitelyTyped/definitelytyped.github.io)
+## NodeJS SQL DDL Synchronization
 
-> Website content for [definitelytyped.org](http://definitelytyped.org).
+[![Build Status](https://secure.travis-ci.org/dresende/node-sql-ddl-sync.png?branch=master)](http://travis-ci.org/dresende/node-sql-ddl-sync)
+[![](https://badge.fury.io/js/sql-ddl-sync.png)](https://npmjs.org/package/sql-ddl-sync)
+[![](https://gemnasium.com/dresende/node-sql-ddl-sync.png)](https://gemnasium.com/dresende/node-sql-ddl-sync)
 
-The [master](https://github.com/DefinitelyTyped/definitelytyped.github.io/tree/master) branch holds live github.io content generated from the [source](https://github.com/DefinitelyTyped/definitelytyped.github.io/tree/source) branch.
+## Install
 
-The site build with [Grunt](http://www.gruntjs.com) and generated using [docpad](http://docpad.org), a static site generator complete with watch tasks, development server with LiveReload and [many plugins](http://docpad.org/docs/plugins). Publishing happens using [grunt-gh-pages](https://github.com/tschaub/grunt-gh-pages).
+```sh
+npm install sql-ddl-sync
+```
 
+## Dialects
 
-## Edit online
+- MySQL
+- PostgreSQL
+- SQLite
 
-1. Use the github web interface to quickly make text edits like updating the [guides](/guides.html) and the [directory](/directory.html). Github will create a fork and you can modify content without leaving your browser.
+## About
 
-1. The content is saved as markdown and located in `./src/documents`.
+This module is part of [ORM](http://dresende.github.com/node-orm2). It's used synchronize model tables in supported dialects.
+Sorry there is no API documentation for now but there are a couple of tests you can read and find out how to use it if you want.
 
+## Example
 
-## Bulk editing
+Install `orm` & the required driver (eg: `mysql`).
+Create a file with the contents below and change insert your database credentials.
+Run once and you'll see table `ddl_sync_test` appear in your database. Then make some changes to it (add/drop/change columns)
+and run the code again. Your table should always return to the same structure.
 
-If you like to use your own tools you can follow these steps:
+```js
+var orm   = require("orm");
+var mysql = require("mysql");
+var Sync  = require("sql-ddl-sync").Sync;
 
-1. Fork the repository.
+orm.connect("mysql://username:password@localhost/database", function (err, db) {
+	if (err) throw err;
+	var driver = db.driver;
 
-1. Checkout the `source` branch.
+	var sync = new Sync({
+		dialect : "mysql",
+		driver  : driver,
+		debug   : function (text) {
+			console.log("> %s", text);
+		}
+	});
 
-1. If you already have a checkout make sure you pull the latest revision. 
+	sync.defineCollection("ddl_sync_test", {
+    id     : { type: "serial", key: true, serial: true },
+    name   : { type: "text", required: true },
+    age    : { type: "integer" },
+    male   : { type: "boolean" },
+    born   : { type: "date", time: true },
+    born2  : { type: "date" },
+    int2   : { type: "integer", size: 2 },
+    int4   : { type: "integer", size: 4 },
+    int8   : { type: "integer", size: 8 },
+    float4 : { type: "number",  size: 4 },
+    float8 : { type: "number",  size: 8 },
+    photo  : { type: "binary" }
+  });
 
-1. Locate the content your want to change in `./src/documents`. Most of the editable content is in markdown format (some with a `.eco` template filter).
+	sync.sync(function (err) {
+		if (err) {
+			console.log("> Sync Error");
+			console.log(err);
+		} else {
+			console.log("> Sync Done");
+		}
+		process.exit(0);
+	});
+});
 
-1. Make your edits and commit your changes. A flat commit with sensible commit-note is appreciated.
+```
 
-1. Push to your changes to your fork.
+## PostgreSQL UUID
 
-1. Send a pull request to the `source` branch.
+```js
+{ type: 'uuid', defaultExpression: 'uuid_generate_v4()' }
+```
 
-1. After review a committer will merge and Travis-CI will republish the site.
+## Test
 
-1. See below for the steps to get a local preview (this is not essential for simple markdown edits).
+To test, first make sure you have development dependencies installed. Go to the root folder and do:
 
+```sh
+npm install
+```
 
-## Edit the site
+Then, just run the tests.
 
-To do structural authoring with a build-preview you can follow the development flow.
+```sh
+npm test
+```
 
-Working with the site is done using your commandline terminal and should work on any platform. So it can be bash, shell, cmd.exe or anything else (like WebStorm embedded terminal).
+If you have a supported database server and want to test against it, first install the module:
 
+```sh
+# if you have a mysql server
+npm install mysql
+# if you have a postgresql server
+npm install pg
+```
 
-### Prerequisites
+And then run:
 
-1. Get [node.js](http://nodejs.org/) (`> 0.10.0`) for your local platform, it comes with the `npm` package manager.
-
-1. Have the global grunt cli command: run `npm install grunt-cli -g` in your command line.
-
-1. You *dont* need a global docpad install; it comes as local dependency.
-
-
-### Get the project
-
-1. Fork the repository (or just clone if you got commit access).
-
-1. Checkout the `source` branch.
-
-1. Run `npm install` to pull all local dependencies. (this can take a minute)
-
-
-### Do some work in the project
-
-Use grunt to run various commands.
-
-1. The main tasks are:
-
-	1. Run `grunt clean` - remove all generated content.
-
-	1. Run `grunt watch` - regenerate and start a watch with LiveReload server at [http://localhost:9778/](http://localhost:9778/)
-
-	1. Run `grunt build` - regenerate the site for production environment (best to stop the watch if you have it active).
-
-	1. Run `grunt publish` - build and push to github `master` (live at [definitelytyped.org](http://definitelytyped.org/)). This will ask for your github credentials so you need commit access to the repository (otherwise send a PR with the your source). Make sure you also push the changes to `source`.
-
-	1. See `grunt -h` or the `Gruntfile.js` for additional commands.
-
-
-### Publish the changes
-
-1. Push your changes to the `source` branch (or send a pull request).
-
-1. If you like some feedback first then use a fork (or branch).
-
-1. The every commit that lands on `source` will automatically be rebuild and deployed via Travis-CI.
-
-1. Give Travis a minute or two to deploy the site, then verify your changes.
-
-1. Optional: Fix some typos.
-
-Notes:
-
-1. If you build or watch the content then you might get some yellow `warning`'s in the console. These can usually be ignored when docpad telling us that some transforms didn't have any effect: this is correct if you use a template transform (`.eco`) but have no template fields in the file (*yet*).
-
-2. :warning: Direct changes to `master` branch will be overwritten or discarded so always edit through `source`!
-
-
-## Contributions
-
-Contributions are welcome! Check the website [for more info](http://definitelytyped.org/pages/website-contributions.html), then return here and follow the instructions above.
-
-
-## License
-
-Copyright (c) 2014 DefinitelyTyped
-
-Licensed under the MIT license.
+```sh
+node test/run-db --uri 'mysql://username:password@localhost/database'
+```
