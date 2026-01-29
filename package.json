@@ -1,42 +1,39 @@
 {
-  "name": "schema-inspector",
-  "description": "Schema-Inspector is a powerful tool to sanitize and validate JS objects.",
-  "version": "2.0.1",
-  "main": "index.js",
-  "author": {
-    "name": "Sebastien Chopin",
-    "url": "https://twitter.com/atinux"
-  },
-  "maintainers": [
-    "atinux"
-  ],
+  "name": "json-caching-proxy",
+  "version": "2.0.0",
+  "description": "in-memory reverse caching HAR proxy",
   "keywords": [
-    "validation",
-    "sanitization",
-    "inspector",
-    "validator",
-    "json",
-    "validate",
-    "sanitize"
+    "cache",
+    "proxy",
+    "json"
   ],
-  "license": "MIT",
-  "repository": {
-    "type": "git",
-    "url": "https://github.com/schema-inspector/schema-inspector.git"
-  },
-  "bugs": {
-    "url": "https://github.com/schema-inspector/schema-inspector/issues"
-  },
-  "homepage": "http://schema-inspector.github.io/schema-inspector/",
-  "dependencies": {
-    "async": "~2.6.3"
-  },
-  "devDependencies": {
-    "mocha": "^8.3.2",
-    "should": "^13.2.3"
+  "type": "module",
+  "engines": {
+    "node": ">=14.0.0",
+    "npm": ">=6.0.0"
   },
   "scripts": {
-    "test": "make test"
+    "test": "mocha ./test/*.spec.js"
   },
-  "readmeFilename": "README.md"
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/sonyseng/json-caching-proxy.git"
+  },
+  "author": "Sony Seng",
+  "license": "MIT",
+  "main": "index.js",
+  "bin": "bin.js",
+  "dependencies": {
+    "body-parser": "^1.19.2",
+    "chalk": "^5.0.0",
+    "commander": "^9.0.0",
+    "cors": "^2.8.5",
+    "express": "^4.17.3",
+    "express-http-proxy": "^1.6.3",
+    "strip-json-comments": "^4.0.0"
+  },
+  "devDependencies": {
+    "mocha": "^9.2.1",
+    "node-fetch": "^3.2.0"
+  }
 }
