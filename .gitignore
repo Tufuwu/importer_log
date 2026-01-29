@@ -1,5 +1,4 @@
-# Compiled Javascript.
-build
-
-# Dependency directory
-node_modules
+/dist/
+/node_modules/
+package-lock.json
+.DS_Store
