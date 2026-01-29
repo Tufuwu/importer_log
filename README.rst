@@ -1,75 +1,49 @@
-.. image:: https://img.shields.io/pypi/v/datakit-core.svg
-        :target: https://pypi.python.org/pypi/datakit-core
+================================
+QEMU test provider for virt-test
+================================
 
+This is the official [1] test provider for the following
+subtest types:
 
-.. image:: https://img.shields.io/travis/associatedpress/datakit-core.svg
-    :target: https://travis-ci.org/associatedpress/datakit-core
-    :alt: Linux build status on Travis CI
+* QEMU
+* Generic (Virtualization backend agnostic)
+* OpenVSwitch
 
+Really quick start guide
+------------------------
 
-.. image:: https://readthedocs.org/projects/datakit-core/badge/?version=latest
-    :target: https://datakit-core.readthedocs.io/en/latest/?badge=latest
-    :alt: Documentation Status
+1) Fork this repo on github
+2) Create a new topic branch for your work
+3) Create a new test provider file in your virt test repo,
+   like:
 
+::
 
-=======
-Datakit
-=======
+    cp io-github-autotest-qemu.ini myprovider.ini
+::
 
-Datakit is a pluggable command-line tool for managing the life cycle
-of data projects.
+    [provider]
+    uri: file:///home/foo/Code/tp-qemu
+    [generic]
+    subdir: generic/
+    [qemu]
+    subdir: qemu/
+    [openvswitch]
+    subdir: openvswitch/
+You can optionally delete temporarily the
+`io-github-autotest-qemu.ini` file, just so you don't have test
+conflicts. Then you can develop your new test code, run it
+using virt test, and commit your changes.
 
-The Associated Press Data Team uses Datakit to auto-generate project skeletons,
-archive and share data on Amazon S3, and other routine tasks.
+4) Make sure you have `inspektor installed. <https://github.com/autotest/inspektor#inspektor>`_
+5) Run:
 
-Datakit is a thin wrapper around the Cliff_ command-line framework and
-is intended for use with a growing ecosystem of plugins.
+::
 
-Feel free to use `our plugins on Github`_, or fork and modify them
-to suit your needs.
+    inspekt checkall --disable-style E501,E265,W601,E402,E722,E741 --no-license-check
 
-If you're comfortable programming in Python, you can create your
-own plugins (see :ref:`creating-plugins`).
+6) Fix any problems
+7) Push your changes and submit a pull request
+8) That's it.
 
-Installation
-============
-
-For a system-wide install, from the command line::
-
-    $ sudo pip install datakit-core
-
-Usage
-=====
-
-After installing one or more plugins, Datakit can be used to invoke the
-commands provided by those plugins.
-
-To see which commands plugins provide, try the ``--help`` flag::
-
-    $ datakit --help
-
-Example: datakit-project
-~~~~~~~~~~~~~~~~~~~~~~~~
-
-Install datakit-project::
-
-    $ pip install datakit-project
-
-The plugin provides a ``project create`` command. You need to specify a Cookiecutter_ template to use this command, for example the AP's R template:
-
-.. image:: http://data.ap.org/projects/2019/datakit-docs/img/2.gif
-
-That's the basic recipe for working with plugins: install, explore, and invoke! [1]_
-
-Credits
----------
-
-This package was created with Cookiecutter_ and the `audreyr/cookiecutter-pypackage`_ project template.
-
-.. [1] Plugins may also provide more robust docs, so don't forget to check those out when available.
-
-.. _our plugins on Github: https://github.com/search?q=topic%3Adatakit-cli+org%3Aassociatedpress&type=Repositories
-.. _Cliff: http://docs.openstack.org/developer/cliff/index.html
-.. _Cookiecutter: https://github.com/audreyr/cookiecutter
-.. _datakit-project: http://datakit-project.readthedocs.io/en/latest/
-.. _`audreyr/cookiecutter-pypackage`: https://github.com/audreyr/cookiecutter-pypackage
+[1] You can always create your own test provider, if you have special purposes, or just want to develop your work independently.

@@ -10,13 +10,19 @@ on:
 jobs:
   test:
     runs-on: ubuntu-latest
-    env:
-      TOXENV: py38
     steps:
     - name: checkout
       uses: actions/checkout@v4.1.0
     - uses: actions/setup-python@v5.0.0
       with:
-        python-version: '3.8'
-    - run: pip install -U tox
-    - run: tox
+        python-version: "${{ matrix.python }}"
+#     # 'sudo' was not transformed because there is no suitable equivalent in GitHub Actions
+    - run: pip install sphinx
+    - run: pip install -r requirements-travis.txt
+    - run: inspekt checkall --disable-style E501,E265,W601,E402,E722,E741 --enable-lint W0611,W1201 --no-license-check
+    strategy:
+      matrix:
+        python:
+        - '3.8'
+        - '3.9'
+        - '3.10'
