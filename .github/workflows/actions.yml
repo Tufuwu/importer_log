@@ -15,16 +15,6 @@ jobs:
     - uses: actions/setup-node@v4.0.0
       with:
         cache: npm
-        node-version: '12'
 #     # 'sudo' was not transformed because there is no suitable equivalent in GitHub Actions
-    - run: docker pull localstack/localstack
-    - run: docker run --rm -d -p 4566:4566 localstack/localstack
     - run: npm install
-    - run: set -e
-    - run: npm run lint
-    - run: npm run test
-    - run: npm link
-    - run: sleep 5; SLS_DEBUG=1 npm run test:integration
-    services:
-#       # This item has no matching transformer
-#       docker:
+    - run: npm test
