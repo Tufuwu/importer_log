@@ -1,2 +1,5 @@
-include README.md requirements.txt
-recursive-include test *.npy
+include README.rst
+include CHANGELOG.rst
+include LICENSE.rst
+global-exclude *.pyc
+exclude .gitignore
