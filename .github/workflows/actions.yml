@@ -17,7 +17,9 @@ jobs:
         cache: npm
 #     # 'sudo' was not transformed because there is no suitable equivalent in GitHub Actions
     - run: npm install
-    - run: npm run build
     - run: npm test
-    - run: npm run codecov
-      if: "${{ success() }}"
+    strategy:
+      matrix:
+        node_js:
+        - 20
+        - 22

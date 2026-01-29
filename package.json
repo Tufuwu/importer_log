@@ -1,44 +1,24 @@
 {
-  "name": "i18n-zipcodes",
-  "version": "4.0.0",
-  "description": "International zipcodes validator based on Regex for Node.js and the browser.",
-  "keywords": [
-    "i18n",
-    "zipcode",
-    "validator",
-    "international",
-    "regex"
-  ],
-  "author": "Benjamin Blonde",
-  "license": "MIT",
-  "main": "index.js",
+  "name": "class-extend",
+  "version": "0.1.2",
+  "description": "Backbone like Class.extend utility for Node",
   "scripts": {
-    "build": "gulp",
-    "test": "nyc --reporter=text --reporter=lcov mocha",
-    "codecov": "npx codecov"
+    "test": "mocha"
   },
-  "repository": {
-    "type": "git",
-    "url": "git+https://github.com/sarcadass/i18n-zipcodes.git"
-  },
-  "directories": {
-    "test": "test"
-  },
-  "files": [
-    "lib/*",
-    "dist/*"
+  "repository": "SBoudrias/class-extend",
+  "keywords": [
+    "inheritance",
+    "oop",
+    "class",
+    "extend"
   ],
-  "dependencies": {},
+  "author": "Simon Boudrias <admin@simonboudrias.com>",
+  "license": "MIT",
+  "files": [
+    "index.js"
+  ],
   "devDependencies": {
-    "array-uniq": "^3.0.0",
-    "browserify": "^17.0.0",
-    "chai": "^4.3.4",
-    "gulp": "^4.0.2",
-    "gulp-header": "^2.0.9",
-    "gulp-rename": "^2.0.0",
-    "gulp-uglify": "^3.0.2",
-    "mocha": "^9.0.0",
-    "nyc": "^15.1.0",
-    "vinyl-source-stream": "^2.0.0"
+    "mocha": "^11.0.1",
+    "sinon": "^19.0.2"
   }
 }
