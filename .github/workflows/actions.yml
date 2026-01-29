@@ -15,12 +15,7 @@ jobs:
     - uses: actions/setup-node@v4.0.0
       with:
         cache: npm
-#     # 'sudo' was not transformed because there is no suitable equivalent in GitHub Actions
+        node-version: '10'
     - run: npm install
-    - run: npm test
-    strategy:
-      matrix:
-        node_js:
-        - '10'
-        - '11'
-        - '12'
+    - run: npm install -g ajv-cli
+    - run: ajv validate -s schema.json -d data.json

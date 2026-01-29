@@ -1,87 +1,24 @@
-A nodejs library for issuing and handling responses to yes/no questions 
+# Um, Actually...
+This repo hosts the stats for the episodes of College Humor's web series, "Um, Actually...".
 
-[![CI](https://github.com/tcql/node-yesno/actions/workflows/main.yml/badge.svg?branch=master)](https://github.com/tcql/node-yesno/actions/workflows/main.yml)
+I quickly threw this together to get something on the web.
+Long-term, I want to have the episodes broken down by question (with topic, actual "Um, actually..." said, earned versus unearned point, etc.).
 
+## Data
+The data is stored in `data.json`.
 
-Supports Node 8+.
+### Layout
+There are three top-level objects:
 
-### Installation
+* `seasons`; this is the list of seasons.
+* `people`; this is the list of people.
+* `titles`; this is the list of shiny questions.
+* `topics`; thsi is the list of topics.
+* `episodes`; this is the list of episodes.
 
-```bash
-npm install yesno
+## Testing
+I recommend a simple HTTP server:
+
 ```
-
-### Usage
-
-```javascript
-import yesno from 'yesno';        // modern es modules approach
-
-// *OR*
-
-const yesno = require('yesno');   // commonjs approach
-```
-
-### Examples
-
-
-##### basic
-
-```javascript
-const ok = await yesno({
-    question: 'Are you sure you want to continue?'
-});
-````
-
-yesno accepts `yes`, `y` , `no`, and `n` values by default.
-
-All yesno responses are case insensitive.
-
-
-##### Custom Yes/No values
-
-```javascript
-const ok = await yesno({
-    question: 'Dude, Is this groovy or what?',
-    yesValues: [ 'groovy' ],
-    noValues: [ 'or what', 'nah' ]
-});
-
-console.log(ok ? 'Tubular.' : 'Aw, why you gotta be like that?');
-```
-
-Now the question only responds to `groovy` as yes and `or what` as no.
-
-
-##### No default value
-
-Sometimes you may want to ensure the user didn't accidentally accept a default.
-You can disable the default response by passing null as the defaultValue parameter.
-
-```javascript
-const ok = await yesno({
-    question: 'Are you sure you want to 'rm-rf /' ?',
-    defaultValue: null
-});
-```
-
-
-##### Handling invalid responses
-
-By default, if the user enters a value that isn't recognized as an acceptable response, it will
-print out a message like: 
-
-    Invalid response.
-    Answer either yes : (yes, y)
-    Or no : (no, n)
-
-and re-ask the question. If you want to change this behavior, you can set the invalid handler before asking your question:
-
-```javascript
-const ok = await yesno({
-    question: 'Ready to continue?',
-    invalid: function ({ question, defaultValue, yesValues, noValues }) {
-        process.stdout.write("\n Whoa. That was not a good answer. Well. No more tries for you.");
-        process.exit(1);
-    }
-});
+python -m SimpleHTTPServer 8000
 ```

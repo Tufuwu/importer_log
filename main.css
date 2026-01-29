@@ -1,0 +1,121 @@
+.chart-container {
+	position: relative;
+	height: 30vh;
+}
+
+thead tr {
+	background: #cccccc;
+}
+
+th {
+	padding: 0.3em;
+}
+
+tbody tr:nth-child(even) {
+	background: #f6f6f6;
+}
+
+tbody tr:nth-child(odd) {
+	background: #ffffff;
+}
+
+tbody td {
+	padding: 0.2em;
+}
+
+tbody td.number {
+	text-align: right;
+}
+
+td sup {
+	float: right;
+}
+
+td.center {
+	text-align: center;
+}
+
+.person {
+	white-space: nowrap;
+}
+
+.person.host {}
+
+.person.fact-checker {
+	font-style: italic;
+}
+
+.person.first {
+	font-weight: bold;
+}
+
+.first {
+	color: #d9d919;
+}
+
+.second {
+	color: #c0c0c0;
+}
+
+.third {
+	color: #8c7853;
+}
+
+.podium {
+	display: inline-block;
+	width: 0.9em;
+	height: 0.9em;
+	margin-right: 0.5em;
+}
+
+.podium.blue {
+	background-color: #066ea17a;
+}
+
+.podium.red {
+	background-color: #d14f2a7a;
+}
+
+.podium.yellow {
+	background-color: #e099007a;
+}
+
+.podium.green {
+	background-color: #2eb69e7a;
+}
+
+.link {
+	cursor: pointer;
+	display: inline-block;
+}
+
+.link.filter-on {
+	border: 1px solid;
+	padding-left: 0.5em;
+	padding-right: 0.5em;
+	padding-top: 2px;
+	padding-bottom: 2px;
+	border-radius: 0.8em;
+}
+
+.episode-thumbnail {
+	height: 3em;
+}
+
+.footer {
+	margin-top: 4em;
+}
+
+.footer p {
+	font-size: 0.8em;
+}
+
+#episodes_tbody .description {
+	font-style: italic;
+	font-size: 0.9em;
+}
+
+.topic-details {
+	font-style: italic;
+	font-size: 0.9em;
+}
