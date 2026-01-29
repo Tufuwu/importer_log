@@ -1,28 +1,52 @@
-env.sh
-env.sh.backup
-*~
-tmp/
-data/
-!dashboard/data
-!src/tests/integration/data
-.env/
-nyc-db*.sql
-ansible/*.retry
-ansible/credentials
-ansible/hosts
+# Byte-compiled / optimized / DLL files
+__pycache__/
+*.py[cod]
 
-server/postgrest
-server/*.tar.xz
-server/*.html
-!server/index.html
+# C extensions
+*.so
 
-docker/sqlpad
-docker/postgres-data
-postgres-data
+# Distribution / packaging
+.Python
+env/
+build/
+develop-eggs/
+dist/
+eggs/
+lib/
+lib64/
+parts/
+sdist/
+var/
+*.egg-info/
+.installed.cfg
+*.egg
 
-modules/hpd-complaints/*.csv
+# Installer logs
+pip-log.txt
+pip-delete-this-directory.txt
 
-src/.pytest_cache/
+# Unit test / coverage reports
+htmlcov/
+.tox/
+.coverage
+.cache
+nosetests.xml
+coverage.xml
 
-*.bz2
-.DS_Store
+# Translations
+*.mo
+*.pot
+
+# Django stuff:
+*.log
+
+# Sphinx documentation
+docs/_build/
+
+.*.swp
+.vagrant
+.pypirc
+.eggs/
+
+# VS Code
+.vscode/

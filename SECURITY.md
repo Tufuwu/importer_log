@@ -2,5 +2,4 @@
 
 ## Reporting a Vulnerability
 
-To securely report a vulnerability, please email `housingdatacoalition@gmail.com` with SECURITY in the subject line.
-Thank you!
+Please see the [OpenCage security bounty page](https://opencagedata.com/security-bounty)

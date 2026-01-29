@@ -1,72 +1,136 @@
-# nycdb
+# OpenCage Geocoding Module for Python
 
-Let's research the landlord! New York City is in a housing crisis. Some [landlords](https://youtu.be/o1SzKHXz8tU) leave their buildings in despair and let their tenants suffer without heat in winter. Others evict their tenants, legally or illegally, in order to flip buildings and profit off of gentrification. Affordable housing is a scarce resource.
+A Python module to access the [OpenCage Geocoding API](https://opencagedata.com/).
 
-Residents, lawyers, tenants, and organizers who want to use data in their struggle turn to proprietary databases and resources, like PropertyShark, designed for real estate or contend with CSV and printouts from city websites. _nycdb_ aims to give technologists and researchers who want to volunteer their time helping community groups who are defending the city against the real estate industry a leg up by providing a ready-to-use database filled with housing data.
+## Build Status / Code Quality / etc
 
-**nycdb** is a python program that downloads, processes, and loads the following public datasets into postgres:
+[![PyPI version](https://badge.fury.io/py/opencage.svg)](https://badge.fury.io/py/opencage)
+[![Downloads](https://pepy.tech/badge/opencage/month)](https://pepy.tech/project/opencage)
+[![Versions](https://img.shields.io/pypi/pyversions/opencage)](https://pypi.org/project/opencage/)
+![GitHub contributors](https://img.shields.io/github/contributors/opencagedata/python-opencage-geocoder)
+[![Build Status](https://github.com/OpenCageData/python-opencage-geocoder/actions/workflows/build.yml/badge.svg?branch=master)](https://github.com/OpenCageData/python-opencage-geocoder/actions/workflows/build.yml)
+![Mastodon Follow](https://img.shields.io/mastodon/follow/109287663468501769?domain=https%3A%2F%2Fen.osm.town%2F&style=social)
 
-- [Department of City Planning's PLUTO](https://github.com/nycdb/nycdb/wiki/Dataset:-PLUTO) (Includes the [latest version via Open Data](https://data.cityofnewyork.us/City-Government/Primary-Land-Use-Tax-Lot-Output-PLUTO-/64uk-42ks), and many other specific versions. See documentatino for details)
-- [DOB Job Filings](https://github.com/nycdb/nycdb/wiki/Dataset:-DOB-Job-Filings)
-- [DOB Complaints](https://github.com/nycdb/nycdb/wiki/Dataset:-DOB-Complaints)
-- [DOB Vacate Orders](https://github.com/nycdb/nycdb/wiki/Dataset:-DOB-Vacate-Orders) - From [FOIA request by Jennah Gosciak](https://github.com/jennahgosciak/dob_vacate_orders)
-- [DOB Violations](https://github.com/nycdb/nycdb/wiki/Dataset:-DOB-Violations)
-- [HPD Violations](https://github.com/nycdb/nycdb/wiki/Dataset:-HPD-Violations)
-- [HPD Litigations](https://github.com/nycdb/nycdb/wiki/Dataset:-HPD-Litigations)
-- [HPD Registrations](https://github.com/nycdb/nycdb/wiki/Dataset:-HPD-Registrations)
-- [HPD Complaints](https://github.com/nycdb/nycdb/wiki/Dataset:-HPD-Complaints)
-- [HPD Repair and Vacate Orders](https://github.com/nycdb/nycdb/wiki/Dataset:-HPD-Vacate-Orders)
-- [HPD Affordable Production (Building and Project)](https://github.com/nycdb/nycdb/wiki/Dataset:-HPD-Affordable-Production)
-- [HPD Certificate of No Harassment](https://github.com/nycdb/nycdb/wiki/Dataset:-HPD-Certificate-of-No-Harassment)
-- [Department of Finance Rolling Sales](https://github.com/nycdb/nycdb/wiki/Dataset:-DOF-Rolling-Sales)
-- [Department of Finance Annualized Sales](https://github.com/nycdb/nycdb/wiki/Dataset:-DOF-Annualized-Sales)
-- [Department of Finance Property Tax Exemptions](https://github.com/nycdb/nycdb/wiki/Dataset:-DOF-Exemptions)
-- [Tax bills - Rent Stabilization Unit Counts](https://github.com/nycdb/nycdb/wiki/Dataset:-Rent-Stabilized-Buildings) ([John Krauss](https://github.com/talos/nyc-stabilization-unit-counts) and [Atul Varma's](https://github.com/JustFixNYC/nyc-doffer) data)
-- [DOF Tax Lien Sale List](https://github.com/nycdb/nycdb/wiki/Dataset:-DOF-Tax-Lien-Sale-List)
-- [ACRIS](https://github.com/nycdb/nycdb/wiki/Dataset:-ACRIS)
-- [Marshal Evictions](https://github.com/nycdb/nycdb/wiki/Dataset:-Marshal-Evictions) - From [DOI](https://data.cityofnewyork.us/City-Government/Evictions/6z8x-wfk4) via ANHD's [Displacement Alert Project](https://github.com/ANHD-NYC-CODE/anhd-council-backend) and [API](https://api.displacementalert.org/docs/) (built by [Jade Ahking](https://github.com/0xStarcat))
-- [ECB Violations](https://github.com/nycdb/nycdb/wiki/Dataset:-ECB-Violations)
-- [Oath Hearings](https://github.com/nycdb/nycdb/wiki/Dataset:-OATH-Hearings)
-- [Property Address Directory](https://github.com/nycdb/nycdb/wiki/Dataset:-Property-Address-Directory-(PAD))
-- [J-51 Exemptions](https://github.com/nycdb/nycdb/wiki/Dataset:-J-51-Exemptions)
-- [OCA Housing Court Records](https://github.com/nycdb/nycdb/wiki/Dataset:-OCA-Housing-Court-Records) (zipcode)
-- [BBLs of NYC Housing Authority (NYCHA) Developments](https://github.com/nycdb/nycdb/wiki/Dataset:-NYCHA-BBLs) — From NYCHA via [JustFix's scraper tool](https://github.com/JustFixNYC/nycha-scraper)
-- [Speculation Watch List](https://github.com/nycdb/nycdb/wiki/Dataset:-Speculation-Watch-List)
-- [DCP Housing Database](https://github.com/nycdb/nycdb/wiki/Dataset:-DCP-Housing-Database)
-- [Major Capital Improvements (MCI) Applications](https://github.com/nycdb/nycdb/wiki/Dataset:-Major-Capital-Improvements-(MCI)-Applications) - From [FOIL request by Winnie Shen](https://github.com/wshenyc/nyc_mci_map)
+## Tutorial
 
-## Using the database
+You can find a [comprehensive tutorial for using this module on the OpenCage site](https://opencagedata.com/tutorials/geocode-in-python).
 
-### Create your own copy
+## Usage
 
-Go to [src/README.md](src/README.md) for documentation on how to create your own copy of the database locally.
+Supports Python 3.7 or newer. Use the older opencage 1.x releases if you need Python 2.7 support.
 
-### Use the Housing Data Coalition's instance
+Install the module:
 
-The Housing Data Coalition hosts their own copy ("instance") of nycdb. If you are not a member of HDC and would like to use it, please contact housingdatacoalition@gmail.com
-
-### Acknowledgments
-
-- [Heatseek](https://heatseek.org/) for ongoing support of the project and for their amazing work.
-- [@talos](https://github.com/talos) for his [tax bill scrapping](https://github.com/talos/nyc-stabilization-unit-counts) to get counts of rent-stabilization units
-- NYCDB's [programmers](https://github.com/nycdb/nycdb/graphs/contributors)
-- [Housing Data Coalition](https://www.housingdatanyc.org/) for their support and for hosting nycdb workshops
-
-#### License: AGPLv3
-
-```
-NYCDB - Postgres database of NYC housing data
-Copyright (C) 2016-2020 ziggy & contributors
-
-This program is free software: you can redistribute it and/or modify
-it under the terms of the GNU Affero General Public License as published by
-the Free Software Foundation, either version 3 of the License, or
-(at your option) any later version.
-
-This program is distributed in the hope that it will be useful,
-but WITHOUT ANY WARRANTY; without even the implied warranty of
-MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
-GNU Affero General Public License for more details.
+```bash
+pip install opencage
 ```
 
-The database files provided on this page are licensed [CC BY-NC-SA 4.0](https://creativecommons.org/licenses/by-nc-sa/4.0/legalcode).
+Load the module:
+
+```python
+from opencage.geocoder import OpenCageGeocode
+```
+
+Create an instance of the geocoder module, passing a valid OpenCage Data Geocoder API key
+as a parameter to the geocoder modules's constructor:
+
+```python
+key = 'your-api-key-here'
+geocoder = OpenCageGeocode(key)
+```
+
+Pass a string containing the query or address to be geocoded to the modules' `geocode` method:
+
+```python
+query = '82 Clerkenwell Road, London'
+results = geocoder.geocode(query)
+```
+
+You can add [additional parameters](https://opencagedata.com/api#forward-opt):
+
+```python
+results = geocoder.geocode('London', no_annotations=1, language='es')
+```
+
+For example you can use the proximity parameter to provide the geocoder with a hint:
+
+```python
+results = geocoder.geocode('London', proximity='42.828576, -81.406643')
+print(results[0]['formatted'])
+# u'London, ON N6A 3M8, Canada'
+```
+
+### Reverse geocoding
+
+Turn a lat/long into an address with the `reverse_geocode` method:
+
+```python
+result = geocoder.reverse_geocode(51.51024, -0.10303)
+```
+
+### Sessions
+
+You can reuse your HTTP connection for multiple requests by
+using a `with` block. This can help performance when making
+a lot of requests:
+
+```python
+queries = ['82 Clerkenwell Road, London', ...]
+with OpenCageGeocode(key) as geocoder:
+    # Queries reuse the same HTTP connection
+    results = [geocoder.geocode(query) for query in queries]
+```
+
+### Asyncronous requests
+
+You can run requests in parallel with the `geocode_async` and `reverse_geocode_async`
+method which have the same parameters and response as their synronous counterparts.
+You will need at least Python 3.7 and the `asyncio` and `aiohttp` packages installed.
+
+```python
+async with OpenCageGeocode(key) as geocoder:
+    results = await geocoder.geocode_async(address)
+```
+
+For a more complete example and links to futher tutorials on asyncronous IO see
+`batch.py` in the `examples` directory.
+
+### Non-SSL API use
+
+If you have trouble accesing the OpenCage API with https, e.g. issues with OpenSSL
+libraries in your enviroment, then you can set the 'http' protocol instead. Please
+understand that the connection to the OpenCage API will no longer be encrypted.
+
+```python
+geocoder = OpenCageGeocode('your-api-key', 'http')
+```
+
+### Command-line batch geocoding
+
+See `examples/batch.py` for an example to geocode a CSV file.
+
+<img src="batch-progress.gif"/>
+
+### Exceptions
+
+If anything goes wrong, then an exception will be raised:
+
+- `InvalidInputError` for non-unicode query strings
+- `NotAuthorizedError` if API key is missing, invalid syntax or disabled
+- `ForbiddenError` API key is blocked or suspended
+- `RateLimitExceededError` if you go past your rate limit
+- `UnknownError` if there's some problem with the API (bad results, 500 status code, etc)
+
+## Copyright & License
+
+This software is copyright OpenCage GmbH.
+Please see `LICENSE.txt`
+
+### Who is OpenCage GmbH?
+
+<a href="https://opencagedata.com"><img src="opencage_logo_300_150.png"/></a>
+
+We run a worldwide [geocoding API](https://opencagedata.com/api) and [geosearch](https://opencagedata.com/geosearch) service based on open data.
+Learn more [about us](https://opencagedata.com/about).
+
+We also run [Geomob](https://thegeomob.com), a series of regular meetups for location based service creators, where we do our best to highlight geoinnovation. If you like geo stuff, you will probably enjoy [the Geomob podcast](https://thegeomob.com/podcast/).
