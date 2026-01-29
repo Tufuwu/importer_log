@@ -1,34 +1,24 @@
 {
-  "name": "universalify",
-  "version": "2.0.0",
-  "description": "Make a callback- or promise-based function support both promises and callbacks.",
-  "keywords": [
-    "callback",
-    "native",
-    "promise"
-  ],
-  "homepage": "https://github.com/RyanZim/universalify#readme",
-  "bugs": "https://github.com/RyanZim/universalify/issues",
-  "license": "MIT",
-  "author": "Ryan Zimmerman <opensrc@ryanzim.com>",
-  "files": [
-    "index.js"
-  ],
-  "repository": {
-    "type": "git",
-    "url": "git+https://github.com/RyanZim/universalify.git"
-  },
+  "name": "openui5-worklist-app",
+  "version": "0.1.0",
+  "description": "A skeleton for Worklist applications",
+  "private": true,
   "scripts": {
-    "test": "standard && nyc --reporter text --reporter lcovonly tape test/*.js | colortape"
+    "start": "ui5 serve",
+    "lint": "eslint webapp",
+    "karma": "karma start",
+    "karma-ci": "karma start karma-ci.conf.js",
+    "watch": "npm run karma",
+    "test": "npm run lint && rimraf coverage && npm run karma-ci",
+    "build": "rimraf dist && ui5 build --a"
   },
   "devDependencies": {
-    "colortape": "^0.1.2",
-    "coveralls": "^3.0.1",
-    "nyc": "^15.0.0",
-    "standard": "^14.3.1",
-    "tape": "^5.0.1"
-  },
-  "engines": {
-    "node": ">= 10.0.0"
+    "@ui5/cli": "^2.14.2",
+    "eslint": "^8.6.0",
+    "karma": "^6.3.10",
+    "karma-chrome-launcher": "^3.1.0",
+    "karma-coverage": "^2.1.0",
+    "karma-ui5": "^2.4.0",
+    "rimraf": "^3.0.2"
   }
 }

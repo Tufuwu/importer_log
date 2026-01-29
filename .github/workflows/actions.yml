@@ -17,10 +17,5 @@ jobs:
         cache: npm
     - run: npm install
     - run: npm test
-    - run: nyc report --reporter=text-lcov | coveralls
-      if: "${{ success() }}"
-    strategy:
-      matrix:
-        node_js:
-        - '12'
-        - '10'
+    - run: npm run build
+    - run: npm test
