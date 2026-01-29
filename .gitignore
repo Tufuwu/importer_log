@@ -1,8 +1,3 @@
-node_modules/
-tmp/
-coverage/
+node_modules
 npm-debug.log
-.DS_Store
-.obsidian/
-/yarn.lock
-test.js
+*.swp
