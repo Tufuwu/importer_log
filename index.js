@@ -1,21 +1,20 @@
-'use strict';
+module.exports = function (filter, topic, handleSharedSubscription = false) {
+  const filterArray = filter.split('/')
 
-const Reporter = require('./lib/reporter');
-const DependencyChecker = require('./lib/dependency-checker');
-
-module.exports = {
-  name: 'ember-cli-dependency-checker',
-  init: function() {
-    this._super.init && this._super.init.apply(this, arguments);
-
-    // When running `ember <command>`, find the `<command>`
-    const emberPosition = process.argv.findIndex(arg => arg.endsWith('/ember'));
-    const ranWithInit = process.argv[emberPosition + 1] === 'init';
-
-    if (!ranWithInit) {
-      const reporter = new Reporter();
-      const dependencyChecker = new DependencyChecker(this.project, reporter);
-      dependencyChecker.checkDependencies();
-    }
+  // handle shared subscrition
+  if (handleSharedSubscription && filterArray.length > 2 && filter.startsWith('$share/')) {
+    filterArray.splice(0, 2)
   }
-};
+
+  const length = filterArray.length
+  const topicArray = topic.split('/')
+
+  for (let i = 0; i < length; ++i) {
+    const left = filterArray[i]
+    const right = topicArray[i]
+    if (left === '#') return topicArray.length >= length - 1
+    if (left !== '+' && left !== right) return false
+  }
+
+  return length === topicArray.length
+}
