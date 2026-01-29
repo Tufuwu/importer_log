@@ -8,7 +8,8 @@ on:
 #   maximum_number_of_builds: 0
 jobs:
   test:
-    runs-on: ${{ matrix.os }}
+    runs-on: # this agent type is not supported: [[{"dist"=>"noble"}]]
+             ubuntu-latest
     steps:
     - name: checkout
       uses: actions/checkout@v4.1.0
@@ -20,10 +21,7 @@ jobs:
     strategy:
       matrix:
         node_js:
-        - node
-        - '20'
+        - '16'
+        - '17'
         - '18'
-        os:
-        - ubuntu-latest
-        - macos-latest
-        - windows-latest
+        - '19'
