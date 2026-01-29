@@ -15,21 +15,15 @@ jobs:
     - uses: actions/setup-python@v5.0.0
       with:
         python-version: "${{ matrix.python }}"
-    - run: pip install -r requirements_test.txt
-    - run: tox -e $TOX_ENV
-    - run: codecov -e TOX_ENV
+    - run: pip3 install .
+    - run: pip3 install nose2
+    - run: pip3 install coveralls
+    - run: nose2 --with-coverage
+    - run: coveralls
       if: "${{ success() }}"
-#     # This item has no matching transformer
-#     - email:
-#         on_success: never
-#         on_failure: never
     strategy:
       matrix:
-        TOX_ENV:
-        - py-django-22
-        - py-django-32
         python:
         - '3.8'
         - '3.9'
-    env:
-      TOX_ENV: "${{ matrix.TOX_ENV }}"
+        - '3.10'
