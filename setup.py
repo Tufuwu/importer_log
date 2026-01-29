@@ -1,38 +1,39 @@
-from io import open
-from setuptools import setup
+#!/usr/bin/env python
+# -*- coding: utf-8 -*-
 
-with open('numpy_ringbuffer/__about__.py', encoding='utf8') as f:
-    exec(f.read())
 
-with open('README.md', encoding='utf8') as f:
-    long_description = f.read()
+from setuptools import setup, find_packages
+
+
+with open('README.rst', 'rb') as f:
+    readme = f.read().decode('utf-8')
+
+with open('requirements.txt') as f:
+    requires = f.readlines()
 
 setup(
-    name="numpy_ringbuffer",
-    version=__version__,
-    packages=['numpy_ringbuffer'],
-
-    install_requires=["numpy<1.20"],
-
-    author="Eric Wieser",
-    author_email="wieser.eric+numpy@gmail.com",
-    description="Ring buffer implementation for numpy",
-    long_description=long_description,
-    long_description_content_type='text/markdown',
-    license="MIT",
-    keywords=["numpy", "buffer", "ringbuffer", "circular buffer"],
-    url="https://github.com/eric-wieser/numpy_ringbuffer",
-    download_url="https://github.com/eric-wieser/numpy_ringbuffer/tarball/v"+__version__,
+    name='greenswitch',
+    version='0.0.12',
+    description=u'Battle proven FreeSWITCH Event Socket Protocol client implementation with Gevent.',
+    long_description=readme,
+    author=u'Ítalo Rossi',
+    author_email=u'italorossib@gmail.com',
+    url=u'https://github.com/evoluxbr/greenswitch',
+    license=u'MIT',
+    packages=find_packages(exclude=('tests', 'docs')),
     classifiers=[
-        "License :: OSI Approved :: MIT License",
-        "Intended Audience :: Developers",
-        "Programming Language :: Python",
-        "Programming Language :: Python :: 2.7",
-        "Programming Language :: Python :: 3.4",
-        "Programming Language :: Python :: 3.5",
-        "Programming Language :: Python :: 3.6",
-        "Programming Language :: Python :: 3.7",
-        "Programming Language :: Python :: 3.8",
-        "Programming Language :: Python :: 3.9",
-    ]
+        'Development Status :: 5 - Production/Stable',
+        'Intended Audience :: Developers',
+        'Programming Language :: Python',
+        'License :: OSI Approved :: MIT License',
+        'Programming Language :: Python :: 2.7',
+        'Programming Language :: Python :: 3',
+        'Programming Language :: Python :: 3.5',
+        'Programming Language :: Python :: 3.6',
+        'Programming Language :: Python :: 3.7',
+        'Programming Language :: Python :: 3.8',
+        'Programming Language :: Python :: 3.9',
+        'Programming Language :: Python :: 3.10',
+    ],
+    install_requires=requires
 )
