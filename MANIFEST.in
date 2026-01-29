@@ -1,5 +1,5 @@
-include README.rst
-include CHANGELOG.rst
-include LICENSE.rst
-global-exclude *.pyc
-exclude .gitignore
+include README.md
+include changelog
+include LICENSE
+include test.py
+recursive-include test_data *.mkd *.html
