@@ -1,66 +1,30 @@
 {
-  "name": "nudged",
-  "version": "2.0.1-alpha",
-  "description": "Affine transformation estimator e.g. for multi-touch gestures and calibration",
-  "keywords": [
-    "geometry",
-    "transformation",
-    "scale",
-    "rotate",
-    "translate",
-    "pinch",
-    "math",
-    "affine",
-    "multitouch",
-    "gesture",
-    "estimator",
-    "estimation",
-    "similarity",
-    "calibration",
-    "layout"
-  ],
-  "homepage": "https://github.com/axelpale/nudged",
+  "name": "karma-jsdom-launcher",
+  "version": "14.0.0",
+  "description": "A Karma plugin. Launcher for jsdom.",
   "main": "index.js",
-  "author": {
-    "name": "Akseli Palen",
-    "email": "akseli.palen@gmail.com"
-  },
+  "author": "Jonas Amundsen <jonasba@gmail.com>",
   "repository": {
     "type": "git",
-    "url": "git://github.com/axelpale/nudged.git"
+    "url": "git://github.com/badeball/karma-jsdom-launcher.git"
+  },
+  "keywords": [
+    "karma-plugin",
+    "karma-launcher",
+    "jsdom"
+  ],
+  "scripts": {
+    "clean-install": "rm -rf node_modules/ && npm install && npm install --no-save karma@4 jsdom@13 && ln -s ../ node_modules/karma-jsdom-launcher",
+    "test": "mocha --timeout 10000 --slow 5000"
+  },
+  "peerDependencies": {
+    "jsdom": ">=15 <=22",
+    "karma": ">=2 <=6"
   },
   "license": "MIT",
   "devDependencies": {
-    "async": "^3.2.0",
-    "browserify": "^17.0.1",
-    "component-emitter": "^1.2.0",
-    "genversion": "^3.2.0",
-    "hammerjs": "^2.0.4",
-    "loadimages": "^1.0.0",
-    "lodash": "^4.17.21",
-    "standard": "^17.1.2",
-    "tap-arc": "^1.3.2",
-    "tape": "^5.2.2"
-  },
-  "scripts": {
-    "start": "npm run start:examples_server",
-    "start:examples_server": "python2.7 -m SimpleHTTPServer 8000",
-    "test": "npm run test:lint && npm run test:unit",
-    "test:unit": "node test/index.test.js | tap-arc",
-    "test:lint": "standard index.js 'lib/**/*.js' 'test/**/*.js'",
-    "test:lint:fix": "standard --fix index.js 'lib/**/*.js' 'test/**/*.js'",
-    "build:docs": "node doc/gendocs/index.js",
-    "gv": "genversion lib/version.js",
-    "release": "npm run gv && npm test && npm run build:docs && npm publish",
-    "test:nudged-editor": "standard --fix 'examples/nudged-editor/lib/*.js'",
-    "build:nudged-editor": "npm run test:nudged-editor && browserify examples/nudged-editor/lib/index.js -o examples/nudged-editor/dist/app.js",
-    "test:nudged-map": "standard --fix 'examples/nudged-map/lib/*.js'",
-    "build:nudged-map": "npm run test:nudged-map && browserify examples/nudged-map/lib/index.js -o examples/nudged-map/dist/app.js",
-    "test:nudged-gesture": "standard --fix 'examples/nudged-gesture/lib/*.js'",
-    "build:nudged-gesture": "npm run test:nudged-gesture && browserify examples/nudged-gesture/lib/index.js -o examples/nudged-gesture/dist/app.js",
-    "test:typical-gesture": "standard  --fix 'examples/typical-gesture/lib/*.js'",
-    "build:typical-gesture": "npm run test:typical-gesture && browserify examples/typical-gesture/lib/index.js -o examples/typical-gesture/dist/app.js",
-    "build:examples": "npm run build:nudged-editor && npm run build:nudged-gesture && npm run build:typical-gesture && npm run build:nudged-map",
-    "build:standalone": "browserify index.js --standalone nudged -o nudged.js"
+    "intercept-stdout": "^0.1.2",
+    "karma-mocha": "^1.3.0",
+    "mocha": "^3.1.2"
   }
 }
