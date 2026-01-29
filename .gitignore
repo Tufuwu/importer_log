@@ -1,111 +1,37 @@
-# IDE & System
-$RECYCLE.BIN/
-.AppleDouble
-.DS_Store
-.LSOverride
-.Trash-*
-.buildpath
-.c9
-.c9revisions
-.directory
-.fuse_hidden*
-.idea
-.nfs*
-.project
-.settings
-.vs
-.vscode
-[Dd]esktop.ini
-[Tt]humbs.db
+*.py[co]
 
-# Logs
-logs/
-*.log
-pip-log.txt
-pip-delete-this-directory.txt
-
-# Runtime
-pids/
-*.pid
-*.pid.lock
-*.seed
-
-# Environments
-.python-version
-.env
-.venv
-ENV/
-env/
-env.bak/
-VENV/
-venv/
-venv.bak/
-
-# Distribution & Packaging
-build/
-develop-eggs/
-dist/
-docs/_build/
-downloads/
-eggs/
-lib/
-lib64/
-parts/
-pkg/
-sdist/
-var/
-wheels/
-.Python
-.eggs/
-.installed.cfg
-MANIFEST
+# Packages
 *.egg
-*.egg-info/
+*.egg-info
+dist
+build
+eggs
+parts
+bin
+var
+sdist
+develop-eggs
+.installed.cfg
 
-# Compiled files
-__pycache__/
-*.py[cod]
-*$py.class
-*.so
+# Installer logs
+pip-log.txt
 
-# Cache & Temporary files
-cache/
-tmp/
-*.tmp
-
-# Test reports & Coverage reports
-htmlcov/
-.hypothesis/
-.tox/
-.cache
+# Unit test / coverage reports
 .coverage
-.coverage.*
-coverage.xml
-nosetests.xml
-*.cover
-*,cover
+.tox
 
-# PyInstaller
-*.manifest
-*.spec
+#Translations
+*.mo
 
-# Django stuff
-.static_storage/
-.media/
-local_settings.py
+#Mr Developer
+.mr.developer.cfg
 
-# Flask stuff
-instance/
-.webassets-cache
 
-# Scrapy stuff
-.scrapy
-
-# PyBuilder
-target/
-
-# Pandoc Installer
-pandoc*
-
-# Not ignore .gitkeep files
-!.gitkeep
+# Debian packaging
+/debian/debhelper.log
+/debian/files
+/debian/python-derpconf.*
+/debian/python-derpconf
+/debian/tmp
+.venv
+.ropeproject/

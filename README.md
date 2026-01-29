@@ -1,157 +1,187 @@
-ContentHash for Python
-======================
+# derpconf
 
-[![version][icon-version]][link-pypi]
-[![downloads][icon-downloads]][link-pypi]
-[![license][icon-license]][link-license]
-[![python][icon-python]][link-python]
+[![Build Status](https://secure.travis-ci.org/globocom/derpconf.png?branch=master)](http://travis-ci.org/globocom/derpconf)
 
-[![build][icon-build]][link-build]
-[![coverage][icon-coverage]][link-coverage]
-[![quality][icon-quality]][link-quality]
+derpconf abstracts loading configuration files for your app. derpconf was
+extracted from [thumbor](http://github.com/globocom/thumbor/).
 
-Python implementation of EIP 1577 content hash.
+## Intalling
 
-## Description
+Installing derpconf is as easy as:
 
-This is a simple package made for encoding and decoding content hashes has specified in the [EIP 1577][link-eip-1577].
-This package will be useful for every [Ethereum][link-ethereum] developer wanting to interact with [EIP 1577][link-eip-1577] compliant [ENS resolvers][link-resolvers].
-
-For JavaScript implementation, see [`pldespaigne/content-hash`][link-javascript-implementation].
-
-## Installation
-
-### Requirements
-
-ContentHash requires Python 3.5 or higher.
-
-### From PyPI
-
-The recommended way to install ContentHash is from PyPI with PIP.
-
-```bash
-pip install content-hash
 ```
-
-### From Source
-
-Alternatively, you can also install it from the source.
-
-```bash
-git clone https://github.com/filips123/ContentHashPy.git
-cd ContentHashPy
-python setup.py install
+pip install derpconf
 ```
 
 ## Usage
 
-### Supported Codecs
+Using it is as simple as:
 
-The following codecs are currently supported:
+```python
+from derpconf.config import Config
 
-- `swarm-ns`
-- `ipfs-ns`
-- `ipns-ns`
+conf = Config.load('/path/to/my/cfg.conf')
 
-Every other codec supported by [`multicodec`][link-multicodec] will be encoded by default in `utf-8`. You can see the full list of the supported codecs [here][link-supported-codecs].
-
-### Getting Codec
-
-You can use a `get_codec` function to get codec from the content hash.
-
-It takes a content hash as a HEX string and returns the codec name. A content hash can be prefixed with a `0x`, but it's not mandatory.
-
-```py
-import content_hash
-
-chash = 'bc037a716b746c776934666563766f367269'
-codec = content_hash.get_codec(chash)
-
-print(codec) # onion
+assert conf.MY_KEY == 'MY_VALUE' # assuming there's a key called MY_KEY in
+                                 # the configuration file.
 ```
 
-### Decoding
+## Settings Defaults
 
-You can use a `decode` function to decode a content hash.
+If you want to set default values for your configurations, just call:
 
-It takes a content hash as a HEX string and returns the decoded content as a string. A content hash can be prefixed with a `0x`, but it's not mandatory.
-
-```py
-import content_hash
-
-chash = 'e3010170122029f2d17be6139079dc48696d1f582a8530eb9805b561eda517e22a892c7e3f1f'
-value = content_hash.decode(chash)
-
-print(value) # QmRAQB6YaCyidP37UdDnjFY5vQuiBrcqdyoW1CuDgwxkD4
+```python
+Config.define('MY-KEY', 'DEFAULT VALUE', 'Description for my key', 'Section')
 ```
 
-### Encoding
+The values that define gets are:
 
-You can use an `encode` function to encode a content hash.
+* the configuration key;
+* the default value for that key if it's not found in the configuration file;
+* the description for this key. This is very useful for generating
+  configuration file examples.
+* the section that this key belongs to. Again very useful for generating
+  configuration file examples.
 
-It takes a supported codec as a string and a value as a string and returns the corresponding content hash as a HEX string. The output will not be prefixed with a `0x`.
+## Using Environment Variables
 
-```py
-import content_hash
+If you wish to allow environment variables to be used as the value of
+configuration keys, just call the `allow_environment_variables` method in your
+`config.py` file:
 
-codec = 'swarm-ns'
-value = 'd1de9994b4d039f6548d191eb26786769f580809256b4685ef316805265ea162'
-chash = content_hash.encode(codec, value)
+```python
+from derpconf.config import Config
 
-print(chash) # e40101701b20d1de9994b4d039f6548d191eb26786769f580809256b4685ef316805265ea162
+Config.allow_environment_variables()
 ```
 
-## Creating Codecs
+If there's an environment variable with the same name as the given
+configuration, derpconf will give precedence to it, instead of using the
+default value or the value in the configuration file.
 
-All supported codec profiles are available in [`content_hash/profiles/__init__.py`][link-profiles-file], in `PROFILES` dictionary. You need to add a new profile there. You only need to add a new profile if your codec encoding and decoding are different from `utf-8`.
+```python
+# called program with SOMETHING=value myprogram.py
+assert config.SOMETHING == "value"
 
-Each profile must have the same name as the corresponding codec in the `multicodec` library.
+# even if the default for 'SOMETHING' or the value in the config file is different from 'value'
+```
 
-A profile must also have decode and encode function. They should be passed as a string containing the name of the module for required decode or encode. All such modules are available in [`content_hash/decodes`][link-decodes-directory] and [`content_hash/encodes`][link-encodes-directory].
+## Reloading Configurations
 
-Each module name should describe it as much as possible. Its name can only contain valid characters for Python modules.
+After you've loaded configurations from a file, sometimes it's needed to have
+them reloaded. This is the case when a new module needs to define some new
+default values.
 
-Each decode module must have a `decode` function. It must be a function that takes a `bytes` input and returns a `str` result.
+In order to reload values from a config object, just call `reload` on it:
 
-Each encode module must have an `encode` function. It must be a function that takes a `str` input and returns a `bytes` result.
+```python
+from derpconf.config import Config
 
-All inputs and outputs must be the same as in the [JavaScript implementation][link-javascript-implementation]. Multiple profiles can share the same decodes and encodes.
+conf = Config.load('/path/to/my/cfg.conf')
 
-## Versioning
+# then later on...
 
-This library uses [SemVer][link-semver] for versioning. For the versions available, see [the tags][link-tags] on this repository.
+Config.define('SOMENEWFOO', 'bar', 'baz', 'foo')
+
+conf.reload()
+assert conf.SOMENEWFOO == 'bar'
+```
+
+## Generating Configuration Examples
+
+To generate a configuration example, you just need to call the
+`get_config_text` method. Let's see an example:
+
+```python
+from derpconf.config import Config
+
+Config.define('foo', 'fooval', 'Foo is always a foo', 'FooValues')
+Config.define('bar', 'barval', 'Bar is not always a bar', 'BarValues')
+Config.define('baz', 'bazval', 'Baz is never a bar', 'BarValues')
+
+config_sample = Config.get_config_text()
+print config_sample # or instead of both, just call generate_config()
+```
+
+The following text will be print into the standard output:
+
+```python
+################################## FooValues ###################################
+
+## Foo is always a foo
+## Defaults to: fooval
+#foo = 'fooval'
+
+################################################################################
+
+
+################################## BarValues ###################################
+
+## Bar is not always a bar
+## Defaults to: barval
+#bar = 'barval'
+
+## Baz is never a bar
+## Defaults to: bazval
+#baz = 'bazval'
+
+################################################################################
+```
+
+A good sample of using derpconf can be seen at [thumbor's configuration
+file](https://github.com/globocom/thumbor/blob/master/thumbor/config.py).
+
+## Verifying a Configuration File
+
+derpconf includes a configuration file verifier. The purpose of this verifier
+is to help you quickly understand what configuration files are missing what
+keys and what values will be used for them instead.
+
+Running it is as simple as including a call to `verify_config` in your
+`config.py` file:
+
+```python
+verify_config(file_path)
+```
+
+Or you can leave it blank and derpconf will get the file path from `sys.argv`:
+
+```python
+verify_config()
+```
+
+The output of the verifier is something like this:
+
+```python
+Configuration "baz" not found in file /Users/bernardo/dev/derpconf/vows/fixtures/missing.conf. Using "bazval" instead.
+Configuration "foo" not found in file /Users/bernardo/dev/derpconf/vows/fixtures/missing.conf. Using "fooval" instead.
+Configuration "bar" not found in file /Users/bernardo/dev/derpconf/vows/fixtures/missing.conf. Using "barval" instead.
+```
+
+You can see it in use at [derpconf's code](https://github.com/globocom/derpconf/blob/master/derpconf/config.py).
 
 ## License
 
-This library is licensed under the MIT license. See the [LICENSE][link-license-file] file for details.
+derpconf is licensed under the MIT License:
 
-[icon-version]: https://img.shields.io/pypi/v/content-hash.svg?style=flat-square&label=version
-[icon-downloads]: https://img.shields.io/pypi/dm/content-hash.svg?style=flat-square&label=downloads
-[icon-license]: https://img.shields.io/pypi/l/content-hash.svg?style=flat-square&label=license
-[icon-python]: https://img.shields.io/pypi/pyversions/content-hash?style=flat-square&label=python
+The MIT License
 
-[icon-build]: https://img.shields.io/github/actions/workflow/status/filips123/ContentHashPy/main.yml?style=flat-square&label=build
-[icon-coverage]: https://img.shields.io/scrutinizer/coverage/g/filips123/ContentHashPy.svg?style=flat-square&label=coverage
-[icon-quality]: https://img.shields.io/scrutinizer/g/filips123/ContentHashPy.svg?style=flat-square&label=quality
+Copyright (c) 2012 globo.com timehome@corp.globo.com
 
-[link-pypi]: https://pypi.org/project/content-hash/
-[link-license]: https://choosealicense.com/licenses/mit/
-[link-python]: https://python.org/
-[link-build]: https://github.com/filips123/ContentHashPy/actions
-[link-coverage]: https://scrutinizer-ci.com/g/filips123/ContentHashPy/code-structure/
-[link-quality]: https://scrutinizer-ci.com/g/filips123/ContentHashPy/
-[link-semver]: https://semver.org/
+Permission is hereby granted, free of charge, to any person obtaining a copy of
+this software and associated documentation files (the "Software"), to deal in
+the Software without restriction, including without limitation the rights to
+use, copy, modify, merge, publish, distribute, sublicense, and/or sell copies
+of the Software, and to permit persons to whom the Software is furnished to do
+so, subject to the following conditions:
 
-[link-eip-1577]: https://github.com/ethereum/EIPs/blob/master/EIPS/eip-1577.md
-[link-ethereum]: https://www.ethereum.org/
-[link-resolvers]: http://docs.ens.domains/en/latest/introduction.html
-[link-multicodec]: https://github.com/multiformats/multicodec/
-[link-supported-codecs]: https://github.com/multiformats/multicodec/blob/master/table.csv
+The above copyright notice and this permission notice shall be included in all
+copies or substantial portions of the Software.
 
-[link-tags]: https://github.com/filips123/ContentHashPy/tags/
-[link-license-file]: https://github.com/filips123/ContentHashPy/blob/master/LICENSE
-[link-profiles-file]: https://github.com/filips123/ContentHashPy/blob/master/content_hash/profiles/__init__.py
-[link-decodes-directory]: https://github.com/filips123/ContentHashPy/tree/master/content_hash/decodes/
-[link-encodes-directory]: https://github.com/filips123/ContentHashPy/tree/master/content_hash/encodes/
-
-[link-javascript-implementation]: https://github.com/pldespaigne/content-hash/
+THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
+SOFTWARE.

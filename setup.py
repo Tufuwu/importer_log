@@ -1,63 +1,64 @@
+#!/usr/bin/python
+# -*- coding: utf-8 -*-
+
+# thumbor imaging service
+# https://github.com/globocom/thumbor/wiki
+
+# Licensed under the MIT license:
+# http://www.opensource.org/licenses/mit-license
+# Copyright (c) 2011 globo.com timehome@corp.globo.com
+
 from setuptools import setup
-from pathlib import Path
-import os
+from derpconf.version import __version__
 
-# 安全读取 README.md，不区分大小写
-def readme():
-    root = Path(__file__).parent
-    readme_file = None
-    for name in os.listdir(root):
-        if name.lower() == "readme.md":
-            readme_file = root / name
-            break
-    if readme_file and readme_file.exists():
-        return readme_file.read_text(encoding="utf-8")
-    return ""  # 文件不存在时返回空字符串
 
-setup(
-    name='content-hash',
-    description='Python implementation of EIP 1577 content hash',
-    long_description=readme(),
-    long_description_content_type='text/markdown',
-    license='MIT',
+tests_require = [
+    'gevent',
+    'pyVows',
+    'coverage',
+    'colorama',
+    'tox',
+    'six',
+]
 
-    version='1.0.0',
 
-    packages=['content_hash'],
+def run_setup(extension_modules=[]):
+    setup(
+        name='derpconf',
+        version=__version__,
+        description="derpconf abstracts loading configuration files for your app",
+        long_description="""
+            derpconf abstracts loading configuration files for your app.
+        """,
+        keywords='configuration',
+        author='globo.com',
+        author_email='timehome@corp.globo.com',
+        url='https://github.com/globocom/derpconf',
+        license='MIT',
+        classifiers=[
+            'Development Status :: 4 - Beta',
+            'Intended Audience :: Developers',
+            'License :: OSI Approved :: MIT License',
+            'Natural Language :: English',
+            'Operating System :: MacOS',
+            'Operating System :: POSIX :: Linux',
+            'Programming Language :: Python :: 3.8',
+            'Programming Language :: Python :: 3.9',
+            'Programming Language :: Python :: 3.10',
+            'Programming Language :: Python :: 3.11',
+            'Programming Language :: Python :: 3.12',
+        ],
+        packages=['derpconf'],
+        package_dir={"derpconf": "derpconf"},
+        install_requires=[
+            'six',
+        ],
 
-    entry_points={
-        'console_scripts': ['content-hash=content_hash.__main__:main'],
-    },
+        extras_require={
+            'tests': tests_require,
+        },
 
-    install_requires=[
-        'py-cid>=0.3.0,<0.4.0',
-        'py-multicodec>=0.2.1,<0.3.0',
-        'py-multihash>=0.2.3,<0.3.0',
-    ],
+        include_package_data=False
+    )
 
-    extras_require={
-        'lint': ['pylint'],
-        'test': ['pytest', 'pytest-cov'],
-    },
-
-    python_requires='>= 3.5',
-
-    author='Filip Š',
-    author_email='projects@filips.si',
-    url='https://github.com/filips123/ContentHashPy/',
-    keywords='ethereum, ethereum-name-service, ens, eip1577, web3, decentralized',
-
-    classifiers=[
-        'Development Status :: 5 - Production/Stable',
-        'Intended Audience :: Developers',
-        'License :: OSI Approved :: MIT License',
-        'Programming Language :: Python :: 3',
-        'Topic :: Internet :: Name Service (DNS)',
-        'Topic :: Scientific/Engineering :: Interface Engine/Protocol Translator',
-        'Topic :: Security :: Cryptography',
-        'Topic :: Software Development :: Libraries',
-        'Topic :: Utilities',
-    ],
-
-    include_package_data=True,
-)
+run_setup()
