@@ -1,31 +1,20 @@
-.coveralls.yml
-docs/_build/**
-_build/**
-cover
-.coverage
-neat-checkpoint-*
-fitness_history.csv
-speciation.csv
-species_fitness.csv
-.mypy_cache
-*~
+# Python
 *.pyc
-*.pyo
-__pycache__/
-*stats*.dat*
+.eggs/
+webassets_elm.egg-info/
+build/
+dist/
 
-# pycharm cache folder
-.idea/
+# Elm
+elm-stuff/
+node_modules/
 
-examples/openai-lander/results/
-examples/openai-walker/results/
-examples/picture2d/*.bin
-examples/picture2d/*.png
-examples/picture2d/rendered/
-venv
+# Python third-party packages
+.coverage
+.python-version
+.tox
+cover/
 
-*.gv
-*.svg
-build
-dist
-neat_python.egg-info
+# OS, IDE & editor
+.DS_Store
+.ropeproject/
