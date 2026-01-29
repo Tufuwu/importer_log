@@ -1,37 +1,56 @@
-import io
 import os
-from setuptools import setup, find_packages
 
-VERSION = '0.0.1'
+from setuptools import find_packages, setup
 
-DESCRIPTION = (
-    'Flexible recursive directory iterator: scandir meets glob("**", recursive=True)'
-)
 
-PROJECT_ROOT = os.path.abspath(os.path.dirname(__file__))
-try:
-    with io.open(os.path.join(PROJECT_ROOT, 'README.md'), encoding='utf-8') as f:
-        long_description = '\n' + f.read()
-except IOError:
-    long_description = DESCRIPTION
+def read(fname):
+    with open(os.path.join(os.path.dirname(__file__), fname)) as f:
+        return f.read()
+
 
 setup(
-    name='scantree',
-    version=VERSION,
-    description=DESCRIPTION,
-    long_description=long_description,
-    long_description_content_type="text/markdown",
-    url='https://github.com/andhus/scantree',
-    author="Anders Huss",
-    author_email="andhus@kth.se",
-    license='MIT',
+    name='airavata-django-portal',
+    version='0.1',
+    url='https://github.com/apache/airavata-django-portal',
+    author='Apache Software Foundation',
+    author_email='dev@airavata.apache.org',
+    description=('The Airavata Django Portal is a web interface to the '
+                 'Apache Airavata API implemented using the Django web '
+                 'framework.'),
+    long_description=read('README.md'),
+    license='Apache License 2.0',
+    packages=find_packages(),
     install_requires=[
-        'attrs>=18.0.0',
-        'pathspec>=0.5.9'
+            'Django',
+            'djangorestframework',
+            'requests',
+            'requests-oauthlib',
+            'thrift',
+            'thrift_connector',
+            'wagtail',
+            'wagtailfontawesome',
+            'jupyter',
+            'papermill',
+            "airavata-django-portal-sdk",
     ],
-    packages=find_packages('src'),
-    package_dir={'': 'src'},
-    include_package_data=True,
-    entry_points={},
-    tests_require=['pytest', 'pytest-cov']
+    extras_require={
+        'dev': [
+            'flake8',
+            'flake8-isort'
+        ],
+        'mysql': [
+            'mysqlclient'
+        ]
+    },
+    classifiers=[
+        'Development Status :: 4 - Beta',
+        'Environment :: Web Environment',
+        'Framework :: Django',
+        'Intended Audience :: Developers',
+        'License :: OSI Approved :: Apache Software License',
+        'Natural Language :: English',
+        'Programming Language :: Python :: 3.6',
+        'Topic :: Internet :: WWW/HTTP',
+        'Topic :: Internet :: WWW/HTTP :: WSGI :: Application'
+    ]
 )
