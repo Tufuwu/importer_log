@@ -10,105 +10,29 @@ jobs:
   test:
     runs-on: # this agent type is not supported: [[{"dist"=>"noble"}]]
              ubuntu-latest
-    env:
-      TOXENV: py
     steps:
     - name: checkout
       uses: actions/checkout@v4.1.0
+    - uses: actions/setup-python@v5.0.0
+      with:
+        python-version: "${{ matrix.python }}"
     - name: Set up pip cache
       uses: actions/cache@v3.3.2
       with:
         path: "~/.cache/pip"
         key: "${{ runner.os }}-pip-${{ hashFiles('**/requirements.txt') }}"
         restore-keys: "${{ runner.os }}-pip-"
-    - uses: actions/setup-python@v5.0.0
-      with:
-        python-version: 3.8
-    - run: pip install -U pip setuptools
-    - run: pip install -U tox
-    - run: tox --notest
-    - run: tox
-  test_2:
-    runs-on: # this agent type is not supported: [[{"dist"=>"noble"}]]
-             ubuntu-latest
-    env:
-      TOXENV: py
-    steps:
-    - name: checkout
-      uses: actions/checkout@v4.1.0
-    - name: Set up pip cache
-      uses: actions/cache@v3.3.2
-      with:
-        path: "~/.cache/pip"
-        key: "${{ runner.os }}-pip-${{ hashFiles('**/requirements.txt') }}"
-        restore-keys: "${{ runner.os }}-pip-"
-    - uses: actions/setup-python@v5.0.0
-      with:
-        python-version: 3.9
-    - run: pip install -U pip setuptools
-    - run: pip install -U tox
-    - run: tox --notest
-    - run: tox
-  test_3:
-    runs-on: # this agent type is not supported: [[{"dist"=>"noble"}]]
-             ubuntu-latest
-    env:
-      TOXENV: py
-    steps:
-    - name: checkout
-      uses: actions/checkout@v4.1.0
-    - name: Set up pip cache
-      uses: actions/cache@v3.3.2
-      with:
-        path: "~/.cache/pip"
-        key: "${{ runner.os }}-pip-${{ hashFiles('**/requirements.txt') }}"
-        restore-keys: "${{ runner.os }}-pip-"
-    - uses: actions/setup-python@v5.0.0
-      with:
-        python-version: 3.1
-    - run: pip install -U pip setuptools
-    - run: pip install -U tox
-    - run: tox --notest
-    - run: tox
-  test_4:
-    runs-on: # this agent type is not supported: [[{"dist"=>"noble"}]]
-             ubuntu-latest
-    env:
-      TOXENV: py
-    steps:
-    - name: checkout
-      uses: actions/checkout@v4.1.0
-    - name: Set up pip cache
-      uses: actions/cache@v3.3.2
-      with:
-        path: "~/.cache/pip"
-        key: "${{ runner.os }}-pip-${{ hashFiles('**/requirements.txt') }}"
-        restore-keys: "${{ runner.os }}-pip-"
-    - uses: actions/setup-python@v5.0.0
-      with:
-        python-version: 3.11
-    - run: pip install -U pip setuptools
-    - run: pip install -U tox
-    - run: tox --notest
-    - run: tox
-  check_code_style_with_flake8:
-    runs-on: # this agent type is not supported: [[{"dist"=>"noble"}]]
-             ubuntu-latest
-    env:
-      TOXENV: lint
-    steps:
-    - name: checkout
-      uses: actions/checkout@v4.1.0
-    - name: Set up pip cache
-      uses: actions/cache@v3.3.2
-      with:
-        path: "~/.cache/pip"
-        key: "${{ runner.os }}-pip-${{ hashFiles('**/requirements.txt') }}"
-        restore-keys: "${{ runner.os }}-pip-"
-    - uses: actions/setup-python@v5.0.0
-      with:
-        python-version: 3.11
-    - run: pip install -U pip setuptools
-    - run: pip install -U tox
-    - run: tox --notest
-    - run: tox
+    - run: python3 -m pip install -U coverage codecov mypy
+    - run: python3 -m pip install -r requirements.txt
+    - run: python3 -m coverage run --branch -m unittest discover -t . -s ni/test/
+    - run: python3 -m mypy ni/*.py
+    - run: codecov
+      if: "${{ success() }}"
+    strategy:
+      matrix:
+        python:
+        - 3.8
+        - 3.9
+        - 3.10-dev
+        - nightly
+#       # 'allow_failures' transformations are currently unsupported.
