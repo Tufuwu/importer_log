@@ -1,280 +1,99 @@
-# jsn
-[![Build Status](https://travis-ci.org/polymonster/jsn.svg?branch=master)](https://travis-ci.org/polymonster/jsn) [![Build Status](https://github.com/polymonster/jsn/workflows/build-pkg/badge.svg)](https://github.com/polymonster/jsn/actions) [![codecov](https://codecov.io/gh/polymonster/jsn/branch/master/graph/badge.svg)](https://codecov.io/gh/polymonster/jsn) [![PyPI Version](https://img.shields.io/pypi/v/jsn.svg)](https://pypi.org/project/jsn/) [![License: MIT](https://img.shields.io/badge/License-MIT-blue.svg)](https://opensource.org/licenses/MIT)
+# Bambam
 
-jsn is a user-friendly data format that can be easily read and reliably edited by humans. 
+[![Build Status](https://travis-ci.com/porridge/bambam.svg?branch=master)](https://travis-ci.com/porridge/bambam)
+[![Translation Status](https://hosted.weblate.org/widgets/bambam/-/app-and-manpage/svg-badge.svg)](https://hosted.weblate.org/engage/bambam/)
 
-It adds powerful features such as inheritance, variables, includes and syntax improvements to make jsn files more compact and re-usable than a json counterpart, it is an ideal solution for multi-platform build configuration, packaging and content buidling pipelines.
+Bambam is a simple baby keyboard (and gamepad) masher application that locks the keyboard and mouse and instead displays bright colors, pictures, and sounds.  While OSX has great programs like [AlphaBaby](http://www.kldickey.addr.com/alphababy/), the original author couldn't find anything for Linux and having wanted to learn Python for a while, Bambam was his excuse.
 
-jsn can be used directly in python as a dictionary, or it can be converted to json to be used with other languages and tools and libraries which have json support.
+![Bambam screenshot](docs/bambam.png "Bambam screenshot")
 
-If you are using hand edited json in any projects currently, jsn will easily integrate into your existing workflow and improve efficiency and reliability.
+## Installation
 
-# Features
+### From a distribution package
 
-- Includes / file import.
-- Inheritance (hierarchicle and multiple).
-- Environment style scoped variables.
-- Quoteless keys.
-- Quoteless strings.
-- Single quotes.
-- Single and multi-line comments.
-- Multi-line strings / line breaks.
-- Hex, binary, bit shifts, int and float improvements.
-- TextMate langauge included for enhanced syntax highlighting.
+First, see if your distribution has a bambam package already.
+This way takes care of dependencies, translated program messages, `.desktop` files and manual pages.
 
-# CLI
-
-You can convert jsn to json using the commandline, clone this repository and add jsn to your path.
-
+For example:
 ```
-jsn -i example.jsn -o example.json -I import_dir
+sudo apt install bambam
+man bambam
 ```
 
-```
-jsn -help
---------------------------------------------------------------------------------
-jsn ----------------------------------------------------------------------------
---------------------------------------------------------------------------------
-commandline arguments:
-    -help display this message
-    -i list of input files or directories to process
-    -o output file or directory 
-    -I list of import directories, to search for imports
-    -p print output to console
-    -keep_vars keep jsn_vars in the output json
-```
+### Manual installation
 
-# Python API
+Before installing this application, ensure you have the following installed:
+  * [Python](http://python.org) - version 3.x is recommended but version 2.7 should work too
+  * [Pygame](http://www.pygame.org/) - version 2.x is recommended, but version 1.9 may work too
 
-Install via pip:
-
+If not, you can install it manually as follows:
+  1. [Download](https://github.com/porridge/bambam/releases) the `bambam-1.2.0.zip` or `bambam-1.2.0.tar.gz` file.
+  1. Unzip bambam-1.2.0.zip or `tar zxvf bambam-1.2.0.tar.gz` to create the `bambam-1.2.0` directory.
+  1. Change into the 'bambam-1.2.0' directory
 ```
-python3 -m pip install jsn
+cd bambam-1.2.0
 ```
 
-Or alternatively copy jsn.py where you need it.
+If you would like to take advantage of the recommended way to start the game (see the next section) do the following:
 
-jsn can be used just like json as a python dictionary.
-
-```python
-import jsn
-json_dict = jsn.loads(open("jsn_file.jsn", "r").read())
+```
+sed -i -e "s,/usr/games/bambam,`pwd`/bambam.py," bambam-session.desktop
+sudo mkdir -p /etc/X11/sessions
+sudo cp bambam-session.desktop /etc/X11/sessions/
 ```
 
-# Releases
-
-You can install `jsn` as a binary release found along with this repository [here](https://github.com/polymonster/jsn/releases)
-
-## Example .jsn
-
-```jsonnet
-import import.jsn
-import test.jsn
-{   
-    // sytax highlights quite nicely in most editors with c or c++ syntax
-    // jsonnet highlights nicely in GitHub
-    // TextMate grammar included for visual studio, vscode or other compatible editors
-    
-    // allow comments
-    
-    /*
-    multi-
-    line 
-    comments
-    */
-    
-    //        tabs and any whitespace allowed
-
-    // compatible with json
-    "json":
-    {
-        "bool": true,
-        "int": 1,
-        "float": 1.0,
-        "string": "yes",
-        "array": [1, 2, 3]
-    },
-    
-    // compatible with json5
-    json5:
-    {
-        unquoted: 'and you can quote me on that',
-        single_quotes: 'I can use "double quotes" here',
-        hexadecimal: 0xdecaf,
-        line_breaks: "Look, Mom! No \
-\\n's!",
-       leading_decimal_point: .8675309, and_trailing: 8675309.,
-       positive_sign: +1,
-       trailing_comma: 'in objects', and_in: ['arrays',],
-    },
-    
-    // jsn features
-    jsn:
-    {
-    	// ditch the quotes and commas!
-        unquoted_string: without_whitespace // cannot contain whitespace or special chars (see str_test)
-        unquoted: [strings, in, arrays]
-        binary_literal: 0b10011
-        bit_shifts: 1<<16 | 1<<8
-        
-        // mixed newline and commas
-        object_members_separated_by_newline: {
-            no_commas: yes
-            with_new_lines: "if you like"
-            but: "you can", still: "use them here"
-        }
-        arrays_elements_separated_by_newline:[
-            "no need for commas"
-            "if you use newlines"
-            "still", "separate", "using commas", "on the same line"
-    	]
-
-        // you can define variables to be re-used
-        jsn_vars: 
-        {
-            data: "path/to/data"
-            var_str: "hello"
-            var_int: 10
-        }
-        
-        // evaluate variables with ${} inside quotes..
-        variable_data_path: "${data}/subdir"
-        variable_int: "${var_int}"
-        array_of_vars: ["${data}", "${var_str}"]
-
-        // you can use special variables:
-        // inject the current script directory into a string
-        // - this is the directory name of the file this variable is used in
-        script_directory: "${script_dir}" 
-        
-        // subobjects can be merged and inherited recursively see ** inheritence(jsn)
-        base: "foo"
-        sub_object:
-        {
-            one: "1"
-            two: "2"
-            nested_var: "${var_int}" // variable comes from outer scope.
-        }
-        
-        // use <windows, mac, linux> in angled brackets to conditionally include or exclude keys
-        // the platform specific keys will be merged into the base key if one exists
-        platform:
-        {
-            base: "exists"
-        }
-        
-        // useful for selecting platform specific paths and executables
-        platform<windows>:
-        {
-            exe: "path/windows/program.exe"
-        }
-        
-        platform<mac>:
-        {
-            exe: "path/mac/program"
-        }
-    },
-    
-    //** 
-    inheritence(jsn): // add object name to inherit inside parenthesis
-    {        
-        // inheritance adds keys from 'jsn' object
-        // ..
-        
-        // duplicated keys are overridden by the derived object
-        base: "bar",
-        
-        // inheritance on sub-objects continues recursively
-        sub_object:
-        {
-            three: "3"
-            //..
-        }
-    },
-    
-    // multiple and hierarchical inheritance
-    objb: { b: "b" },
-    
-    multiple_inheritence(inheritence, objb):
-    {
-        // vars can also be shadowed / overriden..
-        jsn_vars: 
-        {
-            data: "another/path/to/data",
-            var_int: 22
-        },
-        
-        c: "c"
-    },
-    
-    xxx:
-    {
-        // some test cases
-        empty_object: {},
-
-        empty_array: [],
-
-        array_of_objects:[
-            {object: 1, other: "value"},
-            {object: 2, other: "value"}
-        ],
-        
-        array_with_string_commas:[
-            "test,2",
-            "test,3"
-        ],
-        
-        nested_objects:
-        {
-            yes: true,
-            and:
-            {
-                deeper: nesting
-            }
-        },
-        
-        multi_type_arrays:[
-            1,
-            [2, 3]
-        ],
-        
-        array_of_arrays:[
-            [hello, world],
-            [goodbye, world]
-        ],
-
-        array_of_values:[
-            +255,
-            0b11111111,
-            0xff,
-            1 << 1,
-            1 << 2 | 1,
-            1 << 2 | 1,
-            .255
-        ],
-        
-        jsn_vars: 
-        {
-            va: "path/to/data",
-            vb: "hello",
-        },
-
-        value: null,
-        array_of_null: [null, null, null]
-	
-        array_of_array_vars: [
-            ["${va}", "${vb}"],
-            ["${vb}", "non var"]
-        ],
-        
-        multiple_vars: "${va}/${vb}.bin",
-        
-        q1: "small 'quotes' inside",
-        q2: 'double "quotes" inside',
-        q3: "double escaped \"quotes\" inside"
-    },
-    
-    //**
-    str_test: ":[{}]'+.,0b0x" // this tests ignoring special chars inside quotes
-}
+For an alternative way to start the game from your applications menu, do the following:
 ```
+sed -i -e "s,/usr/games/bambam,`pwd`/bambam.py," bambam.desktop
+mkdir -p ~/.local/share/applications
+cp bambam.desktop ~/.local/share/applications/
+```
+
+## Usage
+
+Once installed, there are two ways to run the game:
+1. **Recommended**: as a dedicated graphical session.
+
+   When logging into your system, look for a gear icon, which opens a drop-down
+   menu of available session types. Select BamBam and log in.
+
+   This way only the game is launched, and the user is logged out as soon as
+   the game quits.  Thanks to this, a child is not able to cause any damage
+   even if he or she somehow manages to quit the game.
+
+   This way is safer, but more cumbersome.
+2. Directly from a terminal, or applications menu.
+
+   Select the game from your applications menu, or to run the game from a
+   terminal window, type `bambam` if you installed from a distribution package, or
+   `./bambam.py` if you installed manually.
+
+   This way the program runs as part of a regular session. The game tries to
+   grab the keyboard and mouse pointer focus in order to prevent a child from
+   exiting the game or switching away from it. However it is not 100%
+   bulletproof, depending on the exact environment.
+
+   This way is easier, but potentially more risky. Take care when leaving your
+   child unattended with the game.
+
+## Exiting
+
+To exit, just directly type the command mentioned in the upper left-hand corner of the window. In the English locales, this is:
+```
+quit
+```
+
+More information is in the man page. To view it, type:
+```
+man ./bambam.6
+```
+
+Comments or suggestions? Any feedback is appreciated, please send it to [the bambam-users forum](https://groups.google.com/forum/#!forum/bambam-users).
+
+Translations for this game are done on [Weblate](https://hosted.weblate.org/projects/bambam/). Please help translating for your mother tongue!
+
+## History
+
+This project was moved from [its code.google.com location](https://code.google.com/p/bambam/) in April 2015, since that site was about to be shut down.
+
+Note that changes (as of 2010-08-17) from [the launchpad bambam fork](https://launchpad.net/bambam) had been merged back to this project in February 2014.

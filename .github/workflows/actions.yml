@@ -14,9 +14,13 @@ jobs:
       uses: actions/checkout@v4.1.0
     - uses: actions/setup-python@v5.0.0
       with:
-        python-version: '3.8'
-    - run: pip install codecov
-    - run: pip install coverage
-    - run: coverage run jsn.py -i example.jsn -o test.json -I import_dir
-    - run: codecov
-      if: "${{ success() }}"
+        python-version: "${{ matrix.python }}"
+    - run: pip install -r requirements-dev.txt
+    - run: python -c 'import bambam'
+    - run: flake8 *.py
+    - run: autopep8 -d *.py | awk 'BEGIN{had_data=0}{print;had_data=1}END{exit had_data}'
+    strategy:
+      matrix:
+        python:
+        - '3.8'
+        - '3.9'

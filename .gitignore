@@ -1,3 +1,8 @@
-__pycache__/
-.DS_Store
-.idea
+/.venv
+/__pycache__
+/*.pot~
+/po/*.po~
+/po/*.mo
+/po/LINGUAS
+/bambam-session.desktop
+/bambam.desktop
