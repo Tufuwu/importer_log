@@ -1,39 +1,65 @@
 {
-  "name": "connect-gzip-static",
-  "version": "2.1.1",
-  "description": "gzip/brotli static middleware for connect - serves compressed files if they exist, falls through to connect-static if they don't",
-  "main": "index.js",
-  "scripts": {
-    "test": "make lint test"
-  },
+  "name": "react-cytoscapejs",
+  "version": "1.2.1",
+  "description": "React-based network visualization component, using Cytoscape",
+  "license": "MIT",
   "repository": {
     "type": "git",
-    "url": "git@github.com:pirxpilot/connect-gzip-static.git"
+    "url": "https://github.com/plotly/react-cytoscapejs.git"
   },
-  "keywords": [
-    "connect",
-    "middleware",
-    "gzip",
-    "brotli",
-    "compress"
-  ],
-  "author": "Damian Krzeminski <pirxpilot@furkot.com>",
-  "license": "MIT",
-  "dependencies": {
-    "debug": "~2",
-    "find": "~0",
-    "parseurl": "~1",
-    "send": "~0",
-    "serve-static": "~1"
+  "bugs": {
+    "url": "https://github.com/plotly/react-cytoscapejs/issues"
+  },
+  "amdName": "ReactCytoscape",
+  "exports": "./dist/react-cytoscape.modern.js",
+  "main": "dist/react-cytoscape.cjs.js",
+  "module": "dist/react-cytoscape.module.js",
+  "source": "src/index.js",
+  "umd:main": "dist/react-cytoscape.umd.js",
+  "unpkg": "dist/react-cytoscape.umd.js",
+  "homepage": "https://github.com/plotly/react-cytoscapejs",
+  "scripts": {
+    "prepare": "run-s build build:docgen",
+    "build": "microbundle --globals=react=React,cytoscape=cytoscape,prop-types=PropTypes",
+    "build:docgen": "react-docgen src/component.js --pretty -o dist/react-cytoscape.docgen.json",
+    "clean": "rimraf dist/*",
+    "test:eslint": "eslint src/**",
+    "test:eslint:fix": "eslint --fix src/**",
+    "test:prettier": "prettier --list-different src/**",
+    "test:prettier:fix": "prettier --write src/**",
+    "test:mocha": "run-s build test:mocha:run",
+    "test:mocha:run": "mocha-chrome test/index.html",
+    "test": "run-s test:*",
+    "watch": "microbundle watch --globals=react=React,cytoscape=cytoscape,prop-types=PropTypes",
+    "start": "run-s watch"
+  },
+  "peerDependencies": {
+    "react": ">=15.0.0"
   },
   "devDependencies": {
-    "connect": ">=2",
-    "jshint": "~2",
-    "mocha": "~3",
-    "should": "~11"
+    "chai": "^4.1.2",
+    "eslint": "^4.6.1",
+    "eslint-config-standard": "^10.2.1",
+    "eslint-plugin-import": "^2.7.0",
+    "eslint-plugin-node": "^5.1.1",
+    "eslint-plugin-promise": "^3.5.0",
+    "eslint-plugin-standard": "^3.0.1",
+    "immutable": "^3.8.2",
+    "microbundle": "^0.15.0",
+    "mocha": "^5.2.0",
+    "mocha-chrome": "^1.1.0",
+    "npm-run-all": "^4.1.1",
+    "prettier": "^1.13.7",
+    "react": "^16.4.1",
+    "react-docgen": "^2.21.0",
+    "react-dom": "^16.4.1",
+    "rimraf": "^2.6.2"
   },
-  "files": [
-    "index.js",
-    "lib"
-  ]
+  "engines": {
+    "node": ">=8.11.3"
+  },
+  "dependencies": {
+    "cytoscape": "^3.2.19",
+    "prop-types": "^15.6.2"
+  }
 }
