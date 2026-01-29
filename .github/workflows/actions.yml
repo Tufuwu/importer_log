@@ -7,16 +7,36 @@ on:
 #   # This item has no matching transformer
 #   maximum_number_of_builds: 0
 jobs:
-  Python_3_10_on_Linux:
-    runs-on: ubuntu-latest
+  test:
+    runs-on: # this agent type is not supported: [[{"dist"=>"noble"}]]
+             ubuntu-latest
     steps:
     - name: checkout
       uses: actions/checkout@v4.1.0
     - uses: actions/setup-python@v5.0.0
       with:
-        python-version: 3.1
-    - run: pip3 install -r requirements.txt || pip install -r requirements.txt
-    - run: flake8 --ignore=E501,W503
-    - run: pytest -v --cov-report=xml --cov=src/sdialog
-    - run: codecov
-      if: "${{ success() }}"
+        python-version: '3.8'
+    - run: pip install -r requirements.txt
+    - run: python run_demo_md.py
+  test_2:
+    runs-on: # this agent type is not supported: [[{"dist"=>"noble"}]]
+             ubuntu-latest
+    steps:
+    - name: checkout
+      uses: actions/checkout@v4.1.0
+    - uses: actions/setup-python@v5.0.0
+      with:
+        python-version: '3.9'
+    - run: pip install -r requirements.txt
+    - run: python run_demo_md.py
+  test_3:
+    runs-on: # this agent type is not supported: [[{"dist"=>"noble"}]]
+             ubuntu-latest
+    steps:
+    - name: checkout
+      uses: actions/checkout@v4.1.0
+    - uses: actions/setup-python@v5.0.0
+      with:
+        python-version: '3.10'
+    - run: pip install -r requirements.txt
+    - run: python run_demo_md.py

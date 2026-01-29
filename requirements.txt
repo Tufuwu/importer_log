@@ -1,13 +1,2 @@
-pydantic
-print-color
-tqdm
-langchain
-langchain-ollama
-langchain-huggingface
-numpy
-sentence-transformers
-ollama
-pytest
-pytest-cov
-codecov
-flake8
+in-toto==1.2.0
+securesystemslib==0.26.0
