@@ -1,37 +1,36 @@
 {
-  "name": "safe-regex2",
-  "version": "2.0.0",
-  "description": "detect possibly catastrophic, exponential-time regular expressions",
-  "main": "index.js",
-  "dependencies": {
-    "ret": "~0.4.0"
-  },
-  "devDependencies": {
-    "standard": "^16.0.1",
-    "tape": "^5.0.0"
-  },
-  "scripts": {
-    "test": "standard && tape test/*.js"
-  },
+  "name": "postcss-pseudo-classes",
+  "version": "0.4.0",
+  "description": "PostCSS plugin to convert pseudo-classes to classes for testing purposes",
+  "keywords": [
+    "postcss",
+    "css",
+    "postcss-plugin",
+    "css test",
+    "pseudo classes"
+  ],
+  "author": "Giuseppe Gurgone",
+  "license": "MIT",
   "repository": {
     "type": "git",
-    "url": "git://github.com/fastify/safe-regex.git"
+    "url": "git+https://github.com/giuseppeg/postcss-pseudo-classes.git"
   },
-  "homepage": "https://github.com/fastify/safe-regex",
-  "keywords": [
-    "catastrophic",
-    "exponential",
-    "regex",
-    "safe",
-    "sandbox"
-  ],
-  "author": {
-    "name": "James Halliday",
-    "email": "mail@substack.net",
-    "url": "http://substack.net"
+  "bugs": {
+    "url": "https://github.com/giuseppeg/postcss-pseudo-classes/issues"
   },
-  "contributors": [
-    "Matteo Collina <hello@matteocollina.com>"
-  ],
-  "license": "MIT"
+  "homepage": "https://github.com/giuseppeg/postcss-pseudo-classes",
+  "peerDependencies": {
+    "postcss": "^8.0.0"
+  },
+  "devDependencies": {
+    "ava": "^2.0.0",
+    "eslint": "^6.0.0",
+    "postcss": "^8.4.31"
+  },
+  "scripts": {
+    "test": "ava test/test.js && eslint *.js test/*.js"
+  },
+  "files": [
+    "index.js"
+  ]
 }
