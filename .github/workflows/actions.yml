@@ -8,18 +8,15 @@ on:
 #   maximum_number_of_builds: 0
 jobs:
   test:
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-20.04
     steps:
     - name: checkout
       uses: actions/checkout@v4.1.0
     - uses: actions/setup-node@v4.0.0
       with:
         cache: npm
-    - run: npm install
-    - run: npm test
-    strategy:
-      matrix:
-        node_js:
-        - 18
-        - 20
-        - 21
+    - run: make install-checkstyle
+    - run: sudo apt update
+    - run: sudo apt install -qy gjs libgjs-dev
+    - run: make checkstyle
+    - run: make test
