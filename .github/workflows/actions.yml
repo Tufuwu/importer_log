@@ -15,5 +15,8 @@ jobs:
     - uses: actions/setup-python@v5.0.0
       with:
         python-version: '3.8'
-    - run: pip install -r requirements-dev.txt
-    - run: make test
+    - run: pip install codecov
+    - run: pip install coverage
+    - run: coverage run jsn.py -i example.jsn -o test.json -I import_dir
+    - run: codecov
+      if: "${{ success() }}"
