@@ -8,27 +8,19 @@ on:
 #   maximum_number_of_builds: 0
 jobs:
   test:
-    runs-on: # this agent type is not supported: [[{"dist"=>"noble"}]]
-             ubuntu-latest
+    runs-on: ubuntu-latest
     steps:
     - name: checkout
       uses: actions/checkout@v4.1.0
     - uses: actions/setup-python@v5.0.0
       with:
-        python-version: 3.8
-    - run: pip install "django${DJANGO}" "djangorestframework${DRF}"
-    - run: python runtests.py
+        python-version: "${{ matrix.python }}"
+    - run: pip install -r requirements-dev.txt
+    - run: py.test -v
     strategy:
       matrix:
-        include:
-        - DJANGO: "<2"
-          DRF: "<3.8"
-        - DJANGO: "<2"
-          DRF: "<3.9"
-        - DJANGO: "<2.1"
-          DRF: "<3.9"
-        - DJANGO: "<2.2"
-          DRF: "<3.9"
-    env:
-      DJANGO: "${{ matrix.DJANGO }}"
-      DRF: "${{ matrix.DRF }}"
+        python:
+        - 3.8
+        - 3.9
+        - 3.1
+        - 3.11
